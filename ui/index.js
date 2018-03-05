@@ -1,10 +1,10 @@
 
-const socket = new WebSocket("ws://127.0.0.1:2794", "battle-beetles");
+const socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
 
 socket.onmessage = (event) => {
   console.log("received")
-  console.log(event.data)
-  console.log(event);
+  const data = JSON.parse(event.data);
+  console.log(data)
 }
 
 socket.onopen = (event) => {

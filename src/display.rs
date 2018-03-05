@@ -1,10 +1,13 @@
 extern crate websocket;
+extern crate serde_json;
 
 use std::thread;
 use std::sync::mpsc::{channel, Sender};
 //use std::time::Duration;
 use self::websocket::{Message, OwnedMessage};
 use self::websocket::sync::Server;
+
+use simulation;
 
 pub struct Display {
     tx: Sender<OwnedMessage>,
@@ -15,7 +18,7 @@ impl Display {
 
         let (tx, rx) = channel();
 
-        let mut server = Server::bind("127.0.0.1:2794").unwrap();
+        let mut server = Server::bind("127.0.0.1:4020").unwrap();
 
         let upgrade = server.accept().ok().unwrap();
 
@@ -61,9 +64,10 @@ impl Display {
         }
     }
 
-    pub fn update(&self, data: &str) {
-        println!("{}", data);
-        self.tx.send(OwnedMessage::Text(data.to_string())).unwrap();
+    pub fn update(&self, data: &simulation::Beetle) {
+        println!("{:?}", data);
+        let json = serde_json::to_string(data).unwrap();
+        self.tx.send(OwnedMessage::Text(json)).unwrap();
     }
 
     pub fn close(&self) {

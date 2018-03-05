@@ -1,14 +1,21 @@
+#[macro_use]
+extern crate serde_derive;
+
+mod display;
+mod simulation;
+
 use std::thread;
 use std::time::Duration;
 
-mod display;
 
 fn main() {
 
     let display = display::Display::new();
-    display.update("Hi there");
-    display.update("Hi there");
+    let beetle = simulation::Beetle::new(10.0, 10.0);
+    display.update(&beetle);
     display.close();
+
+    simulation::test_print(&beetle);
 
     thread::sleep(Duration::from_secs(1));
 }
