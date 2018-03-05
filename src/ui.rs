@@ -9,12 +9,12 @@ use self::websocket::sync::Server;
 
 use simulation;
 
-pub struct Display {
+pub struct UI {
     tx: Sender<OwnedMessage>,
 }
 
-impl Display {
-    pub fn new() -> Display {
+impl UI {
+    pub fn new() -> UI {
 
         let (tx, rx) = channel();
 
@@ -59,7 +59,7 @@ impl Display {
             }
         });
 
-        Display{
+        UI {
             tx: tx
         }
     }
