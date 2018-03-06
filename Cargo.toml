@@ -2,9 +2,14 @@
 name = "battle_beetles"
 version = "0.1.0"
 authors = ["Anders Pitman <tapitman11@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
 websocket = "0.20.2"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+protobuf = "1.4"
+
+[build-dependencies]
+protoc-rust = "1.4"

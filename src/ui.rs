@@ -1,13 +1,12 @@
-extern crate websocket;
-extern crate serde_json;
-
 use std::thread;
 use std::sync::mpsc::{channel, Sender};
 //use std::time::Duration;
-use self::websocket::{Message, OwnedMessage};
-use self::websocket::sync::Server;
+use websocket::{Message, OwnedMessage};
+use websocket::sync::Server;
+use serde_json;
 
 use simulation;
+//use FieldState;
 
 pub struct UI {
     tx: Sender<OwnedMessage>,
@@ -64,10 +63,12 @@ impl UI {
         }
     }
 
-    pub fn update(&self, data: &simulation::Beetle) {
-        println!("{:?}", data);
-        let json = serde_json::to_string(data).unwrap();
-        self.tx.send(OwnedMessage::Text(json)).unwrap();
+    pub fn update(&self, data: &simulation::FieldState) {
+    //pub fn update(&self, data: &FieldState::Person) {
+        let encoded_message = serde_json::to_string(data).unwrap();
+        //let encodedMessage = data.descriptor_static();
+        println!("Sending: {}", encoded_message);
+        self.tx.send(OwnedMessage::Text(encoded_message)).unwrap();
     }
 
     pub fn close(&self) {
