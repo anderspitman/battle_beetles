@@ -71,7 +71,7 @@ impl UI {
         self.tx.send(OwnedMessage::Text(encoded_message)).unwrap();
     }
 
-    pub fn close(&self) {
-        // TODO: implement
+    pub fn shutdown(&self) {
+        self.tx.send(OwnedMessage::Close(None)).unwrap();
     }
 }

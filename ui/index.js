@@ -11,3 +11,7 @@ socket.onopen = (event) => {
   //console.log("sending yolo")
   //socket.send("Yolo")
 }
+
+socket.onclose = (event) => {
+  console.log("Es closy");
+}

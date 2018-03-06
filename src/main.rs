@@ -32,7 +32,7 @@ fn main() {
     let state = sim.tick();
     ui.update(&state);
     //ui.update(&person);
-    ui.close();
+    ui.shutdown();
 
     thread::sleep(Duration::from_secs(1));
 }
