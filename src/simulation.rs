@@ -1,4 +1,6 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
+use rand::Rng;
+use rand;
 
 pub struct Simulation {
     field_state: FieldState,
@@ -14,6 +16,8 @@ impl Simulation {
             }
         };
 
+        let mut rng = rand::thread_rng();
+
         let mut beetle = Beetle::new();
         beetle.position.x = 0.0;
         beetle.position.y = 10.0;
@@ -24,20 +28,12 @@ impl Simulation {
         beetle.position.y = 130.0;
         sim.field_state.beetles.push(beetle);
 
-        let mut food = Food::new();
-        food.position.x = 100.0;
-        food.position.y = 10.0;
-        sim.field_state.food.push(food);
-
-        food = Food::new();
-        food.position.x = 200.0;
-        food.position.y = 200.0;
-        sim.field_state.food.push(food);
-
-        food = Food::new();
-        food.position.x = 10.0;
-        food.position.y = 275.0;
-        sim.field_state.food.push(food);
+        for _ in 0..20 {
+            let mut food = Food::new();
+            food.position.x = rng.gen_range(0, 300) as f32;
+            food.position.y = rng.gen_range(0, 300) as f32;
+            sim.field_state.food.push(food);
+        }
 
         return sim;
     }
@@ -79,6 +75,7 @@ pub struct Beetle {
     smell_range: i32,
     speed: f32,
     rotation_rads_per_second: Rad<f32>,
+    num_eaten: i32,
 }
 
 impl Beetle {
@@ -89,7 +86,8 @@ impl Beetle {
             angle: Rad(0.0),
             smell_range: 5,
             speed: 0.5,
-            rotation_rads_per_second: Rad(0.01),
+            rotation_rads_per_second: Rad(0.02),
+            num_eaten: 0,
         }
     }
 
@@ -113,6 +111,9 @@ impl Beetle {
 
             if new_beetle.close_enough_to_eat(&closest_food) {
                 food_eat_index = Some(closest_food_index);
+                // Gain a speed boost for each food eaten
+                new_beetle.speed += 0.02;
+                new_beetle.num_eaten += 1;
             }
         }
 
@@ -162,8 +163,6 @@ impl Beetle {
 
         let thresh = Rad(0.1);
 
-        println!("{:?}", angle);
-        
         if angle < -thresh {
             self.direction = rot_neg.rotate_vector(self.direction);
         }

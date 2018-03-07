@@ -10,7 +10,7 @@ const two = new Two(params).appendTo(canvas);
 
 const visualBeetles = [];
 const visualFoods = [];
-const vectorLines = [];
+//const vectorLines = [];
 
 const socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
 
@@ -64,11 +64,16 @@ function matchArrays(model, vis, createNew) {
 
 function createBeetle() {
 
-  const newBeetle = two.makeRectangle(0, 0, 40, 20);
-  newBeetle.fill = 'SteelBlue';
+  const body = two.makeRectangle(0, 0, 20, 20);
+  body.fill = 'green';
 
-  const vectorLine = two.makeLine(0, 0, 0, 0);
-  vectorLines.push(vectorLine);
+  const head = two.makeCircle(17, 0, 7);
+  head.fill = 'black';
+
+  const newBeetle = two.makeGroup(body, head);
+
+  //const vectorLine = two.makeLine(0, 0, 0, 0);
+  //vectorLines.push(vectorLine);
 
   return newBeetle;
 }
@@ -80,17 +85,15 @@ function createFood() {
 }
 
 function drawBeetle(beetle, index) {
-  if (index === 0) {
-    console.log(beetle.angle);
-  }
+  console.log(index, beetle.num_eaten);
   visualBeetle = visualBeetles[index];
   visualBeetle.translation.set(beetle.position.x, beetle.position.y);
   visualBeetle.rotation = beetle.angle;
-  const line = vectorLines[index];
-  const [anchor1, anchor2] = line.vertices;
-  anchor1.set(beetle.position.x, beetle.position.y);
-  anchor2.set(beetle.position.x + (beetle.direction.x * 50),
-    beetle.position.y + (beetle.direction.y * 50));
+  //const line = vectorLines[index];
+  //const [anchor1, anchor2] = line.vertices;
+  //anchor1.set(beetle.position.x, beetle.position.y);
+  //anchor2.set(beetle.position.x + (beetle.direction.x * 50),
+  //  beetle.position.y + (beetle.direction.y * 50));
 }
 
 function drawFood(food, index) {

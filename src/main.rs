@@ -4,7 +4,7 @@ extern crate protobuf;
 #[macro_use]
 extern crate serde_derive;
 extern crate cgmath;
-
+extern crate rand;
 
 //mod FieldState;
 mod ui;
