@@ -1,3 +1,5 @@
+use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
+
 pub struct Simulation {
     field_state: FieldState,
 }
@@ -12,7 +14,15 @@ impl Simulation {
             }
         };
 
-        sim.field_state.beetles.push(Beetle::new());
+        let mut beetle = Beetle::new();
+        beetle.position.x = 0.0;
+        beetle.position.y = 10.0;
+        sim.field_state.beetles.push(beetle);
+
+        beetle = Beetle::new();
+        beetle.position.x = 10.0;
+        beetle.position.y = 130.0;
+        sim.field_state.beetles.push(beetle);
 
         let mut food = Food::new();
         food.position.x = 100.0;
@@ -38,16 +48,11 @@ impl Simulation {
             Vec::with_capacity(self.field_state.beetles.len());
 
         for beetle in &self.field_state.beetles {
-            let result = 
-                beetle.tick(&self.field_state.beetles, &self.field_state.food);
+            let new_beetle = 
+                beetle.tick(&self.field_state.beetles,
+                            &mut self.field_state.food);
 
-            new_beetles.push(result.new_beetle);
-
-            if result.food_eaten_index >= 0 {
-
-                // TODO: this is expensive
-                self.field_state.food.remove(result.food_eaten_index as usize);
-            }
+            new_beetles.push(new_beetle);
         }
 
         self.field_state.beetles = new_beetles;
@@ -66,131 +71,130 @@ pub struct FieldState {
     pub food: Vec<Food>,
 }
 
-#[derive(Serialize, Clone, Debug)]
-struct Point {
-    x: f32,
-    y: f32,
-}
-
-impl Point {
-    pub fn new() -> Point {
-        Point{x: 0.0, y: 0.0}
-    }
-}
-
-#[derive(Serialize, Debug)]
-struct Vector {
-    x: f32,
-    y: f32,
-}
-
 #[derive(Serialize, Debug, Clone)]
 pub struct Beetle {
-    position: Point,
+    position: Point2<f32>,
+    direction: Vector2<f32>,
+    angle: Rad<f32>,
     smell_range: i32,
     speed: f32,
+    rotation_rads_per_second: Rad<f32>,
 }
 
 impl Beetle {
     pub fn new() -> Beetle {
         Beetle{
+            position: Point2::new(0.0, 0.0),
+            direction: Vector2::new(0.0, 1.0),
+            angle: Rad(0.0),
             smell_range: 5,
             speed: 0.5,
-            position: Point::new()
+            rotation_rads_per_second: Rad(0.01),
         }
     }
 
     pub fn tick(
             &self, _beetles: &Vec<Beetle>,
-            food: &Vec<Food>) -> BeetleTickResult {
-
-        let closest_food_index = self.find_closest_food(food);
-        let closest_food = &food[closest_food_index as usize];
+            food: &mut Vec<Food>) -> Beetle {
 
         let mut new_beetle = self.clone();
-        new_beetle.move_toward(&closest_food.position);
 
-        let mut food_eaten_index = -1;
-        if new_beetle.close_enough_to_eat(&closest_food) {
-            food_eaten_index = closest_food_index as i32;
+        let mut food_eat_index = None;
+
+        if food.len() > 0 {
+            let (closest_food, closest_food_index) =
+                self.find_closest_food(food);
+
+            // TODO: there are ways to get around cloning here (as well as
+            // appending to the new vector in the parent method), but the
+            // optimizations are pretty hacky so I figure I'll hold off for
+            // now. See https://stackoverflow.com/q/49143770/943814
+            new_beetle.move_toward(&closest_food.position);
+
+            if new_beetle.close_enough_to_eat(&closest_food) {
+                food_eat_index = Some(closest_food_index);
+            }
         }
 
-        return BeetleTickResult{
-            new_beetle: new_beetle,
-            food_eaten_index: food_eaten_index,
-        };
+        // This can't be included in the block above because it needs to
+        // borrow food mutably, and it's already borrowed immutably in that
+        // block
+        match food_eat_index {
+            Some(n) => {
+                food.remove(n as usize);
+            },
+            None => ()
+        }
+
+        return new_beetle;
     }
 
-    fn find_closest_food(&self, foods: &Vec<Food>) -> i32 {
+    fn find_closest_food<'a>(&self, foods: &'a Vec<Food>) -> (&'a Food, i32) {
 
         let mut closest_index = 0;
-        let closest = &foods[closest_index];
-        let min_vec = vector_from_to(&self.position, &closest.position);
-        let mut min_dist = vector_length(&min_vec);
+        let mut closest = &foods[closest_index];
+        let min_vec = closest.position - self.position;
+        let mut min_dist = min_vec.magnitude();
 
         for (i, food) in foods.iter().enumerate() {
-            let vector = vector_from_to(&self.position, &food.position);
-            let dist = vector_length(&vector);
+            let vector = food.position - self.position;
+            let dist = vector.magnitude();
 
             if dist < min_dist {
                 min_dist = dist;
+                closest = &foods[i];
                 closest_index = i;
             }
         }
 
-        return closest_index as i32;
+        return (closest, closest_index as i32);
     }
 
-    fn move_toward(&mut self, a: &Point) {
-        let vector = vector_from_to(&self.position, &a);
-        let unit = unit_vector(&vector);
+    fn move_toward(&mut self, a: &Point2<f32>) {
 
-        self.position.x += unit.x * self.speed;
-        self.position.y += unit.y * self.speed;
+        let rot: Basis2<f32> =
+            Rotation2::from_angle(self.rotation_rads_per_second);
+        let rot_neg: Basis2<f32> =
+            Rotation2::from_angle(-self.rotation_rads_per_second);
+
+        let vector = a - self.position;
+        let angle = self.direction.angle(vector);
+
+        let thresh = Rad(0.1);
+
+        println!("{:?}", angle);
+        
+        if angle < -thresh {
+            self.direction = rot_neg.rotate_vector(self.direction);
+        }
+        else if angle > thresh {
+            self.direction = rot.rotate_vector(self.direction);
+        }
+        else {
+            self.position.x += self.direction.x * self.speed;
+            self.position.y += self.direction.y * self.speed;
+        }
+
+        self.angle = Vector2::new(1.0, 0.0).angle(self.direction);
     }
 
     fn close_enough_to_eat(&self, food: &Food) -> bool {
-        let vector = vector_from_to(&self.position, &food.position);
-        let dist = vector_length(&vector);
+        let vector = food.position - self.position;
+        let dist = vector.magnitude();
 
-        return dist < 1.0;
-    }
-}
-
-#[derive(Debug)]
-pub struct BeetleTickResult {
-    new_beetle: Beetle,
-    food_eaten_index: i32,
-}
-
-fn vector_from_to(a: &Point, b: &Point) -> Vector {
-    Vector{
-        x: b.x - a.x,
-        y: b.y - a.y,
-    }
-}
-
-fn vector_length(a: &Vector) -> f32 {
-    ((a.x*a.x) + (a.y*a.y)).sqrt()
-}
-
-fn unit_vector(a: &Vector) -> Vector {
-    let length = vector_length(a);
-    Vector{
-        x: a.x / length,
-        y: a.y / length,
+        return dist < 20.0;
     }
 }
 
 #[derive(Serialize, Debug)]
 pub struct Food {
-    position: Point 
+    position: Point2<f32>
 }
 
 impl Food {
     pub fn new() -> Food {
         Food{
-            position: Point{ x: 200.0, y: 200.0 }
+            position: Point2::new(0.0, 0.0)
         }
     }
 }

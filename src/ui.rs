@@ -67,7 +67,7 @@ impl UI {
     //pub fn update(&self, data: &FieldState::Person) {
         let encoded_message = serde_json::to_string(data).unwrap();
         //let encodedMessage = data.descriptor_static();
-        println!("Sending: {}", encoded_message);
+        //println!("Sending: {}", encoded_message);
         self.tx.send(OwnedMessage::Text(encoded_message)).unwrap();
     }
 
