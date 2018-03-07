@@ -15,24 +15,14 @@ use std::time::Duration;
 
 fn main() {
     
-    //let mut person = FieldState::Person::new();
-    //person.set_name("Old Gregg".to_string());
-    //println!("{:?}", person);
-
     let ui = ui::UI::new();
 
     let mut sim = simulation::Simulation::new();
 
-    sim.tick();
-    sim.tick();
-    sim.tick();
-    sim.tick();
-    sim.tick();
-    sim.tick();
-    let state = sim.tick();
-    ui.update(&state);
-    //ui.update(&person);
-    ui.shutdown();
+    while !sim.done() {
+        ui.update(sim.tick());
+        thread::sleep(Duration::from_millis(10));
+    }
 
-    thread::sleep(Duration::from_secs(1));
+    ui.shutdown();
 }
