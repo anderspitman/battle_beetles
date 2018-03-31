@@ -37,7 +37,7 @@ fn main() {
     sim.select_beetle(0);
     //sim.select_beetle(1);
 
-    sim.selected_move_command(100.0, 100.0);
+    sim.selected_move_command(200.0, 300.0);
 
     ui.update(&sim.field_state);
 
@@ -47,9 +47,19 @@ fn main() {
         let messages = ui.get_all_messages();
 
         for message in messages {
-            if message.message_type == "terminate" {
-                done = true;
-                break;
+            match message.message_type.as_ref() {
+                "terminate" => {
+                    done = true;
+                    break;
+                },
+                "select-beetle" => {
+                    println!("selected beetle {}", message.beetle_id);
+                    sim.select_beetle(message.beetle_id);
+                },
+                "selected-move-command" => {
+                    sim.selected_move_command(message.x, message.y);
+                },
+                _ => {},
             }
         }
         thread::sleep(Duration::from_millis(10));

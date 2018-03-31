@@ -16,6 +16,9 @@ pub struct UI {
 #[derive(Deserialize, Debug)]
 pub struct UIMessage {
     pub message_type: String,
+    pub beetle_id: i32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl UI {

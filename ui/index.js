@@ -1,6 +1,5 @@
 const canvas = document.getElementById('canvas');
 const stopButton = document.getElementById('stop-button');
-//const ctx = canvas.getContext('2d');
 
 const params = {
   width: 300,
@@ -14,6 +13,8 @@ const visualFoods = [];
 //const vectorLines = [];
 
 const socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
+
+drawBackground();
 
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
@@ -29,6 +30,18 @@ socket.onmessage = (event) => {
 
   for (let i = 0; i < beetles.length; i++) {
     const beetle = beetles[i];
+
+    if (visualBeetles[i]._renderer && visualBeetles[i]._renderer.elem) {
+      console.log("set function");
+      visualBeetles[i]._renderer.elem.onclick = (e) => {
+        console.log(beetle);
+        socket.send(JSON.stringify({
+          message_type: 'select-beetle',
+          beetle_id: beetle.id,
+        }))
+      };
+    }
+
     drawBeetle(beetle, i);
   }
 
@@ -69,6 +82,23 @@ function matchArrays(model, vis, createNew) {
       vis[i].visible = false;
     }
   }
+}
+
+function drawBackground() {
+  const rect = two.makeRectangle(
+    params.width / 2, params.height / 2, params.width, params.height);
+  rect.fill = '#c3c3c3';
+
+  two.update();
+
+  rect._renderer.elem.onclick = (e) => {
+    socket.send(JSON.stringify({
+      message_type: 'selected-move-command',
+      beetle_id: -1,
+      x: e.clientX,
+      y: e.clientY,
+    }))
+  };
 }
 
 function createBeetle() {
