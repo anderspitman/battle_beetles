@@ -1,6 +1,5 @@
 extern crate websocket;
 extern crate serde_json;
-extern crate protobuf;
 #[macro_use]
 extern crate serde_derive;
 extern crate cgmath;

@@ -25,8 +25,6 @@ name = "battle_beetles"
 version = "0.1.0"
 dependencies = [
  "cgmath 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "protobuf 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "protoc-rust 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -349,29 +347,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "pkg-config"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "protobuf"
-version = "1.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "protoc"
-version = "1.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "protoc-rust"
-version = "1.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "protobuf 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "protoc 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "tempdir 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "quote"
@@ -737,9 +712,6 @@ dependencies = [
 "checksum openssl-sys 0.9.27 (registry+https://github.com/rust-lang/crates.io-index)" = "d6fdc5c4a02e69ce65046f1763a0181107038e02176233acb0b3351d7cc588f9"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
-"checksum protobuf 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "a06aeffc36f6abfaf86e6b5b350c5ab4ec81ed3d95215c17730e0e744dfdd2c5"
-"checksum protoc 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "37b952735ccc55f22ddb6d60fb4d7ada863e973a868447d86afb6e3743ecf28c"
-"checksum protoc-rust 1.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "70c45a2989a4486bd8ef3d1d127ee1af4cbda71e0c9698ea7173e2a3a2a4f13a"
 "checksum quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "7a6e920b65c65f10b2ae65c831a81a073a89edd28c7cce89475bff467ab4167a"
 "checksum rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)" = "15a732abf9d20f0ad8eeb6f909bf6868722d9a06e1e50802b6a70351f40b4eb1"
 "checksum rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "eba5f8cb59cc50ed56be8880a5c7b496bfd9bd26394e176bc67884094145c2c5"
