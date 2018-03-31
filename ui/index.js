@@ -1,4 +1,5 @@
 const canvas = document.getElementById('canvas');
+const stopButton = document.getElementById('stop-button');
 //const ctx = canvas.getContext('2d');
 
 const params = {
@@ -46,6 +47,10 @@ socket.onopen = (event) => {
 
 socket.onclose = (event) => {
   console.log("Es closy");
+}
+
+stopButton.onclick = (event) => {
+  socket.send(JSON.stringify({ message_type: 'terminate' }))
 }
 
 function matchArrays(model, vis, createNew) {
