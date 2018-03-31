@@ -1,19 +1,28 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
-use rand::Rng;
-use rand;
 use std::collections::HashMap;
 
 type Id = i32;
+type Beetles = HashMap<Id, Beetle>;
 
 #[derive(Serialize, Debug, Clone)]
-enum Command {
+pub enum Command {
     Move {
         position: Point2<f32>,
     },
-    Attack {
+    Interact {
         target_id: Id,
     },
     Idle,
+}
+
+#[derive(Debug)]
+pub enum Action {
+    Move,
+    Attack {
+        target_id: i32,
+        attack_power: i32,
+    },
+    Nothing,
 }
 
 pub struct Simulation {
@@ -23,10 +32,10 @@ pub struct Simulation {
 impl Simulation {
 
     pub fn new() -> Simulation {
-        let mut sim = Simulation {
+        let sim = Simulation {
             field_state: FieldState {
                 food: Vec::new(),
-                beetles: HashMap::new(),
+                beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
                 beetle_count: 0,
             }
@@ -48,7 +57,21 @@ impl Simulation {
             if let Some(beetle) = self.field_state.beetles.get_mut(id) {
                 beetle.set_command(Command::Move{ position: Point2::new(x, y) });
             }
-            else {
+        }
+    }
+
+    pub fn selected_interact_command(&mut self, target_id: Id) {
+        for id in self.field_state.selected_beetles.iter() {
+            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+                beetle.set_command(Command::Interact{ target_id: target_id });
+            }
+        }
+    }
+
+    pub fn selected_idle_command(&mut self) {
+        for id in self.field_state.selected_beetles.iter() {
+            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+                beetle.set_command(Command::Idle);
             }
         }
     }
@@ -70,15 +93,34 @@ impl Simulation {
         self.field_state.food.push(food);
     }
 
-    pub fn get_beetle(&self, beetle_id: Id) -> Option<&Beetle> {
-        return self.field_state.beetles.get(&beetle_id);
-    }
-
     pub fn tick(&mut self) -> &FieldState {
 
-        for (id, beetle) in self.field_state.beetles.iter_mut() {
-            println!("{:?}", beetle);
-            beetle.tick();
+        // TODO: figure out how to not need to clone here
+        let cloned_beetles = self.field_state.beetles.clone();
+        // TODO: maybe move this to struct level to avoid re-allocating
+        let mut actions: Vec<Action> = Vec::with_capacity(self.field_state.beetles.len());
+
+        for (_, beetle) in self.field_state.beetles.iter_mut() {
+            let action = beetle.tick(&cloned_beetles);
+            actions.push(action);
+        }
+
+        for action in actions {
+            match action {
+                Action::Attack{target_id, attack_power} => {
+                    let mut dead = false;
+
+                    if let Some(target) = self.field_state.beetles.get_mut(&target_id) {
+                        dead = target.take_damage(attack_power);
+                    }
+
+                    if dead {
+                        self.field_state.beetles.remove(&target_id);
+                    }
+                },
+                _ => {
+                }
+            }
         }
         
         &self.field_state
@@ -110,7 +152,7 @@ impl Simulation {
 #[derive(Serialize, Debug)]
 pub struct FieldState {
     food: Vec<Food>,
-    beetles: HashMap<Id, Beetle>,
+    beetles: Beetles,
     selected_beetles: Vec<Id>,
     beetle_count: i32,
 }
@@ -126,6 +168,8 @@ pub struct Beetle {
     rotation_rads_per_second: Rad<f32>,
     num_eaten: i32,
     current_command: Command,
+    attack_power: i32,
+    health: i32,
 }
 
 
@@ -141,6 +185,8 @@ impl Beetle {
             rotation_rads_per_second: Rad(0.02),
             num_eaten: 0,
             current_command: Command::Idle,
+            attack_power: 10,
+            health: 100, 
         }
     }
 
@@ -148,19 +194,35 @@ impl Beetle {
         self.current_command = command;
     }
 
-    pub fn tick(&mut self) {
-        match self.current_command {
+    pub fn tick(&mut self, beetles: &Beetles) -> Action {
+        let action = match self.current_command {
             Command::Move{ position } => {
-                println!("Move to {}, {}", position.x, position.y);
                 self.move_toward(&position);
+                Action::Move
             },
-            Command::Attack{ target_id } => {
-                println!("Attack");
+            Command::Interact { target_id } => {
+                if let Some(target) = beetles.get(&target_id) {
+                    if self.close_enough_to_interact(target.position) {
+                        Action::Attack{
+                            target_id: target_id,
+                            attack_power: self.attack_power,
+                        }
+                    }
+                    else {
+                        self.move_toward(&target.position);
+                        Action::Move
+                    }
+                }
+                else {
+                    Action::Nothing
+                }
             },
             Command::Idle => {
-                println!("Stop moving");
-            }
-        }
+                Action::Nothing
+            },
+        };
+
+        return action;
     }
 
     //pub fn tick(
@@ -202,26 +264,26 @@ impl Beetle {
     //    return new_beetle;
     //}
 
-    fn find_closest_food<'a>(&self, foods: &'a Vec<Food>) -> (&'a Food, i32) {
+    //fn find_closest_food<'a>(&self, foods: &'a Vec<Food>) -> (&'a Food, i32) {
 
-        let mut closest_index = 0;
-        let mut closest = &foods[closest_index];
-        let min_vec = closest.position - self.position;
-        let mut min_dist = min_vec.magnitude();
+    //    let mut closest_index = 0;
+    //    let mut closest = &foods[closest_index];
+    //    let min_vec = closest.position - self.position;
+    //    let mut min_dist = min_vec.magnitude();
 
-        for (i, food) in foods.iter().enumerate() {
-            let vector = food.position - self.position;
-            let dist = vector.magnitude();
+    //    for (i, food) in foods.iter().enumerate() {
+    //        let vector = food.position - self.position;
+    //        let dist = vector.magnitude();
 
-            if dist < min_dist {
-                min_dist = dist;
-                closest = &foods[i];
-                closest_index = i;
-            }
-        }
+    //        if dist < min_dist {
+    //            min_dist = dist;
+    //            closest = &foods[i];
+    //            closest_index = i;
+    //        }
+    //    }
 
-        return (closest, closest_index as i32);
-    }
+    //    return (closest, closest_index as i32);
+    //}
 
     fn move_toward(&mut self, a: &Point2<f32>) {
 
@@ -249,11 +311,20 @@ impl Beetle {
         self.angle = Vector2::new(1.0, 0.0).angle(self.direction);
     }
 
-    fn close_enough_to_eat(&self, food: &Food) -> bool {
-        let vector = food.position - self.position;
+    fn close_enough_to_interact(&self, target_position: Point2<f32>) -> bool {
+        let vector = target_position - self.position;
         let dist = vector.magnitude();
 
         return dist < 20.0;
+    }
+
+    fn take_damage(&mut self, damage_amount: i32) -> bool {
+        self.health -= damage_amount;
+        let mut dead = false;
+        if self.health <= 0 {
+            dead = true;
+        }
+        return dead;
     }
 }
 

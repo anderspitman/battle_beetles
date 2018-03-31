@@ -42,7 +42,7 @@ fn main() {
 
     ui.update(&sim.field_state);
 
-    for i in 0..200 {
+    for _ in 0..200 {
         ui.update(sim.tick());
         thread::sleep(Duration::from_millis(10));
     }
@@ -50,14 +50,23 @@ fn main() {
     sim.select_beetle(1);
     sim.selected_move_command(100.0, 200.0);
 
-    for i in 0..100 {
+    for _ in 0..100 {
         ui.update(sim.tick());
         thread::sleep(Duration::from_millis(10));
     }
 
-    //thread::sleep(Duration::from_millis(100));
-    
     sim.deselect_all_beetles();
+    sim.select_beetle(0);
+    sim.selected_interact_command(1);
+
+    sim.deselect_all_beetles();
+    sim.select_beetle(1);
+    sim.selected_idle_command();
+
+    loop {
+        ui.update(sim.tick());
+        thread::sleep(Duration::from_millis(10));
+    }
 
     ui.shutdown();
 }
