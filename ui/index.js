@@ -16,19 +16,23 @@ const socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
 
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  const beetles = data.beetles;
+
+  // convert beetles object to array
+  const beetles = Object.entries(data.beetles).map((tuple) => tuple[1]);
+  //console.log(beetles);
   const foods = data.food;
+  //console.log(foods);
 
   matchArrays(beetles, visualBeetles, createBeetle);
   matchArrays(foods, visualFoods, createFood);
 
-  for (let i = 0; i < data.beetles.length; i++) {
-    const beetle = data.beetles[i];
+  for (let i = 0; i < beetles.length; i++) {
+    const beetle = beetles[i];
     drawBeetle(beetle, i);
   }
 
-  for (let i = 0; i < data.food.length; i++) {
-    const food = data.food[i];
+  for (let i = 0; i < foods.length; i++) {
+    const food = foods[i];
     drawFood(food, i);
   }
 
@@ -85,7 +89,7 @@ function createFood() {
 }
 
 function drawBeetle(beetle, index) {
-  console.log(index, beetle.num_eaten);
+  //console.log(index, beetle.num_eaten);
   visualBeetle = visualBeetles[index];
   visualBeetle.translation.set(beetle.position.x, beetle.position.y);
   visualBeetle.rotation = beetle.angle;
