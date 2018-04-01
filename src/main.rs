@@ -8,7 +8,8 @@ extern crate rand;
 //mod FieldState;
 mod ui;
 mod simulation;
-use simulation::{Beetle, BeetleBuilder};
+mod beetle;
+use beetle::{Beetle, BeetleBuilder};
 
 use std::thread;
 use std::time::Duration;
