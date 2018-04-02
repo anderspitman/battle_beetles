@@ -1,4 +1,4 @@
-use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
+use cgmath::Point2;
 use beetle::{Beetle, Id, Beetles};
 
 #[derive(Serialize, Debug, Clone)]
@@ -22,6 +22,14 @@ pub enum Action {
     Nothing,
 }
 
+#[derive(Serialize, Debug)]
+pub struct FieldState {
+    food: Vec<Food>,
+    beetles: Beetles,
+    selected_beetles: Vec<Id>,
+    beetle_count: i32,
+}
+
 pub struct Simulation {
     pub field_state: FieldState,
 }
@@ -42,10 +50,25 @@ impl Simulation {
     }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {
-        self.field_state.selected_beetles.push(beetle_id);
+
+        let mut found = false;
+        if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+            found = true;
+
+            beetle.selected = true;
+        }
+
+        if found {
+            self.field_state.selected_beetles.push(beetle_id);
+        }
     }
 
     pub fn deselect_all_beetles(&mut self) {
+
+        for (_, beetle) in self.field_state.beetles.iter_mut() {
+            beetle.selected = false;
+        }
+
         self.field_state.selected_beetles.clear();
     }
 
@@ -122,37 +145,8 @@ impl Simulation {
         
         &self.field_state
     }
-
-    //pub fn tick(&mut self) -> &FieldState {
-
-    //    let mut new_beetles =
-    //        Vec::with_capacity(self.field_state.beetles.len());
-
-    //    for beetle in &self.field_state.beetles {
-    //        let new_beetle = 
-    //            beetle.tick(&self.field_state.beetles,
-    //                        &mut self.field_state.food);
-
-    //        new_beetles.push(new_beetle);
-    //    }
-
-    //    self.field_state.beetles = new_beetles;
-
-    //    &self.field_state
-    //}
-
-    //pub fn done(&self) -> bool {
-    //    self.field_state.food.len() == 0
-    //}
 }
 
-#[derive(Serialize, Debug)]
-pub struct FieldState {
-    food: Vec<Food>,
-    beetles: Beetles,
-    selected_beetles: Vec<Id>,
-    beetle_count: i32,
-}
 
 #[derive(Serialize, Debug)]
 pub struct Food {

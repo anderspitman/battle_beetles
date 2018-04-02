@@ -1,18 +1,32 @@
 const canvas = document.getElementById('canvas');
 const stopButton = document.getElementById('stop-button');
 
+const viewportDimensions = getViewportDimensions();
+const buttonRowHeight = 50;
+
 const params = {
-  width: 300,
-  height: 300,
+  width: viewportDimensions.width,
+  height: viewportDimensions.height - buttonRowHeight,
   //type: Two.Types.webgl,
 };
 const two = new Two(params).appendTo(canvas);
+
+let shiftKeyDown = false;
+window.onkeyup = function(e) {
+  shiftKeyDown = false;
+};
+window.onkeydown = function(e) {
+  if (e.key == 'Shift') {
+    shiftKeyDown = true;
+  }
+};
 
 const visualBeetles = [];
 const visualFoods = [];
 //const vectorLines = [];
 
-const socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
+const messageService = new messageServiceModule.MessageService();
+const socket = messageService.getSocket();
 
 drawBackground();
 
@@ -31,14 +45,13 @@ socket.onmessage = (event) => {
   for (let i = 0; i < beetles.length; i++) {
     const beetle = beetles[i];
 
-    if (visualBeetles[i]._renderer && visualBeetles[i]._renderer.elem) {
-      console.log("set function");
-      visualBeetles[i]._renderer.elem.onclick = (e) => {
-        console.log(beetle);
-        socket.send(JSON.stringify({
-          message_type: 'select-beetle',
-          beetle_id: beetle.id,
-        }))
+    if (visualBeetles[i].beetle._renderer && visualBeetles[i].beetle._renderer.elem) {
+      visualBeetles[i].beetle._renderer.elem.onclick = (e) => {
+        console.log(beetle)
+        if (!shiftKeyDown) {
+          messageService.deselectAllBeetles()
+        }
+        messageService.selectBeetle({ beetleId: beetle.id })
       };
     }
 
@@ -92,29 +105,34 @@ function drawBackground() {
   two.update();
 
   rect._renderer.elem.onclick = (e) => {
-    socket.send(JSON.stringify({
-      message_type: 'selected-move-command',
-      beetle_id: -1,
-      x: e.clientX,
-      y: e.clientY,
-    }))
+    messageService.deselectAllBeetles();
+  };
+
+  rect._renderer.elem.oncontextmenu = (e) => {
+    e.preventDefault();
+    messageService.selectedMoveCommand({ x: e.clientX, y: e.clientY });
   };
 }
 
 function createBeetle() {
 
+  const selectedIndicator = two.makeRectangle(0, 0, 50, 50);
+  selectedIndicator.stroke = 'lightgreen';
+  selectedIndicator.fill = 'none';
+
   const body = two.makeRectangle(0, 0, 20, 20);
   body.fill = 'green';
-
   const head = two.makeCircle(17, 0, 7);
   head.fill = 'black';
-
   const newBeetle = two.makeGroup(body, head);
 
   //const vectorLine = two.makeLine(0, 0, 0, 0);
   //vectorLines.push(vectorLine);
 
-  return newBeetle;
+  return {
+    beetle: newBeetle,
+    selectedIndicator: selectedIndicator,
+  };
 }
 
 function createFood() {
@@ -124,10 +142,22 @@ function createFood() {
 }
 
 function drawBeetle(beetle, index) {
-  //console.log(index, beetle.num_eaten);
-  visualBeetle = visualBeetles[index];
+  const visualBeetleData = visualBeetles[index];
+  const visualBeetle = visualBeetleData.beetle;
+
+  const selectedIndicator = visualBeetleData.selectedIndicator;
+  selectedIndicator.translation.set(beetle.position.x, beetle.position.y);
+
+  if (beetle.selected) {
+    selectedIndicator.visible = true;
+  }
+  else {
+    selectedIndicator.visible = false;
+  }
+
   visualBeetle.translation.set(beetle.position.x, beetle.position.y);
   visualBeetle.rotation = beetle.angle;
+
   //const line = vectorLines[index];
   //const [anchor1, anchor2] = line.vertices;
   //anchor1.set(beetle.position.x, beetle.position.y);
@@ -138,4 +168,11 @@ function drawBeetle(beetle, index) {
 function drawFood(food, index) {
   visualFood = visualFoods[index];
   visualFood.translation.set(food.position.x, food.position.y);
+}
+
+function getViewportDimensions() {
+  return {
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight,
+  };
 }

@@ -48,6 +48,8 @@ fn main() {
         let messages = ui.get_all_messages();
 
         for message in messages {
+
+            println!("{:?}", message);
             match message.message_type.as_ref() {
                 "terminate" => {
                     done = true;
@@ -59,6 +61,9 @@ fn main() {
                 },
                 "selected-move-command" => {
                     sim.selected_move_command(message.x, message.y);
+                },
+                "deselect-all-beetles" => {
+                    sim.deselect_all_beetles();
                 },
                 _ => {},
             }
