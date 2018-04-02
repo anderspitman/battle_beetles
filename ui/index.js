@@ -30,6 +30,7 @@ const socket = messageService.getSocket();
 
 drawBackground();
 
+let messageCount = 0;
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
 
@@ -53,6 +54,11 @@ socket.onmessage = (event) => {
         }
         messageService.selectBeetle({ beetleId: beetle.id })
       };
+
+      visualBeetles[i].beetle._renderer.elem.oncontextmenu = (e) => {
+        e.preventDefault();
+        messageService.selectedInteractCommand({ beetleId: beetle.id })
+      };
     }
 
     drawBeetle(beetle, i);
@@ -63,7 +69,9 @@ socket.onmessage = (event) => {
     drawFood(food, i);
   }
 
-  two.update();
+  requestAnimationFrame(() => {
+    two.update();
+  });
 }
 
 socket.onopen = (event) => {
@@ -83,7 +91,7 @@ function matchArrays(model, vis, createNew) {
   if (vis.length < model.length) {
     for (let i = vis.length; i < model.length; i++) {
       if (vis[i]) {
-        vis[i].visible = true;
+        vis[i].beetle.visible = true;
       }
       else {
         vis.push(createNew());
@@ -92,7 +100,8 @@ function matchArrays(model, vis, createNew) {
   }
   else if (vis.length > model.length) {
     for (let i = model.length; i < vis.length; i++) {
-      vis[i].visible = false;
+      vis[i].beetle.visible = false;
+        vis[i].selectedIndicator.visible = false;
     }
   }
 }

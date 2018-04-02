@@ -43,7 +43,7 @@ impl Simulation {
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
                 beetle_count: 0,
-            }
+            },
         };
 
         return sim;

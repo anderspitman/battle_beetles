@@ -27,6 +27,15 @@ const messageServiceModule = (function() {
       }))
     }
 
+    selectedInteractCommand({ beetleId }) {
+      this.socket.send(JSON.stringify({
+        message_type: 'selected-interact-command',
+        beetle_id: beetleId,
+        x: 0,
+        y: 0,
+      }))
+    }
+
     deselectAllBeetles() {
       this.socket.send(JSON.stringify({
         message_type: 'deselect-all-beetles',

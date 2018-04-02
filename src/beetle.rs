@@ -14,7 +14,7 @@ pub struct Beetle {
     angle: Rad<f32>,
     smell_range: i32,
     speed: f32,
-    rotation_rads_per_second: Rad<f32>,
+    rotation_radians_per_tick: Rad<f32>,
     num_eaten: i32,
     current_command: Command,
     attack_power: i32,
@@ -31,8 +31,8 @@ impl Beetle {
             direction: Vector2::new(0.0, 1.0),
             angle: Rad(0.0),
             smell_range: 5,
-            speed: 0.8,
-            rotation_rads_per_second: Rad(0.04),
+            speed: 5.0,
+            rotation_radians_per_tick: Rad(0.10),
             num_eaten: 0,
             current_command: Command::Idle,
             attack_power: 10,
@@ -49,6 +49,11 @@ impl Beetle {
         let action = match self.current_command {
             Command::Move{ position } => {
                 self.move_toward(&position);
+
+                if self.basically_here(position) {
+                    self.current_command = Command::Idle;
+                }
+
                 Action::Move
             },
             Command::Interact { target_id } => {
@@ -79,9 +84,9 @@ impl Beetle {
     fn move_toward(&mut self, a: &Point2<f32>) {
 
         let rot: Basis2<f32> =
-            Rotation2::from_angle(self.rotation_rads_per_second);
+            Rotation2::from_angle(self.rotation_radians_per_tick);
         let rot_neg: Basis2<f32> =
-            Rotation2::from_angle(-self.rotation_rads_per_second);
+            Rotation2::from_angle(-self.rotation_radians_per_tick);
 
         let vector = a - self.position;
         let angle = self.direction.angle(vector);
@@ -109,6 +114,12 @@ impl Beetle {
         return dist < 20.0;
     }
 
+    fn basically_here(&self, position: Point2<f32>) -> bool {
+        let vector = position - self.position;
+        let dist = vector.magnitude();
+        return dist < 5.0;
+    }
+
     pub fn take_damage(&mut self, damage_amount: i32) -> bool {
         self.health -= damage_amount;
         let mut dead = false;
@@ -122,6 +133,8 @@ impl Beetle {
 pub struct BeetleBuilder {
     x: f32,
     y: f32,
+    speed_pixels_per_tick: f32,
+    rotation_radians_per_tick: Rad<f32>,
 }
 
 impl BeetleBuilder {
@@ -130,18 +143,29 @@ impl BeetleBuilder {
         BeetleBuilder {
             x: 0.0,
             y: 0.0,
+            speed_pixels_per_tick: 1.0,
+            rotation_radians_per_tick: Rad(0.01),
         }
+    }
+
+    pub fn speed_pixels_per_tick(&mut self, val: f32) -> &mut BeetleBuilder {
+        self.speed_pixels_per_tick = val;
+        return self;
+    }
+
+    pub fn rotation_radians_per_tick(
+            &mut self, val: Rad<f32>) -> &mut BeetleBuilder {
+        self.rotation_radians_per_tick = val;
+        return self;
     }
 
     pub fn x_pos(&mut self, val: f32) -> &mut BeetleBuilder {
         self.x = val;
-
         return self;
     }
 
     pub fn y_pos(&mut self, val: f32) -> &mut BeetleBuilder {
         self.y = val;
-
         return self;
     }
 
@@ -149,6 +173,8 @@ impl BeetleBuilder {
         let mut beetle = Beetle::new();
         beetle.position.x = self.x;
         beetle.position.y = self.y;
+        beetle.speed = self.speed_pixels_per_tick;
+        beetle.rotation_radians_per_tick = self.rotation_radians_per_tick;
         return beetle;
     }
 }
