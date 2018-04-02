@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas');
 const stopButton = document.getElementById('stop-button');
+const addBeetleButton = document.getElementById('add-beetle-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
@@ -37,18 +38,17 @@ socket.onmessage = (event) => {
   // convert beetles object to array
   const beetles = Object.entries(data.beetles).map((tuple) => tuple[1]);
   //console.log(beetles);
-  const foods = data.food;
+  //const foods = data.food;
   //console.log(foods);
 
   matchArrays(beetles, visualBeetles, createBeetle);
-  matchArrays(foods, visualFoods, createFood);
+  //matchArrays(foods, visualFoods, createFood);
 
   for (let i = 0; i < beetles.length; i++) {
     const beetle = beetles[i];
 
     if (visualBeetles[i].beetle._renderer && visualBeetles[i].beetle._renderer.elem) {
       visualBeetles[i].beetle._renderer.elem.onclick = (e) => {
-        console.log(beetle)
         if (!shiftKeyDown) {
           messageService.deselectAllBeetles()
         }
@@ -64,10 +64,10 @@ socket.onmessage = (event) => {
     drawBeetle(beetle, i);
   }
 
-  for (let i = 0; i < foods.length; i++) {
-    const food = foods[i];
-    drawFood(food, i);
-  }
+  //for (let i = 0; i < foods.length; i++) {
+  //  const food = foods[i];
+  //  drawFood(food, i);
+  //}
 
   requestAnimationFrame(() => {
     two.update();
@@ -80,15 +80,21 @@ socket.onopen = (event) => {
 }
 
 socket.onclose = (event) => {
-  console.log("Es closy");
+  console.log("Websocket connection closed");
 }
 
 stopButton.onclick = (event) => {
-  socket.send(JSON.stringify({ message_type: 'terminate' }))
+  messageService.terminate();
+}
+
+addBeetleButton.onclick = (e) => {
+  console.log("create beetle");
+  messageService.createBeetle({ x: 0.0, y: 0.0 });
 }
 
 function matchArrays(model, vis, createNew) {
   if (vis.length < model.length) {
+
     for (let i = vis.length; i < model.length; i++) {
       if (vis[i]) {
         vis[i].beetle.visible = true;
@@ -98,10 +104,15 @@ function matchArrays(model, vis, createNew) {
       }
     }
   }
-  else if (vis.length > model.length) {
+  else if (vis.length >= model.length) {
+
+    for (let i = 0; i < model.length; i++) {
+        vis[i].beetle.visible = true;
+    }
+
     for (let i = model.length; i < vis.length; i++) {
       vis[i].beetle.visible = false;
-        vis[i].selectedIndicator.visible = false;
+      vis[i].selectedIndicator.visible = false;
     }
   }
 }

@@ -15,7 +15,7 @@ use std::thread;
 use std::time::Duration;
 use cgmath::Rad;
 
-const SIMULATION_PERIOD_MS: u64 = 16;
+const SIMULATION_PERIOD_MS: u64 = 50;
 const MS_PER_SECOND: f32 = 1000.0;
 
 
@@ -29,13 +29,9 @@ fn main() {
     let converted_speed =
         convert_value_for_sim_period(SPEED_PIXELS_PER_SECOND);
 
-    println!("converted_speed: {}", converted_speed);
-
     const ROTATION_RADIANS_PER_SECOND: f32 = 3.14159;
     let converted_rotation =
         convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
-
-    println!("converted_rotation: {}", converted_rotation);
 
     let mut beetle = BeetleBuilder::new()
         .speed_pixels_per_tick(converted_speed)
@@ -74,8 +70,16 @@ fn main() {
                     done = true;
                     break;
                 },
+                "create-beetle" => {
+                    let beetle = BeetleBuilder::new()
+                        .speed_pixels_per_tick(converted_speed)
+                        .rotation_radians_per_tick(Rad(converted_rotation))
+                        .x_pos(message.x)
+                        .y_pos(message.y)
+                        .build();
+                    sim.add_beetle(beetle);
+                },
                 "select-beetle" => {
-                    println!("selected beetle {}", message.beetle_id);
                     sim.select_beetle(message.beetle_id);
                 },
                 "selected-move-command" => {
