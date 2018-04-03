@@ -4,11 +4,14 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate cgmath;
 extern crate rand;
+extern crate protobuf;
 
 //mod FieldState;
 mod ui;
 mod simulation;
 mod beetle;
+mod gen;
+
 use beetle::BeetleBuilder;
 
 use std::thread;
@@ -50,8 +53,7 @@ fn main() {
     sim.add_beetle(beetle);
     sim.add_food(100.0, 100.0);
 
-    sim.select_beetle(0);
-    //sim.select_beetle(1);
+    sim.select_beetle(1);
 
     sim.selected_move_command(200.0, 300.0);
 
@@ -64,36 +66,33 @@ fn main() {
 
         for message in messages {
 
-            println!("{:?}", message);
-            match message.message_type.as_ref() {
-                "terminate" => {
-                    done = true;
-                    break;
-                },
-                "create-beetle" => {
-                    let beetle = BeetleBuilder::new()
-                        .speed_pixels_per_tick(converted_speed)
-                        .rotation_radians_per_tick(Rad(converted_rotation))
-                        .x_pos(message.x)
-                        .y_pos(message.y)
-                        .build();
-                    sim.add_beetle(beetle);
-                },
-                "select-beetle" => {
-                    sim.select_beetle(message.beetle_id);
-                },
-                "selected-move-command" => {
-                    sim.selected_move_command(message.x, message.y);
-                },
-                "selected-interact-command" => {
-                    sim.selected_interact_command(message.beetle_id);
-                },
-                "deselect-all-beetles" => {
-                    sim.deselect_all_beetles();
-                },
-                message_type => {
-                    println!("Invalid message_type: {}", message_type);
-                },
+            if message.has_select_beetle() {
+                sim.select_beetle(message.get_select_beetle().get_beetle_id());
+            }
+            else if message.has_selected_move_command() {
+                sim.selected_move_command(
+                    message.get_selected_move_command().get_x(),
+                    message.get_selected_move_command().get_y());
+            }
+            else if message.has_deselect_all_beetles() {
+                sim.deselect_all_beetles();
+            }
+            else if message.has_create_beetle() {
+                let beetle = BeetleBuilder::new()
+                    .speed_pixels_per_tick(converted_speed)
+                    .rotation_radians_per_tick(Rad(converted_rotation))
+                    .x_pos(message.get_create_beetle().get_x())
+                    .y_pos(message.get_create_beetle().get_y())
+                    .build();
+                sim.add_beetle(beetle);
+            }
+            else if message.has_selected_interact_command() {
+                sim.selected_interact_command(
+                    message.get_selected_interact_command().get_beetle_id());
+            }
+            else if message.has_terminate() {
+                done = true;
+                break;
             }
         }
         thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));

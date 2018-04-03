@@ -4,27 +4,21 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use websocket::{Message, OwnedMessage};
 use websocket::sync::Server;
 use serde_json;
+use gen::messages::UiMessage;
+use protobuf::parse_from_bytes;
 
 use simulation;
 //use FieldState;
 
 pub struct UI {
-    tx: Sender<OwnedMessage>,
-    rx_receiver: Receiver<UIMessage>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct UIMessage {
-    pub message_type: String,
-    pub beetle_id: i32,
-    pub x: f32,
-    pub y: f32,
+    tx_sender: Sender<OwnedMessage>,
+    rx_receiver: Receiver<UiMessage>,
 }
 
 impl UI {
     pub fn new() -> UI {
 
-        let (tx, rx) = channel();
+        let (tx_sender, tx_receiver) = channel();
 
         let (rx_sender, rx_receiver) = channel();
 
@@ -43,18 +37,29 @@ impl UI {
         thread::spawn(move || {
             for message in receiver.incoming_messages() {
                 if let Ok(message) = message {
-                    if let OwnedMessage::Text(message) = message {
+                    if let OwnedMessage::Binary(message) = message {
+                        if let Ok(ui_message) = parse_from_bytes::<UiMessage>(&message) {
 
-                        match serde_json::from_str::<UIMessage>(&message) {
-                            Ok(ui_message) => {
-                                match rx_sender.send(ui_message) {
-                                    Ok(()) => (),
-                                    Err(_) => (),
-                                }
-                            },
-                            Err(_) => {},
+                            println!("{:?}", ui_message);
+
+                            match rx_sender.send(ui_message) {
+                                Ok(()) => (),
+                                Err(_) => (),
+                            }
                         }
                     }
+                    //if let OwnedMessage::Text(message) = message {
+
+                    //    match serde_json::from_str::<UIMessage>(&message) {
+                    //        Ok(ui_message) => {
+                    //            match rx_sender.send(ui_message) {
+                    //                Ok(()) => (),
+                    //                Err(_) => (),
+                    //            }
+                    //        },
+                    //        Err(_) => {},
+                    //    }
+                    //}
                 }
             }
         });
@@ -62,7 +67,7 @@ impl UI {
         thread::spawn(move || {
 
             loop {
-                let message = match rx.recv() {
+                let message = match tx_receiver.recv() {
                     Ok(m) => m,
                     Err(e) => {
                         //client.send_message(&message).unwrap();
@@ -90,7 +95,7 @@ impl UI {
         });
 
         UI {
-            tx: tx,
+            tx_sender: tx_sender,
             rx_receiver: rx_receiver,
         }
     }
@@ -100,14 +105,14 @@ impl UI {
         let encoded_message = serde_json::to_string(data).unwrap();
         //let encodedMessage = data.descriptor_static();
         //println!("Sending: {}", encoded_message);
-        self.tx.send(OwnedMessage::Text(encoded_message)).unwrap();
+        self.tx_sender.send(OwnedMessage::Text(encoded_message)).unwrap();
     }
 
     pub fn shutdown(&self) {
-        self.tx.send(OwnedMessage::Close(None)).unwrap();
+        self.tx_sender.send(OwnedMessage::Close(None)).unwrap();
     }
 
-    pub fn get_all_messages(&self) -> Vec<UIMessage> {
+    pub fn get_all_messages(&self) -> Vec<UiMessage> {
         let mut messages = Vec::new();
 
         for message in self.rx_receiver.try_iter() {

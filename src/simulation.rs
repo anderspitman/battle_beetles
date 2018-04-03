@@ -27,7 +27,7 @@ pub struct FieldState {
     food: Vec<Food>,
     beetles: Beetles,
     selected_beetles: Vec<Id>,
-    beetle_count: i32,
+    next_beetle_id: i32,
 }
 
 pub struct Simulation {
@@ -42,7 +42,9 @@ impl Simulation {
                 food: Vec::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
-                beetle_count: 0,
+                // This needs to start at 1 because protobuf doesn't handle
+                // 0s well. See https://github.com/google/protobuf/issues/1606
+                next_beetle_id: 1,
             },
         };
 
@@ -88,21 +90,21 @@ impl Simulation {
         }
     }
 
-    pub fn selected_idle_command(&mut self) {
-        for id in self.field_state.selected_beetles.iter() {
-            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
-                beetle.set_command(Command::Idle);
-            }
-        }
-    }
+    //pub fn selected_idle_command(&mut self) {
+    //    for id in self.field_state.selected_beetles.iter() {
+    //        if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+    //            beetle.set_command(Command::Idle);
+    //        }
+    //    }
+    //}
 
     pub fn add_beetle(&mut self, mut beetle: Beetle) -> Id {
 
-        let id = self.field_state.beetle_count;
+        let id = self.field_state.next_beetle_id;
         beetle.id = id;
-        self.field_state.beetles.insert(self.field_state.beetle_count, beetle);
+        self.field_state.beetles.insert(self.field_state.next_beetle_id, beetle);
 
-        self.field_state.beetle_count += 1;
+        self.field_state.next_beetle_id += 1;
 
         return id;
     }

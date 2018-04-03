@@ -1,9 +1,14 @@
+const MessageService = require('./message_service');
+const messages = require('./gen/messages_pb');
+const Two = require('two.js');
+
 const canvas = document.getElementById('canvas');
 const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
+
 
 const params = {
   width: viewportDimensions.width,
@@ -26,7 +31,7 @@ const visualBeetles = [];
 const visualFoods = [];
 //const vectorLines = [];
 
-const messageService = new messageServiceModule.MessageService();
+const messageService = new MessageService();
 const socket = messageService.getSocket();
 
 drawBackground();
@@ -52,6 +57,7 @@ socket.onmessage = (event) => {
         if (!shiftKeyDown) {
           messageService.deselectAllBeetles()
         }
+
         messageService.selectBeetle({ beetleId: beetle.id })
       };
 

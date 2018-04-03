@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+message UiMessage {
+    oneof actual {
+        SelectBeetle select_beetle = 1;
+        SelectedMoveCommand selected_move_command = 2;
+        DeselectAllBeetles deselect_all_beetles = 3;
+        SelectedInteractCommand selected_interact_command = 4;
+        Terminate terminate = 5;
+        CreateBeetle create_beetle = 6;
+    }
+}
+
+message SelectBeetle {
+    int32 beetle_id = 1;
+}
+
+message DeselectAllBeetles {
+}
+
+message SelectedMoveCommand {
+    float x = 1;
+    float y = 2; 
+}
+
+message SelectedInteractCommand {
+    int32 beetle_id = 1;
+}
+
+message Terminate {
+}
+
+message CreateBeetle {
+    float x = 1;
+    float y = 2; 
+}
