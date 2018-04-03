@@ -6,4 +6,6 @@ fn main() {
         input: &["protos/messages.proto"],
         includes: &["protos"],
     }).expect("protoc");
+
+    println!("cargo:rerun-if-changed=protos");
 }
