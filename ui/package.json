@@ -12,7 +12,6 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "gen-proto": "protoc --proto_path=../protos --js_out=import_style=commonjs,binary:gen ../protos/messages.proto",
     "build": "browserify index.js -o build/bundle.js"
   },
   "author": "",

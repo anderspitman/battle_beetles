@@ -2,3 +2,8 @@
 /target/
 **/*.rs.bk
 *.swp
+src/gen/
+ui/build/
+ui/gen/
+ui/node_modules/
+
