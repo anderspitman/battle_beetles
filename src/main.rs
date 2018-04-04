@@ -23,6 +23,9 @@ const MS_PER_SECOND: f32 = 1000.0;
 
 
 fn main() {
+
+    let index = include_str!("../ui/dist/index.html");
+    let bundle = include_str!("../ui/dist/bundle.js");
     
     let ui = ui::UI::new();
 

@@ -1,6 +1,6 @@
-const messages = require('./gen/messages_pb');
+import * as messages from './gen/messages_pb';
 
-class MessageService {
+export class MessageService {
   constructor() {
     this.socket = new WebSocket("ws://127.0.0.1:4020", "battle-beetles");
   }
@@ -57,5 +57,3 @@ class MessageService {
     this.socket.send(uiMessage.serializeBinary());
   }
 }
-
-module.exports = MessageService;

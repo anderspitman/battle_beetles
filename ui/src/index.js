@@ -1,6 +1,6 @@
-const MessageService = require('./message_service');
-const messages = require('./gen/messages_pb');
-const Two = require('two.js');
+import { MessageService } from './message_service';
+import * as messages from './gen/messages_pb';
+import * as Two from 'two.js';
 
 const canvas = document.getElementById('canvas');
 const stopButton = document.getElementById('stop-button');
