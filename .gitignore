@@ -3,7 +3,7 @@
 **/*.rs.bk
 *.swp
 src/gen/
-ui/build/
-ui/gen/
+ui/dist/
+ui/src/gen/
 ui/node_modules/
 

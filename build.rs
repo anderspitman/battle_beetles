@@ -14,7 +14,7 @@ fn main() {
     // generate js protobuf files
     let status = Command::new("protoc").args(&[
         "--proto_path=protos",
-        "--js_out=import_style=commonjs,binary:ui/gen",
+        "--js_out=import_style=commonjs,binary:ui/src/gen",
         "protos/messages.proto"]).status();
     match status {
         Ok(s) => {
@@ -43,7 +43,7 @@ fn main() {
     };
 
     println!("cargo:rerun-if-changed=protos/messages.proto");
-    println!("cargo:rerun-if-changed=ui/index.html");
-    println!("cargo:rerun-if-changed=ui/index.js");
-    println!("cargo:rerun-if-changed=ui/message_service.js");
+    println!("cargo:rerun-if-changed=ui/dist/index.html");
+    println!("cargo:rerun-if-changed=ui/src/index.js");
+    println!("cargo:rerun-if-changed=ui/src/message_service.js");
 }

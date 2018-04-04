@@ -4,15 +4,17 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "browserify": "^16.1.1",
     "google-protobuf": "^3.5.0",
     "protoc": "^1.0.3",
     "two.js": "^0.7.0-alpha.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify index.js -o build/bundle.js"
+    "build": "webpack"
   },
   "author": "",
   "license": "ISC"
