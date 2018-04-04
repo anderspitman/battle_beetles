@@ -21,7 +21,7 @@ use std::time::Duration;
 use cgmath::Rad;
 use rouille::Response;
 
-const SIMULATION_PERIOD_MS: u64 = 50;
+const SIMULATION_PERIOD_MS: u64 = 10;
 const MS_PER_SECOND: f32 = 1000.0;
 
 
