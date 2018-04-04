@@ -11,6 +11,7 @@ serde_json = "1.0"
 cgmath = {version = "0.16", features = ["serde"]}
 rand = "0.4"
 protobuf = "1.4"
+rouille = "2.1.0"
 
 [build-dependencies]
 protoc-rust = "1.4"

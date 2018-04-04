@@ -5,6 +5,8 @@ extern crate serde_derive;
 extern crate cgmath;
 extern crate rand;
 extern crate protobuf;
+#[macro_use]
+extern crate rouille;
 
 //mod FieldState;
 mod ui;
@@ -17,6 +19,7 @@ use beetle::BeetleBuilder;
 use std::thread;
 use std::time::Duration;
 use cgmath::Rad;
+use rouille::Response;
 
 const SIMULATION_PERIOD_MS: u64 = 50;
 const MS_PER_SECOND: f32 = 1000.0;
@@ -24,9 +27,28 @@ const MS_PER_SECOND: f32 = 1000.0;
 
 fn main() {
 
-    let index = include_str!("../ui/dist/index.html");
-    let bundle = include_str!("../ui/dist/bundle.js");
-    
+    // start web server
+    thread::spawn(move || {
+        let index = include_str!("../ui/dist/index.html");
+        let bundle = include_str!("../ui/dist/bundle.js");
+        rouille::start_server("0.0.0.0:8000", move |request| {
+
+            let response = router!(request,
+                (GET) ["/"] => {
+                    Response::html(index)
+                },
+                (GET) ["/bundle.js"] => {
+                    Response::text(bundle)
+                },
+                _ => {
+                    Response::empty_404()
+                }
+            );
+
+            response
+        });
+    });
+
     let ui = ui::UI::new();
 
     let mut sim = simulation::Simulation::new();
