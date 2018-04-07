@@ -27,27 +27,7 @@ const MS_PER_SECOND: f32 = 1000.0;
 
 fn main() {
 
-    // start web server
-    thread::spawn(move || {
-        let index = include_str!("../ui/dist/index.html");
-        let bundle = include_str!("../ui/dist/bundle.js");
-        rouille::start_server("0.0.0.0:8000", move |request| {
-
-            let response = router!(request,
-                (GET) ["/"] => {
-                    Response::html(index)
-                },
-                (GET) ["/bundle.js"] => {
-                    Response::text(bundle)
-                },
-                _ => {
-                    Response::empty_404()
-                }
-            );
-
-            response
-        });
-    });
+    run_web_server();
 
     let ui = ui::UI::new();
 
@@ -124,6 +104,30 @@ fn main() {
     }
 
     ui.shutdown();
+}
+
+fn run_web_server() {
+
+    thread::spawn(move || {
+        let index = include_str!("../ui/dist/index.html");
+        let bundle = include_str!("../ui/dist/bundle.js");
+        rouille::start_server("0.0.0.0:8000", move |request| {
+
+            let response = router!(request,
+                (GET) ["/"] => {
+                    Response::html(index)
+                },
+                (GET) ["/bundle.js"] => {
+                    Response::text(bundle)
+                },
+                _ => {
+                    Response::empty_404()
+                }
+            );
+
+            response
+        });
+    });
 }
 
 fn convert_value_for_sim_period(value: f32) -> f32 {
