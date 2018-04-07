@@ -30,14 +30,14 @@ pub struct FieldState {
     next_beetle_id: i32,
 }
 
-pub struct Simulation {
+pub struct Game {
     pub field_state: FieldState,
 }
 
-impl Simulation {
+impl Game {
 
-    pub fn new() -> Simulation {
-        let sim = Simulation {
+    pub fn new() -> Game {
+        let game = Game {
             field_state: FieldState {
                 food: Vec::new(),
                 beetles: Beetles::new(),
@@ -48,7 +48,7 @@ impl Simulation {
             },
         };
 
-        return sim;
+        return game;
     }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {

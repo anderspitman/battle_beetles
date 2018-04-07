@@ -1,5 +1,5 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
-use simulation::{Command, Action};
+use game::{Command, Action};
 use std::collections::HashMap;
 
 pub type Id = i32;

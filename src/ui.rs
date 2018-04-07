@@ -7,7 +7,7 @@ use serde_json;
 use gen::messages::UiMessage;
 use protobuf::parse_from_bytes;
 
-use simulation;
+use game;
 //use FieldState;
 
 pub struct UI {
@@ -100,7 +100,7 @@ impl UI {
         }
     }
 
-    pub fn update(&self, data: &simulation::FieldState) {
+    pub fn update(&self, data: &game::FieldState) {
     //pub fn update(&self, data: &FieldState::Person) {
         let encoded_message = serde_json::to_string(data).unwrap();
         //let encodedMessage = data.descriptor_static();
