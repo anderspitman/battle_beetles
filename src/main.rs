@@ -14,7 +14,7 @@ mod game;
 mod beetle;
 mod gen;
 
-use beetle::BeetleBuilder;
+use beetle::{BeetleBuilder, BeetleGenome};
 
 use std::thread;
 use std::time::Duration;
@@ -23,7 +23,7 @@ use rouille::Response;
 
 const SIMULATION_PERIOD_MS: u64 = 10;
 const MS_PER_SECOND: f32 = 1000.0;
-const SPEED_PIXELS_PER_SECOND: f32 = 100.0;
+const MAX_SPEED_UNITS_PER_SECOND: f32 = 300.0;
 const ROTATION_RADIANS_PER_SECOND: f32 = 3.14159;
 
 
@@ -36,24 +36,36 @@ fn main() {
     let mut game = game::Game::new();
 
     let converted_speed =
-        convert_value_for_sim_period(SPEED_PIXELS_PER_SECOND);
+        convert_value_for_sim_period(MAX_SPEED_UNITS_PER_SECOND);
 
     let converted_rotation =
         convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
 
+    let mut genome = BeetleGenome::new();
+        genome.set_size(0.0);
+        genome.set_carapace_density(0.0);
+        genome.set_strength(1.0);
+        genome.set_quickness(1.0);
     let mut beetle = BeetleBuilder::new()
-        .speed_pixels_per_tick(converted_speed)
+        .max_speed_units_per_tick(converted_speed)
         .rotation_radians_per_tick(Rad(converted_rotation))
         .x_pos(10.0)
         .y_pos(130.0)
+        .genome(genome)
         .build();
     game.add_beetle(beetle);
 
+    genome = BeetleGenome::new();
+        genome.set_size(1.0);
+        genome.set_carapace_density(1.0);
+        genome.set_strength(0.0);
+        genome.set_quickness(1.0);
     beetle = BeetleBuilder::new()
-        .speed_pixels_per_tick(converted_speed)
+        .max_speed_units_per_tick(converted_speed)
         .rotation_radians_per_tick(Rad(converted_rotation))
         .x_pos(100.0)
         .y_pos(200.0)
+        .genome(genome)
         .build();
     game.add_beetle(beetle);
     game.add_food(100.0, 100.0);
@@ -84,7 +96,7 @@ fn main() {
             }
             else if message.has_create_beetle() {
                 let beetle = BeetleBuilder::new()
-                    .speed_pixels_per_tick(converted_speed)
+                    //.speed_units_per_tick(converted_speed)
                     .rotation_radians_per_tick(Rad(converted_rotation))
                     .x_pos(message.get_create_beetle().get_x())
                     .y_pos(message.get_create_beetle().get_y())
