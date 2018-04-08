@@ -114,7 +114,7 @@ impl UI {
             new_beetle.set_x(beetle.position.x);
             new_beetle.set_y(beetle.position.y);
             new_beetle.set_angle(beetle.angle.0);
-            new_beetle.set_size(beetle.genome.size());
+            new_beetle.set_size(beetle.size());
             new_beetle.set_selected(beetle.selected);
 
             beetles.push(new_beetle);

@@ -5,10 +5,10 @@ use beetle::{BeetleBuilder, BeetleGenome, Beetles};
 use cgmath::Rad;
 use rand::{Rng, thread_rng};
 
-const POPULATION_SIZE: i32 = 100;
+const POPULATION_SIZE: i32 = 128;
 const SIMULATION_PERIOD_MS: u64 = 40;
 const MS_PER_SECOND: f32 = 1000.0;
-const MAX_SPEED_UNITS_PER_SECOND: f32 = 300.0;
+const MAX_SPEED_UNITS_PER_SECOND: f32 = 200.0;
 const ROTATION_RADIANS_PER_SECOND: f32 = 3.14159;
 
 pub struct SpeedSimulation<'a> {
@@ -45,7 +45,7 @@ impl<'a> Simulate for SpeedSimulation<'a> {
             convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
 
 
-        for i in 0..POPULATION_SIZE*3 {
+        for i in 0..POPULATION_SIZE {
 
             let rand_x: f32 = rng.gen_range(0.0, 1900.0);
             let rand_y: f32 = rng.gen_range(0.0, 500.0);

@@ -4,7 +4,8 @@ use std::collections::HashMap;
 
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
-//const MAX_SIZE: f32 = 10.0;
+const MAX_SIZE_UNITS: f32 = 40.0;
+const MIN_SIZE_UNITS: f32 = 10.0;
 //const MAX_CARAPACE_DENSITY: f32 = 10.0;
 //const MAX_MASS: f32 = MAX_SIZE * MAX_CARAPACE_DENSITY;
 
@@ -125,6 +126,10 @@ impl Beetle {
 
         let speed = speed_ratio * self.max_speed_units_per_tick;
         return speed;
+    }
+
+    pub fn size(&self) -> f32 {
+        (self.genome.size() * (MAX_SIZE_UNITS - MIN_SIZE_UNITS)) + MIN_SIZE_UNITS
     }
 
     //pub fn mass(&self) -> f32 {

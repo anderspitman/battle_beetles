@@ -145,15 +145,21 @@ function drawBackground() {
   };
 }
 
+const beetleDim = {
+  width: 20,
+  height: 20,
+  headRadius: 7,
+};
+
 function createBeetle() {
 
   const selectedIndicator = two.makeRectangle(0, 0, 50, 50);
   selectedIndicator.stroke = 'lightgreen';
   selectedIndicator.fill = 'none';
 
-  const body = two.makeRectangle(0, 0, 20, 20);
+  const body = two.makeRectangle(0, 0, beetleDim.width, beetleDim.height);
   body.fill = 'green';
-  const head = two.makeCircle(17, 0, 7);
+  const head = two.makeCircle(17, 0, beetleDim.headRadius);
   head.fill = 'black';
   const newBeetle = two.makeGroup(body, head);
 
@@ -176,9 +182,12 @@ function drawBeetle(beetle, index) {
   const visualBeetleData = visualBeetles[index];
   const visualBeetle = visualBeetleData.beetle;
 
+  // use width for scale heuristic
+  const scale = beetle.getSize() / beetleDim.width;
+
   const selectedIndicator = visualBeetleData.selectedIndicator;
   selectedIndicator.translation.set(beetle.getX(), beetle.getY());
-  //selectedIndicator.scale = beetle.genome.genome[0].Size;
+  selectedIndicator.scale = scale;
 
   if (beetle.getSelected()) {
     selectedIndicator.visible = true;
@@ -189,7 +198,7 @@ function drawBeetle(beetle, index) {
 
   visualBeetle.translation.set(beetle.getX(), beetle.getY());
   visualBeetle.rotation = beetle.getAngle();
-  visualBeetle.scale = beetle.getSize();
+  visualBeetle.scale = scale;
 
   //const line = vectorLines[index];
   //const [anchor1, anchor2] = line.vertices;
