@@ -173,6 +173,7 @@ function drawBeetle(beetle, index) {
 
   const selectedIndicator = visualBeetleData.selectedIndicator;
   selectedIndicator.translation.set(beetle.position.x, beetle.position.y);
+  //selectedIndicator.scale = beetle.genome.genome[0].Size;
 
   if (beetle.selected) {
     selectedIndicator.visible = true;
@@ -183,6 +184,7 @@ function drawBeetle(beetle, index) {
 
   visualBeetle.translation.set(beetle.position.x, beetle.position.y);
   visualBeetle.rotation = beetle.angle;
+  visualBeetle.scale = beetle.genome.genome[0].Size;
 
   //const line = vectorLines[index];
   //const [anchor1, anchor2] = line.vertices;
