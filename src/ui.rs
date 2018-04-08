@@ -1,11 +1,13 @@
 use std::thread;
 use std::sync::mpsc::{channel, Sender, Receiver};
 //use std::time::Duration;
-use websocket::{Message, OwnedMessage};
+use websocket;
+use websocket::{OwnedMessage};
 use websocket::sync::Server;
 use serde_json;
-use gen::messages::UiMessage;
-use protobuf::parse_from_bytes;
+use gen::messages::{UiMessage, UiUpdate, UiBeetle};
+use protobuf::{parse_from_bytes, RepeatedField, Message};
+use beetle::Beetle;
 
 use game;
 //use FieldState;
@@ -87,7 +89,7 @@ impl UI {
                     Ok(()) => (),
                     Err(e) => {
                         println!("Send Loop: {:?}", e);
-                        let _ = sender.send_message(&Message::close());
+                        let _ = sender.send_message(&websocket::Message::close());
                         return;
                     }
                 }
@@ -101,11 +103,37 @@ impl UI {
     }
 
     pub fn update(&self, data: &game::FieldState) {
-    //pub fn update(&self, data: &FieldState::Person) {
-        let encoded_message = serde_json::to_string(data).unwrap();
-        //let encodedMessage = data.descriptor_static();
-        //println!("Sending: {}", encoded_message);
-        self.tx_sender.send(OwnedMessage::Text(encoded_message)).unwrap();
+
+        let mut beetles = RepeatedField::new();
+        let mut state = UiUpdate::new();
+
+        for (_, beetle) in &data.beetles {
+            let mut new_beetle = UiBeetle::new();
+
+            new_beetle.set_id(beetle.id);
+            new_beetle.set_x(beetle.position.x);
+            new_beetle.set_y(beetle.position.y);
+            new_beetle.set_angle(beetle.angle.0);
+            new_beetle.set_size(beetle.genome.size());
+            new_beetle.set_selected(beetle.selected);
+
+            beetles.push(new_beetle);
+        }
+
+        state.set_beetles(beetles);
+
+        //println!("{:?}", state.get_beetles());
+
+        //let encoded_message = serde_json::to_string(data).unwrap();
+        //self.tx_sender.send(OwnedMessage::Text(encoded_message)).unwrap();
+        match state.write_to_bytes() {
+            Ok(encoded_message) => {
+                self.tx_sender.send(OwnedMessage::Binary(encoded_message)).unwrap();
+            },
+            Err(e) => {
+                println!("encode error");
+            }
+        }
     }
 
     pub fn shutdown(&self) {

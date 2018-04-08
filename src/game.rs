@@ -25,7 +25,7 @@ pub enum Action {
 #[derive(Serialize, Debug)]
 pub struct FieldState {
     food: Vec<Food>,
-    beetles: Beetles,
+    pub beetles: Beetles,
     selected_beetles: Vec<Id>,
     next_beetle_id: i32,
 }

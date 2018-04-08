@@ -23,7 +23,7 @@ use std::thread;
 use std::time::Duration;
 use rouille::Response;
 
-const SIMULATION_PERIOD_MS: u64 = 40;
+const SIMULATION_PERIOD_MS: u64 = 20;
 
 
 fn main() {

@@ -33,15 +33,20 @@ const visualFoods = [];
 
 const messageService = new MessageService();
 const socket = messageService.getSocket();
+socket.binaryType = 'arraybuffer';
 
 drawBackground();
 
 let messageCount = 0;
 socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
+
+  const uiUpdate = messages.UiUpdate.deserializeBinary(event.data);
+  const beetles = uiUpdate.getBeetlesList();
+  //console.log(beetles);
+  //const data = JSON.parse(event.data);
 
   // convert beetles object to array
-  const beetles = Object.entries(data.beetles).map((tuple) => tuple[1]);
+  //const beetles = Object.entries(data.beetles).map((tuple) => tuple[1]);
   //console.log(beetles);
   //const foods = data.food;
   //console.log(foods);
@@ -58,12 +63,12 @@ socket.onmessage = (event) => {
           messageService.deselectAllBeetles()
         }
 
-        messageService.selectBeetle({ beetleId: beetle.id })
+        messageService.selectBeetle({ beetleId: beetle.getId() })
       };
 
       visualBeetles[i].beetle._renderer.elem.oncontextmenu = (e) => {
         e.preventDefault();
-        messageService.selectedInteractCommand({ beetleId: beetle.id })
+        messageService.selectedInteractCommand({ beetleId: beetle.getId() })
       };
     }
 
@@ -172,19 +177,19 @@ function drawBeetle(beetle, index) {
   const visualBeetle = visualBeetleData.beetle;
 
   const selectedIndicator = visualBeetleData.selectedIndicator;
-  selectedIndicator.translation.set(beetle.position.x, beetle.position.y);
+  selectedIndicator.translation.set(beetle.getX(), beetle.getY());
   //selectedIndicator.scale = beetle.genome.genome[0].Size;
 
-  if (beetle.selected) {
+  if (beetle.getSelected()) {
     selectedIndicator.visible = true;
   }
   else {
     selectedIndicator.visible = false;
   }
 
-  visualBeetle.translation.set(beetle.position.x, beetle.position.y);
-  visualBeetle.rotation = beetle.angle;
-  visualBeetle.scale = beetle.genome.genome[0].Size;
+  visualBeetle.translation.set(beetle.getX(), beetle.getY());
+  visualBeetle.rotation = beetle.getAngle();
+  visualBeetle.scale = beetle.getSize();
 
   //const line = vectorLines[index];
   //const [anchor1, anchor2] = line.vertices;

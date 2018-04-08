@@ -14,18 +14,18 @@ pub type Beetles = HashMap<Id, Beetle>;
 #[derive(Serialize, Debug, Clone)]
 pub struct Beetle {
     pub id: Id,
-    position: Point2<f32>,
+    pub position: Point2<f32>,
     direction: Vector2<f32>,
-    angle: Rad<f32>,
+    pub angle: Rad<f32>,
     smell_range: i32,
     max_speed_units_per_tick: f32,
     rotation_radians_per_tick: Rad<f32>,
     num_eaten: i32,
     current_command: Command,
     attack_power: i32,
-    health: i32,
+    pub health: i32,
     pub selected: bool,
-    genome: BeetleGenome,
+    pub genome: BeetleGenome,
 }
 
 #[derive(Serialize, Debug, Clone)]
