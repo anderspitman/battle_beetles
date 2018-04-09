@@ -38,14 +38,16 @@ const statsChart = new Charts.ScatterPlot({
   yLabel: "Fitness",
   domElementId: 'chart-stats',
   yMin: 0,
-  yMax: 1,
+  yMax: 10,
   // TODO: get from server
   maxPoints: 128,
   variableNames: [
-    //"Max Fitness", "Average Fitness", "Min Fitness",
-    "Max Fitness",
-  ]
+    "Average Fitness", "Max Fitness",
+  ],
+  legend: true,
 });
+
+statsChart.reset();
 
 const visualBeetles = [];
 const visualFoods = [];
@@ -139,13 +141,20 @@ function handleStateUpdate(gameState) {
 
 function handleChartsUpdate(chartsMessage) {
 
-  const averageFitnesses = [];
+  const avgFitnessList = chartsMessage.getAverageFitnessesList();
+  const maxFitnessList = chartsMessage.getMaxFitnessesList();
+  const averageFitnesses = new Float32Array(avgFitnessList.length);
+  const maxFitnesses = new Float32Array(maxFitnessList.length);
   
-  for (let elem of chartsMessage.getAverageFitnessesList()) {
-    averageFitnesses.push(elem.getValue());
-  }
+  for (let i = 0; i < avgFitnessList.length; i++) {
 
-  console.log(averageFitnesses);
+    statsChart.addPoints({
+      yVals: [
+        avgFitnessList[i].getValue(),
+        maxFitnessList[i].getValue()
+      ],
+    });
+  }
 }
 
 function matchArrays(model, vis, createNew) {

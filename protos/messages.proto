@@ -8,10 +8,11 @@ message UiUpdate {
 }
 
 message UiCharts {
-    repeated AverageFitness average_fitnesses = 1;
+    repeated FloatWrapper average_fitnesses = 1;
+    repeated FloatWrapper max_fitnesses = 2;
 }
 
-message AverageFitness {
+message FloatWrapper {
     float value = 1;
 }
 

@@ -4,7 +4,7 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use websocket;
 use websocket::{OwnedMessage};
 use websocket::sync::Server;
-use gen::messages::{UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, AverageFitness};
+use gen::messages::{UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, FloatWrapper};
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
 use game;
@@ -136,18 +136,23 @@ impl UI {
         }
     }
 
-    pub fn update_charts(&self, data: Vec<f32>) {
+    pub fn update_charts(&self, average_fitness_data: Vec<f32>, max_fitness_data: Vec<f32>) {
         let mut ui_update = UiUpdate::new();
         let mut ui_charts = UiCharts::new();
         let mut average_fitnesses = RepeatedField::new();
+        let mut max_fitnesses = RepeatedField::new();
 
-        for value in data {
-            let mut average_fitness = AverageFitness::new();
-            average_fitness.set_value(value);
+        for (avg, max) in average_fitness_data.iter().zip(max_fitness_data) {
+            let mut average_fitness = FloatWrapper::new();
+            let mut max_fitness = FloatWrapper::new();
+            average_fitness.set_value(*avg);
+            max_fitness.set_value(max);
             average_fitnesses.push(average_fitness);
+            max_fitnesses.push(max_fitness);
         }
 
         ui_charts.set_average_fitnesses(average_fitnesses);
+        ui_charts.set_max_fitnesses(max_fitnesses);
         ui_update.set_charts(ui_charts);
 
         match ui_update.write_to_bytes() {

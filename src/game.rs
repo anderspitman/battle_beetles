@@ -1,5 +1,11 @@
 use cgmath::Point2;
+
 use beetle::{Beetle, Id, Beetles};
+use rand::{Rng, thread_rng};
+
+// This needs to start at 1 because protobuf doesn't handle
+// 0s well. See https://github.com/google/protobuf/issues/1606
+const STARTING_BEETLE_ID: i32 = 1;
 
 #[derive(Serialize, Debug, Clone)]
 pub enum Command {
@@ -42,9 +48,7 @@ impl Game {
                 //food: Vec::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
-                // This needs to start at 1 because protobuf doesn't handle
-                // 0s well. See https://github.com/google/protobuf/issues/1606
-                next_beetle_id: 1,
+                next_beetle_id: STARTING_BEETLE_ID,
             },
         };
 
@@ -114,6 +118,12 @@ impl Game {
     //    food.position = Point2::new(x, y);
     //    self.field_state.food.push(food);
     //}
+    
+    pub fn get_random_beetle_id(&self) -> i32 {
+        thread_rng().gen_range::<i32>(
+            STARTING_BEETLE_ID,
+            (self.field_state.next_beetle_id - 1) as i32)
+    }
 
     pub fn tick(&mut self) -> &FieldState {
 
