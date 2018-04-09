@@ -1,11 +1,13 @@
 use simulation::Simulate;
 use ui::UI;
-use game::{Game, FieldState};
-use beetle::{BeetleBuilder, BeetleGenome, Beetles};
+use game::{Game};
+use beetle::{BeetleBuilder, BeetleGenome};
 use cgmath::Rad;
 use rand::{Rng, thread_rng};
 
 const POPULATION_SIZE: i32 = 128;
+//const NUM_GENERATIONS: i32 = 64;
+
 const SIMULATION_PERIOD_MS: u64 = 40;
 const MS_PER_SECOND: f32 = 1000.0;
 const MAX_SPEED_UNITS_PER_SECOND: f32 = 200.0;
@@ -24,9 +26,9 @@ impl<'a> SpeedSimulation<'a> {
         }
     }
 
-    pub fn get_field_state(&self) -> &FieldState {
-        &self.game.field_state
-    }
+    //pub fn get_field_state(&self) -> &FieldState {
+    //    &self.game.field_state
+    //}
 
     pub fn get_game(&mut self) -> &mut Game {
         &mut self.game
@@ -45,7 +47,7 @@ impl<'a> Simulate for SpeedSimulation<'a> {
             convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
 
 
-        for i in 0..POPULATION_SIZE {
+        for _ in 0..POPULATION_SIZE {
 
             let rand_x: f32 = rng.gen_range(0.0, 1900.0);
             let rand_y: f32 = rng.gen_range(0.0, 500.0);

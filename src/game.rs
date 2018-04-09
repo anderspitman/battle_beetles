@@ -24,7 +24,7 @@ pub enum Action {
 
 #[derive(Serialize, Debug)]
 pub struct FieldState {
-    food: Vec<Food>,
+    //food: Vec<Food>,
     pub beetles: Beetles,
     selected_beetles: Vec<Id>,
     next_beetle_id: i32,
@@ -39,7 +39,7 @@ impl Game {
     pub fn new() -> Game {
         let game = Game {
             field_state: FieldState {
-                food: Vec::new(),
+                //food: Vec::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
                 // This needs to start at 1 because protobuf doesn't handle
@@ -109,11 +109,11 @@ impl Game {
         return id;
     }
 
-    pub fn add_food(&mut self, x: f32, y: f32) {
-        let mut food = Food::new();
-        food.position = Point2::new(x, y);
-        self.field_state.food.push(food);
-    }
+    //pub fn add_food(&mut self, x: f32, y: f32) {
+    //    let mut food = Food::new();
+    //    food.position = Point2::new(x, y);
+    //    self.field_state.food.push(food);
+    //}
 
     pub fn tick(&mut self) -> &FieldState {
 
@@ -150,15 +150,15 @@ impl Game {
 }
 
 
-#[derive(Serialize, Debug)]
-pub struct Food {
-    position: Point2<f32>
-}
+//#[derive(Serialize, Debug)]
+//pub struct Food {
+//    position: Point2<f32>
+//}
 
-impl Food {
-    pub fn new() -> Food {
-        Food{
-            position: Point2::new(0.0, 0.0)
-        }
-    }
-}
+//impl Food {
+//    pub fn new() -> Food {
+//        Food{
+//            position: Point2::new(0.0, 0.0)
+//        }
+//    }
+//}

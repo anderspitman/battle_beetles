@@ -4,10 +4,8 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use websocket;
 use websocket::{OwnedMessage};
 use websocket::sync::Server;
-use serde_json;
 use gen::messages::{UiMessage, UiUpdate, UiBeetle};
 use protobuf::{parse_from_bytes, RepeatedField, Message};
-use beetle::Beetle;
 
 use game;
 //use FieldState;
@@ -131,7 +129,7 @@ impl UI {
                 self.tx_sender.send(OwnedMessage::Binary(encoded_message)).unwrap();
             },
             Err(e) => {
-                println!("encode error");
+                println!("encode error: {}", e);
             }
         }
     }

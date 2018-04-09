@@ -32,8 +32,6 @@ fn main() {
 
     let ui = ui::UI::new();
 
-    let mut game = game::Game::new();
-
     let mut speed_simulation = SpeedSimulation::new(&ui);
     speed_simulation.run();
 

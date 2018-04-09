@@ -1,7 +1,6 @@
 use game::Game;
 use gen::messages::UiMessage;
 use beetle::BeetleBuilder;
-use cgmath::Rad;
 
 pub struct MessageHandler {
     //game: &'a mut Game,
