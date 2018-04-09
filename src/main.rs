@@ -33,19 +33,21 @@ fn main() {
     let ui = ui::UI::new();
 
     let mut speed_simulation = SpeedSimulation::new(&ui);
+    speed_simulation.mutate = false;
     speed_simulation.run();
-
-    let mut game = speed_simulation.get_game();
 
     let mut message_handler = MessageHandler::new();
 
     let mut done = false;
     while !done {
-        ui.update_game_state(game.tick());
+        {
+            let game = speed_simulation.get_game();
+            ui.update_game_state(game.tick());
+        }
         let messages = ui.get_all_messages();
 
         for message in messages {
-            done = message_handler.handle_message(&mut game, message);
+            done = message_handler.handle_message(&mut speed_simulation, message);
             if done {
                 break;
             }
