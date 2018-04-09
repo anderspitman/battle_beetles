@@ -1,21 +1,26 @@
 import { MessageService } from './message_service';
 import * as messages from './gen/messages_pb';
 import * as Two from 'two.js';
+import * as Charts from './charts';
 
 const canvas = document.getElementById('canvas');
+const rightPanel = document.getElementById('right-panel');
 const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
 
-
 const params = {
-  width: viewportDimensions.width,
+  //width: viewportDimensions.width,
+  width: rightPanel.clientWidth,
   height: viewportDimensions.height - buttonRowHeight,
+  //height: rightPanel.clientHeight,
   //type: Two.Types.webgl,
 };
 const two = new Two(params).appendTo(canvas);
+
+const canvasRect = canvas.getBoundingClientRect();
 
 let shiftKeyDown = false;
 window.onkeyup = function(e) {
@@ -27,6 +32,21 @@ window.onkeydown = function(e) {
   }
 };
 
+const statsChart = new Charts.ScatterPlot({
+  title: "Fitness",
+  xLabel: "Generation",
+  yLabel: "Fitness",
+  domElementId: 'chart-stats',
+  yMin: 0,
+  yMax: 1,
+  // TODO: get from server
+  maxPoints: 128,
+  variableNames: [
+    //"Max Fitness", "Average Fitness", "Min Fitness",
+    "Max Fitness",
+  ]
+});
+
 const visualBeetles = [];
 const visualFoods = [];
 //const vectorLines = [];
@@ -37,11 +57,42 @@ socket.binaryType = 'arraybuffer';
 
 drawBackground();
 
-let messageCount = 0;
 socket.onmessage = (event) => {
 
   const uiUpdate = messages.UiUpdate.deserializeBinary(event.data);
-  const beetles = uiUpdate.getBeetlesList();
+  //const messageBuffer = new Uint8Array(event.data);
+  //const messageType = messageBuffer[0];
+  //const message = messageBuffer.slice(1);
+
+  if (uiUpdate.hasGameState()) {
+    handleStateUpdate(uiUpdate.getGameState());
+  }
+  else if (uiUpdate.hasCharts()) {
+    handleChartsUpdate(uiUpdate.getCharts());
+  }
+}
+
+socket.onopen = (event) => {
+  //console.log("sending yolo")
+  //socket.send("Yolo")
+}
+
+socket.onclose = (event) => {
+  console.log("Websocket connection closed");
+}
+
+stopButton.onclick = (event) => {
+  messageService.terminate();
+}
+
+addBeetleButton.onclick = (e) => {
+  console.log("create beetle");
+  messageService.createBeetle({ x: 0.0, y: 0.0 });
+}
+
+function handleStateUpdate(gameState) {
+
+  const beetles = gameState.getBeetlesList();
   //console.log(beetles);
   //const data = JSON.parse(event.data);
 
@@ -83,24 +134,18 @@ socket.onmessage = (event) => {
   requestAnimationFrame(() => {
     two.update();
   });
+
 }
 
-socket.onopen = (event) => {
-  //console.log("sending yolo")
-  //socket.send("Yolo")
-}
+function handleChartsUpdate(chartsMessage) {
 
-socket.onclose = (event) => {
-  console.log("Websocket connection closed");
-}
+  const averageFitnesses = [];
+  
+  for (let elem of chartsMessage.getAverageFitnessesList()) {
+    averageFitnesses.push(elem.getValue());
+  }
 
-stopButton.onclick = (event) => {
-  messageService.terminate();
-}
-
-addBeetleButton.onclick = (e) => {
-  console.log("create beetle");
-  messageService.createBeetle({ x: 0.0, y: 0.0 });
+  console.log(averageFitnesses);
 }
 
 function matchArrays(model, vis, createNew) {
@@ -141,7 +186,11 @@ function drawBackground() {
 
   rect._renderer.elem.oncontextmenu = (e) => {
     e.preventDefault();
-    messageService.selectedMoveCommand({ x: e.clientX, y: e.clientY });
+    messageService.selectedMoveCommand({
+      // accounts for where the canvas is on the page
+      x: e.clientX - canvasRect.left,
+      y: e.clientY - canvasRect.top,
+    });
   };
 }
 

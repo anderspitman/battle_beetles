@@ -4,18 +4,82 @@
 
 <head>
   <meta charset="utf-8">
-  <style type="text/css">
+  <!--
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+  -->
+  <style>
     body {
       margin: 0;
     }
+
+    .container {
+        /*margin: auto;*/
+        /*width: 80%;*/
+        display: flex;
+        flex-direction: row;
+    }
+
+    #left-panel {
+        flex: 1;
+    }
+
+    #right-panel {
+        flex: 2;
+    }
+
+    .chart {
+        width: 100%;
+        height: 500px;
+        /*display: inline-block;*/
+    }
+
+    .chart__title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 14pt;
+        font-family: Arial;
+    }
+
+    .chart__container {
+        position: relative;
+    }
+
+    .chart__axes-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .chart__axis-label {
+        font-family: Arial;
+    }
+
+    .chart__legend__variable {
+        font-size: 10pt;
+        font-family: Arial;
+    }
+
+    #chart-diversity {
+        /*
+        width: 30%;
+        height: 500px;
+        */
+    }
+    
   </style>
 </head>
 
 <body>
-  <div id="canvas"></div>
+  <div class='container'>
+    <div id='left-panel'>
+      <div id='chart-stats' class='chart'></div>
+    </div>
+    <div id='right-panel'>
+      <div id="canvas"></div>
+    </div>
+  </div>
   <input id="stop-button" type="button" value="Stop"></input>
   <input id="add-beetle-button" type="button" value="Add Beetle"></input>
-  </script>
   <script src="/bundle.js"></script>
 </body>
 

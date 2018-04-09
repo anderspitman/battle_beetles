@@ -37,17 +37,11 @@ fn main() {
 
     let mut game = speed_simulation.get_game();
 
-    game.select_beetle(1);
-
-    //game.selected_move_command(200.0, 300.0);
-
-    //ui.update(&game.field_state);
-
     let mut message_handler = MessageHandler::new();
 
     let mut done = false;
     while !done {
-        ui.update(game.tick());
+        ui.update_game_state(game.tick());
         let messages = ui.get_all_messages();
 
         for message in messages {
@@ -67,6 +61,8 @@ fn run_web_server() {
     thread::spawn(move || {
         let index = include_str!("../ui/dist/index.html");
         let bundle = include_str!("../ui/dist/bundle.js");
+        // TODO: figure out how to separately load CSS
+        //let styles = include_str!("../ui/dist/styles.css");
         rouille::start_server("0.0.0.0:8000", move |request| {
 
             let response = router!(request,
@@ -76,6 +72,9 @@ fn run_web_server() {
                 (GET) ["/bundle.js"] => {
                     Response::text(bundle)
                 },
+                //(GET) ["/styles.css"] => {
+                //    Response::text(styles)
+                //},
                 _ => {
                     Response::empty_404()
                 }

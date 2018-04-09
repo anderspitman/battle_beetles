@@ -1,6 +1,21 @@
 syntax = "proto3";
 
 message UiUpdate {
+    oneof actual {
+        UiGameState game_state = 1;
+        UiCharts charts = 2;
+    }
+}
+
+message UiCharts {
+    repeated AverageFitness average_fitnesses = 1;
+}
+
+message AverageFitness {
+    float value = 1;
+}
+
+message UiGameState {
     repeated UiBeetle beetles = 1;
 }
 

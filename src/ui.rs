@@ -4,7 +4,7 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use websocket;
 use websocket::{OwnedMessage};
 use websocket::sync::Server;
-use gen::messages::{UiMessage, UiUpdate, UiBeetle};
+use gen::messages::{UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, AverageFitness};
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
 use game;
@@ -100,10 +100,12 @@ impl UI {
         }
     }
 
-    pub fn update(&self, data: &game::FieldState) {
+    pub fn update_game_state(&self, data: &game::FieldState) {
+
+        let mut ui_update = UiUpdate::new();
+        let mut ui_game_state = UiGameState::new();
 
         let mut beetles = RepeatedField::new();
-        let mut state = UiUpdate::new();
 
         for (_, beetle) in &data.beetles {
             let mut new_beetle = UiBeetle::new();
@@ -118,13 +120,37 @@ impl UI {
             beetles.push(new_beetle);
         }
 
-        state.set_beetles(beetles);
+        ui_game_state.set_beetles(beetles);
+        ui_update.set_game_state(ui_game_state);
 
-        //println!("{:?}", state.get_beetles());
+        match ui_update.write_to_bytes() {
+            Ok(encoded_message) => {
+                // prepend message type byte
+                //let mut final_message = vec![0];
+                //final_message.append(&mut encoded_message);
+                self.tx_sender.send(OwnedMessage::Binary(encoded_message)).unwrap();
+            },
+            Err(e) => {
+                println!("encode error: {}", e);
+            }
+        }
+    }
 
-        //let encoded_message = serde_json::to_string(data).unwrap();
-        //self.tx_sender.send(OwnedMessage::Text(encoded_message)).unwrap();
-        match state.write_to_bytes() {
+    pub fn update_charts(&self, data: Vec<f32>) {
+        let mut ui_update = UiUpdate::new();
+        let mut ui_charts = UiCharts::new();
+        let mut average_fitnesses = RepeatedField::new();
+
+        for value in data {
+            let mut average_fitness = AverageFitness::new();
+            average_fitness.set_value(value);
+            average_fitnesses.push(average_fitness);
+        }
+
+        ui_charts.set_average_fitnesses(average_fitnesses);
+        ui_update.set_charts(ui_charts);
+
+        match ui_update.write_to_bytes() {
             Ok(encoded_message) => {
                 self.tx_sender.send(OwnedMessage::Binary(encoded_message)).unwrap();
             },

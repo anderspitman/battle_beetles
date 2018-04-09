@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "d3": "^5.0.0",
     "google-protobuf": "^3.5.0",
     "protoc": "^1.0.3",
     "two.js": "^0.7.0-alpha.1"
