@@ -158,9 +158,9 @@ function createBeetle() {
   selectedIndicator.fill = 'none';
 
   const body = two.makeRectangle(0, 0, beetleDim.width, beetleDim.height);
-  body.fill = 'green';
+  body.fill = '#679b50';
   const head = two.makeCircle(17, 0, beetleDim.headRadius);
-  head.fill = 'black';
+  head.fill = '#1c1c1c';
   const newBeetle = two.makeGroup(body, head);
 
   //const vectorLine = two.makeLine(0, 0, 0, 0);
