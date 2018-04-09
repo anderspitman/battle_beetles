@@ -19,6 +19,7 @@ const ROTATION_RADIANS_PER_SECOND: f32 = 3.14159;
 pub struct SpeedSimulation<'a> {
     ui: &'a UI,
     game: Game,
+    pub mutate: bool,
 }
 
 impl<'a> SpeedSimulation<'a> {
@@ -26,6 +27,7 @@ impl<'a> SpeedSimulation<'a> {
         SpeedSimulation {
             ui,
             game: Game::new(),
+            mutate: true,
         }
     }
 
@@ -72,37 +74,48 @@ impl<'a> SpeedSimulation<'a> {
         let mut fitnesses = Vec::new();
         let mut genomes = Vec::new();
 
-        let mut new_population = Beetles::new();
+        if self.mutate {
+            let mut new_population = Beetles::new();
 
-        let mut id = 1;
-        while new_population.len() < self.game.field_state.beetles.len() {
+            let mut id = 1;
+            while new_population.len() < self.game.field_state.beetles.len() {
 
-            let parent1_id = self.tournament_select_individual();
-            let parent2_id = self.tournament_select_individual();
+                let parent1_id = self.tournament_select_individual();
+                let parent2_id = self.tournament_select_individual();
 
-            let parent1 = self.game.field_state.beetles.get(&parent1_id).unwrap();
-            let parent2 = self.game.field_state.beetles.get(&parent2_id).unwrap();
+                let parent1 = self.game.field_state.beetles.get(&parent1_id).unwrap();
+                let parent2 = self.game.field_state.beetles.get(&parent2_id).unwrap();
 
-            let mut offspring1 = self.mutate(&parent1);
-            let mut offspring2 = self.mutate(&parent2);
+                let mut offspring1;
+                let mut offspring2;
 
-            fitnesses.push(SpeedSimulation::fitness(&offspring1));
-            fitnesses.push(SpeedSimulation::fitness(&offspring2));
+                offspring1 = self.mutate(&parent1);
+                offspring2 = self.mutate(&parent2);
 
-            genomes.push(offspring1.genome.clone());
-            genomes.push(offspring2.genome.clone());
+                fitnesses.push(SpeedSimulation::fitness(&offspring1));
+                fitnesses.push(SpeedSimulation::fitness(&offspring2));
 
-            offspring1.id = id;
-            offspring1.position = random_position();
-            new_population.insert(id, offspring1);
-            id += 1;
-            offspring2.id = id;
-            offspring2.position = random_position();
-            new_population.insert(id, offspring2);
-            id += 1;
+                genomes.push(offspring1.genome.clone());
+                genomes.push(offspring2.genome.clone());
+
+                offspring1.id = id;
+                offspring1.position = random_position();
+                new_population.insert(id, offspring1);
+                id += 1;
+                offspring2.id = id;
+                offspring2.position = random_position();
+                new_population.insert(id, offspring2);
+                id += 1;
+            }
+
+            self.game.field_state.beetles = new_population;
         }
-
-        self.game.field_state.beetles = new_population;
+        else {
+            for (_, beetle) in &self.game.field_state.beetles {
+                fitnesses.push(SpeedSimulation::fitness(&beetle));
+                genomes.push(beetle.genome.clone());
+            }
+        }
 
         return (fitnesses, genomes);
     }

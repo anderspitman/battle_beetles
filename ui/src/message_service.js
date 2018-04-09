@@ -56,4 +56,11 @@ export class MessageService {
     uiMessage.setTerminate(message);
     this.socket.send(uiMessage.serializeBinary());
   }
+
+  runMutateSimulation() {
+    const message = new messages.RunMutateSimulation();
+    const uiMessage = new messages.UiMessage();
+    uiMessage.setRunMutateSimulation(message);
+    this.socket.send(uiMessage.serializeBinary());
+  }
 }

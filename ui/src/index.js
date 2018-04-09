@@ -7,6 +7,7 @@ const canvas = document.getElementById('canvas');
 const rightPanel = document.getElementById('right-panel');
 const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
+const mutateSimButton = document.getElementById('mutate-sim-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
@@ -109,8 +110,13 @@ stopButton.onclick = (event) => {
 }
 
 addBeetleButton.onclick = (e) => {
-  console.log("create beetle");
   messageService.createBeetle({ x: 0.0, y: 0.0 });
+}
+
+mutateSimButton.onclick = (e) => {
+  fitnessChart.reset();
+  geneChart.reset();
+  messageService.runMutateSimulation();
 }
 
 function handleStateUpdate(gameState) {
