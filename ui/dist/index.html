@@ -21,6 +21,8 @@
 
     #left-panel {
         flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     #right-panel {
@@ -29,7 +31,8 @@
 
     .chart {
         width: 100%;
-        height: 500px;
+        /*height: 500px;*/
+        height: 50vh;
         /*display: inline-block;*/
     }
 
@@ -73,6 +76,7 @@
   <div class='container'>
     <div id='left-panel'>
       <div id='chart-stats' class='chart'></div>
+      <div id='chart-genes' class='chart'></div>
     </div>
     <div id='right-panel'>
       <div id="canvas"></div>

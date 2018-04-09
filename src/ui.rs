@@ -136,23 +136,58 @@ impl UI {
         }
     }
 
-    pub fn update_charts(&self, average_fitness_data: Vec<f32>, max_fitness_data: Vec<f32>) {
+    pub fn update_charts(
+            &self,
+            average_fitness_data: Vec<f32>,
+            max_fitness_data: Vec<f32>,
+            average_sizes_data: Vec<f32>,
+            average_densities_data: Vec<f32>,
+            average_strengths_data: Vec<f32>,
+            average_quicknesses_data: Vec<f32>) {
+
         let mut ui_update = UiUpdate::new();
         let mut ui_charts = UiCharts::new();
         let mut average_fitnesses = RepeatedField::new();
         let mut max_fitnesses = RepeatedField::new();
+        let mut average_sizes = RepeatedField::new();
+        let mut average_densities = RepeatedField::new();
+        let mut average_strengths = RepeatedField::new();
+        let mut average_quicknesses = RepeatedField::new();
+        //let mut average_sizes = RepeatedField::new();
 
-        for (avg, max) in average_fitness_data.iter().zip(max_fitness_data) {
+        //for (avg, max) in average_fitness_data.iter().zip(max_fitness_data) {
+        for i in 0..average_fitness_data.len() {
             let mut average_fitness = FloatWrapper::new();
-            let mut max_fitness = FloatWrapper::new();
-            average_fitness.set_value(*avg);
-            max_fitness.set_value(max);
+            average_fitness.set_value(average_fitness_data[i]);
             average_fitnesses.push(average_fitness);
+
+            let mut max_fitness = FloatWrapper::new();
+            max_fitness.set_value(max_fitness_data[i]);
             max_fitnesses.push(max_fitness);
+
+            let mut average_size = FloatWrapper::new();
+            average_size.set_value(average_sizes_data[i]);
+            average_sizes.push(average_size);
+
+            let mut average_density = FloatWrapper::new();
+            average_density.set_value(average_densities_data[i]);
+            average_densities.push(average_density);
+
+            let mut average_strength = FloatWrapper::new();
+            average_strength.set_value(average_strengths_data[i]);
+            average_strengths.push(average_strength);
+
+            let mut average_quickness = FloatWrapper::new();
+            average_quickness.set_value(average_quicknesses_data[i]);
+            average_quicknesses.push(average_quickness);
         }
 
         ui_charts.set_average_fitnesses(average_fitnesses);
         ui_charts.set_max_fitnesses(max_fitnesses);
+        ui_charts.set_average_sizes(average_sizes);
+        ui_charts.set_average_densities(average_densities);
+        ui_charts.set_average_strengths(average_strengths);
+        ui_charts.set_average_quicknesses(average_quicknesses);
         ui_update.set_charts(ui_charts);
 
         match ui_update.write_to_bytes() {

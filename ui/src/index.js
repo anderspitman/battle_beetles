@@ -32,22 +32,43 @@ window.onkeydown = function(e) {
   }
 };
 
-const statsChart = new Charts.ScatterPlot({
-  title: "Fitness",
+// TODO: get from server
+const numGenerations = 128;
+
+const fitnessChart = new Charts.ScatterPlot({
+  title: "Fitness (Speed)",
   xLabel: "Generation",
   yLabel: "Fitness",
   domElementId: 'chart-stats',
   yMin: 0,
   yMax: 10,
-  // TODO: get from server
-  maxPoints: 128,
+  maxPoints: numGenerations,
   variableNames: [
-    "Average Fitness", "Max Fitness",
+    "Average Fitness",
+    "Max Fitness",
   ],
   legend: true,
 });
 
-statsChart.reset();
+const geneChart = new Charts.ScatterPlot({
+  title: "Gene Expression",
+  xLabel: "Generation",
+  yLabel: "Expression Ratio",
+  domElementId: 'chart-genes',
+  yMin: 0,
+  yMax: 1,
+  maxPoints: numGenerations,
+  variableNames: [
+    "Size",
+    "Density",
+    "Strength",
+    "Quickness",
+  ],
+  legend: true,
+});
+
+fitnessChart.reset();
+geneChart.reset();
 
 const visualBeetles = [];
 const visualFoods = [];
@@ -143,15 +164,26 @@ function handleChartsUpdate(chartsMessage) {
 
   const avgFitnessList = chartsMessage.getAverageFitnessesList();
   const maxFitnessList = chartsMessage.getMaxFitnessesList();
-  const averageFitnesses = new Float32Array(avgFitnessList.length);
-  const maxFitnesses = new Float32Array(maxFitnessList.length);
+  const avgSizeList = chartsMessage.getAverageSizesList();
+  const avgDensityList = chartsMessage.getAverageDensitiesList();
+  const avgStrengthList = chartsMessage.getAverageStrengthsList();
+  const avgQuicknessList = chartsMessage.getAverageQuicknessesList();
   
   for (let i = 0; i < avgFitnessList.length; i++) {
 
-    statsChart.addPoints({
+    fitnessChart.addPoints({
       yVals: [
         avgFitnessList[i].getValue(),
         maxFitnessList[i].getValue()
+      ],
+    });
+
+    geneChart.addPoints({
+      yVals: [
+        avgSizeList[i].getValue(),
+        avgDensityList[i].getValue(),
+        avgStrengthList[i].getValue(),
+        avgQuicknessList[i].getValue(),
       ],
     });
   }

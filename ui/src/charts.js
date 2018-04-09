@@ -241,7 +241,8 @@ class ScatterPlot extends TwoJsChart {
     const g = this.overlayContainer
       .append("g")
         .attr("class", "chart__legend")
-        .attr("transform", translate(this.width - 175, this.height - 300)) 
+        //.attr("transform", translate(this.width - 175, this.height - 300)) 
+        .attr("transform", translate(this.width - 175, this.height - 175)) 
 
     const variable = g
       .selectAll(".chart__legend__variable")

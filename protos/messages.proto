@@ -10,6 +10,10 @@ message UiUpdate {
 message UiCharts {
     repeated FloatWrapper average_fitnesses = 1;
     repeated FloatWrapper max_fitnesses = 2;
+    repeated FloatWrapper average_sizes = 3;
+    repeated FloatWrapper average_densities = 4;
+    repeated FloatWrapper average_strengths = 5;
+    repeated FloatWrapper average_quicknesses = 6;
 }
 
 message FloatWrapper {

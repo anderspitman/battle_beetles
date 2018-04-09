@@ -67,9 +67,10 @@ impl<'a> SpeedSimulation<'a> {
         }
     }
 
-    fn run_generation(&mut self) -> Vec<f32> {
+    fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>) {
 
         let mut fitnesses = Vec::new();
+        let mut genomes = Vec::new();
 
         let mut new_population = Beetles::new();
 
@@ -88,6 +89,9 @@ impl<'a> SpeedSimulation<'a> {
             fitnesses.push(SpeedSimulation::fitness(&offspring1));
             fitnesses.push(SpeedSimulation::fitness(&offspring2));
 
+            genomes.push(offspring1.genome.clone());
+            genomes.push(offspring2.genome.clone());
+
             offspring1.id = id;
             offspring1.position = random_position();
             new_population.insert(id, offspring1);
@@ -100,7 +104,7 @@ impl<'a> SpeedSimulation<'a> {
 
         self.game.field_state.beetles = new_population;
 
-        return fitnesses;
+        return (fitnesses, genomes);
     }
 
     fn tournament_select_individual(&self) -> i32 {
@@ -168,18 +172,43 @@ impl<'a> Simulate for SpeedSimulation<'a> {
 
         let mut average_fitnesses = Vec::new();
         let mut max_fitnesses = Vec::new();
+        let mut average_sizes: Vec<f32> = Vec::new();
+        let mut average_densities: Vec<f32> = Vec::new();
+        let mut average_strengths: Vec<f32> = Vec::new();
+        let mut average_quicknesses: Vec<f32> = Vec::new();
 
         for i in 0..NUM_GENERATIONS {
             println!("Run generation {}", i);
-            let fitnesses = self.run_generation();
+
+            let (fitnesses, genomes) = self.run_generation();
+
+
             let average_fitness = mean(&fitnesses);
-            let max_fitness = max(&fitnesses);
             average_fitnesses.push(average_fitness);
+            let max_fitness = max(&fitnesses);
             max_fitnesses.push(max_fitness);
+
+            let sizes = genomes.iter().map(|x| x.size()).collect();
+            let average_size = mean(&sizes);
+            average_sizes.push(average_size);
+
+            let densities = genomes.iter().map(|x| x.carapace_density()).collect();
+            let average_density = mean(&densities);
+            average_densities.push(average_density);
+
+            let strengths = genomes.iter().map(|x| x.strength()).collect();
+            let average_strength = mean(&strengths);
+            average_strengths.push(average_strength);
+
+            let quicknesses = genomes.iter().map(|x| x.quickness()).collect();
+            let average_quickness = mean(&quicknesses);
+            average_quicknesses.push(average_quickness);
         }
 
         self.ui.update_game_state(&self.game.field_state);
-        self.ui.update_charts(average_fitnesses, max_fitnesses);
+        self.ui.update_charts(
+            average_fitnesses, max_fitnesses, average_sizes, average_densities,
+            average_strengths, average_quicknesses);
     }
 }
 
