@@ -57,10 +57,17 @@ export class MessageService {
     this.socket.send(uiMessage.serializeBinary());
   }
 
-  runMutateSimulation() {
-    const message = new messages.RunMutateSimulation();
+  runSpeedSimulation() {
+    const message = new messages.RunSpeedSimulation();
     const uiMessage = new messages.UiMessage();
-    uiMessage.setRunMutateSimulation(message);
+    uiMessage.setRunSpeedSimulation(message);
+    this.socket.send(uiMessage.serializeBinary());
+  }
+
+  runBattleSimulation() {
+    const message = new messages.RunBattleSimulation();
+    const uiMessage = new messages.UiMessage();
+    uiMessage.setRunBattleSimulation(message);
     this.socket.send(uiMessage.serializeBinary());
   }
 }

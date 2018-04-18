@@ -7,7 +7,8 @@ const canvas = document.getElementById('canvas');
 const rightPanel = document.getElementById('right-panel');
 const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
-const mutateSimButton = document.getElementById('mutate-sim-button');
+const speedSimButton = document.getElementById('speed-sim-button');
+const battleSimButton = document.getElementById('battle-sim-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
@@ -37,7 +38,7 @@ window.onkeydown = function(e) {
 const numGenerations = 128;
 
 const fitnessChart = new Charts.ScatterPlot({
-  title: "Fitness (Speed)",
+  title: "Fitness",
   xLabel: "Generation",
   yLabel: "Fitness",
   domElementId: 'chart-stats',
@@ -113,10 +114,16 @@ addBeetleButton.onclick = (e) => {
   messageService.createBeetle({ x: 0.0, y: 0.0 });
 }
 
-mutateSimButton.onclick = (e) => {
+speedSimButton.onclick = (e) => {
   fitnessChart.reset();
   geneChart.reset();
-  messageService.runMutateSimulation();
+  messageService.runSpeedSimulation();
+}
+
+battleSimButton.onclick = (e) => {
+  fitnessChart.reset();
+  geneChart.reset();
+  messageService.runBattleSimulation();
 }
 
 function handleStateUpdate(gameState) {

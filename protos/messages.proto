@@ -42,7 +42,8 @@ message UiMessage {
         SelectedInteractCommand selected_interact_command = 4;
         Terminate terminate = 5;
         CreateBeetle create_beetle = 6;
-        RunMutateSimulation run_mutate_simulation = 7;
+        RunSpeedSimulation run_speed_simulation = 7;
+        RunBattleSimulation run_battle_simulation = 8;
     }
 }
 
@@ -65,7 +66,10 @@ message SelectedInteractCommand {
 message Terminate {
 }
 
-message RunMutateSimulation {
+message RunSpeedSimulation {
+}
+
+message RunBattleSimulation {
 }
 
 message CreateBeetle {

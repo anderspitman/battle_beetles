@@ -1,39 +1,36 @@
 use simulation::Simulate;
-use simulation::speed_simulation::SpeedSimulation;
+use game::Game;
 use gen::messages::UiMessage;
 use beetle::BeetleBuilder;
+use simulation::speed_simulation::SpeedSimulation;
+use simulation::battle_simulation::BattleSimulation;
+use ui::UI;
 
 pub struct MessageHandler {
-    //game: &'a mut Game,
 }
 
 impl MessageHandler {
-    //pub fn new(game: &mut Game) -> MessageHandler {
     pub fn new() -> MessageHandler {
-        //MessageHandler { game }
         MessageHandler {}
     }
 
-    pub fn handle_message(&mut self, sim: &mut SpeedSimulation, message: UiMessage) -> bool {
+    pub fn handle_message(
+            &mut self, game: &mut Game, ui: &UI, message: UiMessage) -> bool {
 
         let mut done = false;
 
         if message.has_select_beetle() {
-            let game = sim.get_game();
             game.select_beetle(message.get_select_beetle().get_beetle_id());
         }
         else if message.has_selected_move_command() {
-            let game = sim.get_game();
             game.selected_move_command(
                 message.get_selected_move_command().get_x(),
                 message.get_selected_move_command().get_y());
         }
         else if message.has_deselect_all_beetles() {
-            let game = sim.get_game();
             game.deselect_all_beetles();
         }
         else if message.has_create_beetle() {
-            let game = sim.get_game();
             let beetle = BeetleBuilder::new()
                 //.speed_units_per_tick(converted_speed)
                 //.rotation_radians_per_tick(Rad(converted_rotation))
@@ -43,16 +40,21 @@ impl MessageHandler {
             game.add_beetle(beetle);
         }
         else if message.has_selected_interact_command() {
-            let game = sim.get_game();
             game.selected_interact_command(
                 message.get_selected_interact_command().get_beetle_id());
         }
         else if message.has_terminate() {
             done = true;
         }
-        else if message.has_run_mutate_simulation() {
-            sim.mutate = true;
-            sim.run();
+        else if message.has_run_speed_simulation() {
+
+            let mut simulation = SpeedSimulation::new(game, &ui);
+            simulation.run();
+        }
+        else if message.has_run_battle_simulation() {
+
+            let mut simulation = BattleSimulation::new(game, &ui);
+            simulation.run();
         }
 
         return done;

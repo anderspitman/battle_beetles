@@ -1,6 +1,6 @@
-use cgmath::Point2;
+use cgmath::{Rad, Point2};
 
-use beetle::{Beetle, Id, Beetles};
+use beetle::{BeetleBuilder, BeetleGenome, Beetle, Id, Beetles};
 use rand::{Rng, thread_rng};
 
 // This needs to start at 1 because protobuf doesn't handle
@@ -53,6 +53,31 @@ impl Game {
         };
 
         return game;
+    }
+
+    pub fn set_random_population(
+            &mut self, population_size: i32, max_speed: f32,
+            max_rotation: f32) {
+
+        let mut rng = thread_rng();
+
+        for _ in 0..population_size {
+
+            let mut genome = BeetleGenome::new();
+                genome.set_size(rng.gen());
+                genome.set_carapace_density(rng.gen());
+                genome.set_strength(rng.gen());
+                genome.set_quickness(rng.gen());
+            let mut beetle = BeetleBuilder::new()
+                .max_speed_units_per_tick(max_speed)
+                .rotation_radians_per_tick(Rad(max_rotation))
+                .x_pos(rng.gen_range(0.0, 500.0))
+                .y_pos(rng.gen_range(0.0, 500.0))
+                .genome(genome)
+                .build();
+            self.add_beetle(beetle);
+        }
+
     }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {
@@ -113,12 +138,6 @@ impl Game {
         return id;
     }
 
-    //pub fn add_food(&mut self, x: f32, y: f32) {
-    //    let mut food = Food::new();
-    //    food.position = Point2::new(x, y);
-    //    self.field_state.food.push(food);
-    //}
-    
     pub fn get_random_beetle_id(&self) -> i32 {
         thread_rng().gen_range::<i32>(
             STARTING_BEETLE_ID,
@@ -158,17 +177,3 @@ impl Game {
         &self.field_state
     }
 }
-
-
-//#[derive(Serialize, Debug)]
-//pub struct Food {
-//    position: Point2<f32>
-//}
-
-//impl Food {
-//    pub fn new() -> Food {
-//        Food{
-//            position: Point2::new(0.0, 0.0)
-//        }
-//    }
-//}
