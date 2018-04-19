@@ -2,6 +2,7 @@ use cgmath::{Rad, Point2};
 
 use beetle::{BeetleBuilder, BeetleGenome, Beetle, Id, Beetles};
 use rand::{Rng, thread_rng};
+use std::f32;
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
@@ -126,11 +127,61 @@ impl Game {
     }
 
     pub fn selected_move_command(&mut self, x: f32, y: f32) {
-        for id in self.field_state.selected_beetles.iter() {
-            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
-                beetle.set_command(Command::Move{ position: Point2::new(x, y) });
+        if self.field_state.selected_beetles.len() == 1 {
+            for id in self.field_state.selected_beetles.iter() {
+                if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+                    beetle.set_command(Command::Move{ position: Point2::new(x, y) });
+                }
             }
         }
+        else {
+            self.move_in_formation(x, y);
+        }
+    }
+
+    fn move_in_formation(&mut self, x: f32, y: f32) {
+        let (x1, y1, x2, y2) = self.calculate_selected_bounding_box();
+        let center_x = ((x2 - x1) / 2.0) + x1;
+        let center_y = ((y2 - y1) / 2.0) + y1;
+        let vector = Point2::new(x, y) - Point2::new(center_x, center_y);
+
+        println!("center: {}, {}", center_x, center_y);
+        println!("move vector: {}, {}", vector.x, vector.y);
+
+        for id in self.field_state.selected_beetles.iter() {
+            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+                let position = beetle.position;
+                beetle.set_command(Command::Move{ position: position + vector });
+            }
+        }
+    }
+
+    fn calculate_selected_bounding_box(&self) -> (f32, f32, f32, f32) {
+
+        let mut x_low = f32::MAX;
+        let mut y_low = f32::MAX;
+        let mut x_high = f32::MIN;
+        let mut y_high = f32::MIN;
+
+        for id in self.field_state.selected_beetles.iter() {
+            if let Some(beetle) = self.field_state.beetles.get(id) {
+                //beetle.set_command(Command::Move{ position: Point2::new(x, y) });
+                if beetle.position.x < x_low {
+                    x_low = beetle.position.x;
+                }
+                if beetle.position.x > x_high {
+                    x_high = beetle.position.x;
+                }
+                if beetle.position.y < y_low {
+                    y_low = beetle.position.y;
+                }
+                if beetle.position.y > y_high {
+                    y_high = beetle.position.y;
+                }
+            }
+        }
+
+        return (x_low, y_low, x_high, y_high);
     }
 
     pub fn selected_interact_command(&mut self, target_id: Id) {
