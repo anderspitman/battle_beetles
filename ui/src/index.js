@@ -259,20 +259,16 @@ function drawBackground() {
   };
 
   rect._renderer.elem.onmousedown = (e) => {
-    console.log("mousedown");
     dragging = true;
     dragStart = getWorldPosition(e)
-    console.log(dragStart);
     e.preventDefault();
   }
 
   rect._renderer.elem.onmouseup = (e) => {
-    console.log("mouseup");
 
-    // if left mouse button
-    if (e.button === 0) {
+    const LEFT_MOUSE_BUTTON_ID = 0;
+    if (e.button === LEFT_MOUSE_BUTTON_ID) {
       dragEnd = getWorldPosition(e)
-      console.log(dragEnd);
       dragging = false;
       messageService.selectAllInArea({
         x1: dragStart.x,

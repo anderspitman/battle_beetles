@@ -100,8 +100,6 @@ impl Game {
         let y_low = y1.min(y2);
         let y_high = y1.max(y2);
 
-        println!("{}, {}, {}, {}", x_low, y_low, x_high, y_high);
-
         self.deselect_all_beetles();
 
         for (_, beetle) in self.field_state.beetles.iter() {
@@ -119,8 +117,6 @@ impl Game {
     }
 
     pub fn deselect_all_beetles(&mut self) {
-
-        println!("deselect_all_beetles");
 
         for (_, beetle) in self.field_state.beetles.iter_mut() {
             beetle.selected = false;
