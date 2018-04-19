@@ -3,9 +3,11 @@ pub mod battle_simulation;
 
 use game::Game;
 use ui::UI;
-use beetle::{BeetleGenome};
+use beetle::{Beetle, BeetleGenome};
+use rand::{Rng, thread_rng};
 
 const NUM_GENERATIONS: i32 = 128;
+const MUTATION_RATE: f32 = 0.1;
 
 pub trait Simulate {
     fn run(&mut self) {
@@ -55,6 +57,25 @@ pub trait Simulate {
 
     fn get_game(&self) -> &Game;
     fn get_ui(&self) -> &UI;
+
+    fn get_random_individual_id(&self) -> i32 {
+        self.get_game().get_random_beetle_id()
+    }
+
+    fn mutate(&self, parent: &Beetle) -> Beetle {
+        let mut offspring = parent.clone();
+
+        let mutate = thread_rng().gen::<f32>() < MUTATION_RATE;
+
+        if mutate {
+            let random_val = thread_rng().gen::<f32>();
+            let num_genes = offspring.genome.get_num_genes();
+            let random_gene_index = thread_rng().gen_range::<i32>(0, num_genes);
+            offspring.genome.set_gene_value(random_gene_index, random_val);
+        }
+
+        offspring
+    }
 }
 
 fn mean(values: &Vec<f32>) -> f32 {

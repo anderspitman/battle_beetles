@@ -5,7 +5,7 @@ use rand::{Rng, thread_rng};
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
-const STARTING_BEETLE_ID: i32 = 1;
+pub const STARTING_BEETLE_ID: Id = 1;
 
 #[derive(Serialize, Debug, Clone)]
 pub enum Command {
@@ -139,9 +139,11 @@ impl Game {
     }
 
     pub fn get_random_beetle_id(&self) -> i32 {
-        thread_rng().gen_range::<i32>(
-            STARTING_BEETLE_ID,
-            (self.field_state.next_beetle_id - 1) as i32)
+        let ids: Vec<Id> = self.field_state.beetles.iter().map(|x| x.1.id).collect();
+
+        let rand_index = thread_rng().gen_range::<i32>(0, (ids.len() - 1) as i32);
+        let rand_id = ids[rand_index as usize];
+        return rand_id;
     }
 
     pub fn tick(&mut self) -> &FieldState {

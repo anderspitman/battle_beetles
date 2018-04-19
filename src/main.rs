@@ -17,19 +17,16 @@ mod simulation;
 mod message_handler;
 
 use game::Game;
-use simulation::Simulate;
-use simulation::speed_simulation::SpeedSimulation;
-use simulation::battle_simulation::BattleSimulation;
 use message_handler::MessageHandler;
 
 use std::thread;
-use std::time::Duration;
+use std::time::{Instant, Duration};
 use rouille::Response;
 
 
 fn main() {
 
-    run_web_server();
+    start_web_server_thread();
 
     let ui = ui::UI::new();
     let mut game = Game::new();
@@ -43,17 +40,6 @@ fn main() {
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    {
-        let mut speed_simulation = SpeedSimulation::new(&mut game, &ui);
-        speed_simulation.mutate = false;
-        speed_simulation.run();
-    }
-
-    {
-        let mut battle_simulation = BattleSimulation::new(&game, &ui);
-        battle_simulation.run();
-    }
-
     let mut message_handler = MessageHandler::new();
 
     let mut done = false;
@@ -64,7 +50,11 @@ fn main() {
         let messages = ui.get_all_messages();
 
         for message in messages {
+
+            let timer = Instant::now();
             done = message_handler.handle_message(&mut game, &ui, message);
+            println!("Message handling time: {:?}", duration_as_float(timer.elapsed()));
+
             if done {
                 break;
             }
@@ -76,7 +66,7 @@ fn main() {
     ui.shutdown();
 }
 
-fn run_web_server() {
+fn start_web_server_thread() {
 
     thread::spawn(move || {
         let index = include_str!("../ui/dist/index.html");
@@ -105,3 +95,7 @@ fn run_web_server() {
     });
 }
 
+
+fn duration_as_float(duration: Duration) -> f64 {
+    duration.as_secs() as f64 + (duration.subsec_nanos() as f64) / 10_000_000_000.0
+}

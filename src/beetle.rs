@@ -1,11 +1,14 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
 use std::collections::HashMap;
+use utils;
 
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
 const MAX_SIZE_UNITS: f32 = 40.0;
 const MIN_SIZE_UNITS: f32 = 10.0;
+const MAX_HEALTH: f32 = 100.0;
+const MIN_HEALTH: f32 = 10.0;
 //const MAX_CARAPACE_DENSITY: f32 = 10.0;
 //const MAX_MASS: f32 = MAX_SIZE * MAX_CARAPACE_DENSITY;
 
@@ -42,6 +45,13 @@ impl BeetleGenome {
                 BeetleGene::CarapaceDensity(0.5),
                 BeetleGene::Strength(0.5),
                 BeetleGene::Quickness(0.5),
+                // other gene ideas:
+                // venom
+                // max health
+                // coordination (affects turning speed, etc)
+                // mandible size
+                // mandible sharpness
+                // mandible strength
             ],
         }
     }
@@ -147,12 +157,22 @@ impl Beetle {
             (1.0 - self.genome.size()) * 0.25 + 
             (1.0 - self.genome.carapace_density()) * 0.25;
 
-        let speed = speed_ratio * self.max_speed_units_per_tick;
+        let min_speed = utils::convert_value_for_sim_period(
+                utils::MIN_SPEED_UNITS_PER_SECOND);
+        let speed = (speed_ratio * (self.max_speed_units_per_tick - min_speed)) + min_speed;
         return speed;
     }
 
     pub fn size(&self) -> f32 {
         (self.genome.size() * (MAX_SIZE_UNITS - MIN_SIZE_UNITS)) + MIN_SIZE_UNITS
+    }
+
+    pub fn max_health(&self) -> i32 {
+        let health_ratio = 
+            self.genome.carapace_density() * 0.50 +
+            self.genome.size() * 0.30 +
+            self.genome.strength() * 0.20;
+        return ((health_ratio * (MAX_HEALTH - MIN_HEALTH)) + MIN_HEALTH) as i32;
     }
 
     //pub fn mass(&self) -> f32 {
@@ -231,7 +251,7 @@ impl Beetle {
         let vector = target_position - self.position;
         let dist = vector.magnitude();
 
-        return dist < 20.0;
+        return dist < 5.0;
     }
 
     fn basically_here(&self, position: Point2<f32>) -> bool {

@@ -129,7 +129,7 @@ battleSimButton.onclick = (e) => {
 function handleStateUpdate(gameState) {
 
   const beetles = gameState.getBeetlesList();
-  //console.log(beetles);
+  //console.log(beetles.length);
   //const data = JSON.parse(event.data);
 
   // convert beetles object to array
