@@ -80,7 +80,11 @@ const messageService = new MessageService();
 const socket = messageService.getSocket();
 socket.binaryType = 'arraybuffer';
 
+let dragging = false;
+let dragStart = { x: 0.0, y: 0.0 };
+let dragEnd = { x: 0.0, y: 0.0 };
 drawBackground();
+const selecticle = createSelecticle();
 
 socket.onmessage = (event) => {
 
@@ -227,6 +231,13 @@ function matchArrays(model, vis, createNew) {
   }
 }
 
+function createSelecticle() {
+  const selecticle = two.makeRectangle(0, 0, 50, 50);
+  selecticle.stroke = 'black';
+  selecticle.fill = 'none';
+  return selecticle;
+}
+
 function drawBackground() {
   const rect = two.makeRectangle(
     params.width / 2, params.height / 2, params.width, params.height);
@@ -234,9 +245,9 @@ function drawBackground() {
 
   two.update();
 
-  rect._renderer.elem.onclick = (e) => {
-    messageService.deselectAllBeetles();
-  };
+  //rect._renderer.elem.onclick = (e) => {
+  //  messageService.deselectAllBeetles();
+  //};
 
   rect._renderer.elem.oncontextmenu = (e) => {
     e.preventDefault();
@@ -246,6 +257,31 @@ function drawBackground() {
       y: e.clientY - canvasRect.top,
     });
   };
+
+  rect._renderer.elem.onmousedown = (e) => {
+    console.log("mousedown");
+    dragging = true;
+    dragStart = getWorldPosition(e)
+    console.log(dragStart);
+    e.preventDefault();
+  }
+
+  rect._renderer.elem.onmouseup = (e) => {
+    console.log("mouseup");
+
+    // if left mouse button
+    if (e.button === 0) {
+      dragEnd = getWorldPosition(e)
+      console.log(dragEnd);
+      dragging = false;
+      messageService.selectAllInArea({
+        x1: dragStart.x,
+        y1: dragStart.y,
+        x2: dragEnd.x,
+        y2: dragEnd.y, 
+      })
+    }
+  }
 }
 
 const beetleDim = {
@@ -253,6 +289,13 @@ const beetleDim = {
   height: 20,
   headRadius: 7,
 };
+
+function getWorldPosition(e) {
+    return {
+      x: e.clientX - canvasRect.left,
+      y: e.clientY - canvasRect.top
+    }
+}
 
 function createBeetle() {
 

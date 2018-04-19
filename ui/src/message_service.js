@@ -17,6 +17,17 @@ export class MessageService {
     this.socket.send(uiMessage.serializeBinary());
   }
 
+  selectAllInArea({ x1, y1, x2, y2 }) {
+    const message = new messages.SelectAllInArea();
+    message.setX1(x1);
+    message.setY1(y1);
+    message.setX2(x2);
+    message.setY2(y2);
+    const uiMessage = new messages.UiMessage();
+    uiMessage.setSelectAllInArea(message);
+    this.socket.send(uiMessage.serializeBinary());
+  }
+
   selectedMoveCommand({ x, y }) {
     const message = new messages.SelectedMoveCommand();
     message.setX(x);

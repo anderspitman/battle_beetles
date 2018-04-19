@@ -44,11 +44,19 @@ message UiMessage {
         CreateBeetle create_beetle = 6;
         RunSpeedSimulation run_speed_simulation = 7;
         RunBattleSimulation run_battle_simulation = 8;
+        SelectAllInArea select_all_in_area = 9;
     }
 }
 
 message SelectBeetle {
     int32 beetle_id = 1;
+}
+
+message SelectAllInArea {
+    float x1 = 1;
+    float y1 = 2;
+    float x2 = 3;
+    float y2 = 4;
 }
 
 message DeselectAllBeetles {

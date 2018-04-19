@@ -94,7 +94,33 @@ impl Game {
         }
     }
 
+    pub fn select_all_in_area(&mut self, x1: f32, y1: f32, x2: f32, y2: f32) {
+        let x_low = x1.min(x2);
+        let x_high = x1.max(x2);
+        let y_low = y1.min(y2);
+        let y_high = y1.max(y2);
+
+        println!("{}, {}, {}, {}", x_low, y_low, x_high, y_high);
+
+        self.deselect_all_beetles();
+
+        for (_, beetle) in self.field_state.beetles.iter() {
+            if beetle.position.x >= x_low && beetle.position.x <= x_high &&
+                    beetle.position.y >= y_low && beetle.position.y <= y_high {
+                self.field_state.selected_beetles.push(beetle.id);            
+            }
+        }
+
+        for beetle_id in self.field_state.selected_beetles.iter() {
+            if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+                beetle.selected = true;
+            }
+        }
+    }
+
     pub fn deselect_all_beetles(&mut self) {
+
+        println!("deselect_all_beetles");
 
         for (_, beetle) in self.field_state.beetles.iter_mut() {
             beetle.selected = false;
