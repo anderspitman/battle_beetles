@@ -1,6 +1,7 @@
 use cgmath::{Rad, Point2};
 
-use beetle::{BeetleBuilder, BeetleGenome, Beetle, Id, Beetles};
+use beetle::{BeetleBuilder, Beetle, Id, Beetles};
+use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
 

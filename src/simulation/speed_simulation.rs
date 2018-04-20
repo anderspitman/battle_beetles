@@ -1,7 +1,8 @@
 use simulation::Simulate;
 use ui::UI;
 use game::{Game};
-use beetle::{BeetleGenome, Beetle, Beetles};
+use beetle::{Beetle, Beetles};
+use beetle_genome::{BeetleGenome};
 use cgmath::{Point2};
 use rand::{Rng, thread_rng};
 

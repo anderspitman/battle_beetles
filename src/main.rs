@@ -12,6 +12,7 @@ mod utils;
 mod ui;
 mod game;
 mod beetle;
+mod beetle_genome;
 mod gen;
 mod simulation;
 mod message_handler;

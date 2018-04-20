@@ -3,7 +3,8 @@ pub mod battle_simulation;
 
 use game::Game;
 use ui::UI;
-use beetle::{Beetle, BeetleGenome};
+use beetle::{Beetle};
+use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 
 const NUM_GENERATIONS: i32 = 128;
