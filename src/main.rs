@@ -17,8 +17,13 @@ mod gen;
 mod simulation;
 mod message_handler;
 
+use beetle::{Beetles};
 use game::Game;
 use message_handler::MessageHandler;
+
+use simulation::Simulate;
+use simulation::speed_simulation::SpeedSimulation;
+use simulation::battle_simulation::BattleSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
@@ -38,8 +43,40 @@ fn main() {
     let max_rotation =
         utils::convert_value_for_sim_period(utils::ROTATION_RADIANS_PER_SECOND);
 
+
+    // run battle GA
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
+
+    let battle_population;
+    {
+        let mut simulation = SpeedSimulation::new(&mut game, &ui);
+        simulation.run();
+        battle_population = simulation.get_population().clone();
+    }
+
+    // run speed GA
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
+    let speed_population;
+    {
+        let mut simulation = BattleSimulation::new(&mut game, &ui);
+        simulation.run();
+        speed_population = simulation.get_population().clone();
+    }
+
+    // reset population
+    game.field_state.beetles = Beetles::new();
+
+    // TODO: could potentially use itertools chain method to do this, but I
+    // don't want an extra dependency just for that right now.
+    for (_, beetle) in battle_population.into_iter() {
+        game.add_beetle(beetle);
+    }
+    for (_, beetle) in speed_population.into_iter() {
+        game.add_beetle(beetle);
+    }
+
 
     let mut message_handler = MessageHandler::new();
 

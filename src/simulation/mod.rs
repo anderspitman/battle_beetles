@@ -3,7 +3,7 @@ pub mod battle_simulation;
 
 use game::Game;
 use ui::UI;
-use beetle::{Beetle};
+use beetle::{Beetle, Beetles};
 use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 
@@ -58,6 +58,10 @@ pub trait Simulate {
 
     fn get_game(&self) -> &Game;
     fn get_ui(&self) -> &UI;
+
+    fn get_population(&self) -> &Beetles {
+        &self.get_game().field_state.beetles
+    }
 
     fn get_random_individual_id(&self) -> i32 {
         self.get_game().get_random_beetle_id()

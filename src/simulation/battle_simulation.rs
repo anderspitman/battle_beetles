@@ -6,7 +6,7 @@ use beetle::{Id, Beetle};
 use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
-use utils::{SIMULATION_PERIOD_MS, POPULATION_SIZE, Color};
+use utils::{SIMULATION_PERIOD_MS, Color};
 use rand::{Rng, thread_rng};
 
 pub struct BattleSimulation<'a> {
@@ -61,19 +61,22 @@ impl<'a> Simulate for BattleSimulation<'a> {
 
         let mut genomes = Vec::new();
 
+        let population_size = self.game.field_state.beetles.len();
+
         // TODO: get rid of clone somehow
         let beetles = self.game.field_state.beetles.clone();
 
-        for (_, beetle) in &beetles {
+        for (_, beetle) in beetles.iter() {
             let closest_beetle_id = self.find_closest_beetle(&beetle);
             self.game.select_beetle(beetle.id);
             self.game.selected_interact_command(closest_beetle_id);
             self.game.deselect_all_beetles();
         }
 
+        // TODO: remove the need for +10
         // the +10 is because sometimes they gang up on each other and less than
-        // half get killed
-        while self.game.field_state.beetles.len() > ((POPULATION_SIZE / 2) + 10) as usize {
+        // half get killed, which leads to an infinite loop.
+        while self.game.field_state.beetles.len() > ((population_size / 2) + 10) as usize {
             //println!("loop {}", self.game.field_state.beetles.len());
             self.game.tick();
             //self.ui.update_game_state(self.game.tick());
@@ -82,7 +85,7 @@ impl<'a> Simulate for BattleSimulation<'a> {
 
         //println!("Beetles left: {}", self.game.field_state.beetles.len());
 
-        while self.game.field_state.beetles.len() < POPULATION_SIZE as usize {
+        while self.game.field_state.beetles.len() < population_size as usize {
             let mut offspring;
 
             {
