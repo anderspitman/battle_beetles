@@ -1,9 +1,9 @@
-use simulation::Simulate;
+use simulation::GeneticAlgorithm;
 use game::Game;
 use gen::messages::UiMessage;
 use beetle::BeetleBuilder;
-use simulation::speed_simulation::SpeedSimulation;
-use simulation::battle_simulation::BattleSimulation;
+use simulation::speed_ga::SpeedGA;
+use simulation::battle_ga::BattleGA;
 use ui::UI;
 
 pub struct MessageHandler {
@@ -56,12 +56,12 @@ impl MessageHandler {
         }
         else if message.has_run_speed_simulation() {
 
-            let mut simulation = SpeedSimulation::new(game, &ui);
+            let mut simulation = SpeedGA::new(game, &ui);
             simulation.run();
         }
         else if message.has_run_battle_simulation() {
 
-            let mut simulation = BattleSimulation::new(game, &ui);
+            let mut simulation = BattleGA::new(game, &ui);
             simulation.run();
         }
 

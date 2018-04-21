@@ -21,9 +21,9 @@ use beetle::{Beetles};
 use game::Game;
 use message_handler::MessageHandler;
 
-use simulation::Simulate;
-use simulation::speed_simulation::SpeedSimulation;
-use simulation::battle_simulation::BattleSimulation;
+use simulation::GeneticAlgorithm;
+use simulation::speed_ga::SpeedGA;
+use simulation::battle_ga::BattleGA;
 
 use std::thread;
 use std::time::{Instant, Duration};
@@ -50,9 +50,9 @@ fn main() {
 
     let battle_population;
     {
-        let mut simulation = SpeedSimulation::new(&mut game, &ui);
-        simulation.run();
-        battle_population = simulation.get_population().clone();
+        let mut ga = SpeedGA::new(&mut game, &ui);
+        ga.run();
+        battle_population = ga.get_population().clone();
     }
 
     // run speed GA
@@ -60,9 +60,9 @@ fn main() {
             utils::POPULATION_SIZE, max_speed, max_rotation);
     let speed_population;
     {
-        let mut simulation = BattleSimulation::new(&mut game, &ui);
-        simulation.run();
-        speed_population = simulation.get_population().clone();
+        let mut ga = BattleGA::new(&mut game, &ui);
+        ga.run();
+        speed_population = ga.get_population().clone();
     }
 
     // reset population

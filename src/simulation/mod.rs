@@ -1,5 +1,5 @@
-pub mod speed_simulation;
-pub mod battle_simulation;
+pub mod speed_ga;
+pub mod battle_ga;
 
 use game::Game;
 use ui::UI;
@@ -10,10 +10,10 @@ use rand::{Rng, thread_rng};
 const NUM_GENERATIONS: i32 = 128;
 const MUTATION_RATE: f32 = 0.1;
 
-pub trait Simulate {
+pub trait GeneticAlgorithm {
     fn run(&mut self) {
 
-        println!("Run simulation");
+        println!("Run GA");
 
         let mut average_fitnesses = Vec::new();
         let mut max_fitnesses = Vec::new();

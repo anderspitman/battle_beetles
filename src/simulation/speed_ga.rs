@@ -1,4 +1,4 @@
-use simulation::Simulate;
+use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game};
 use beetle::{Beetle, Beetles};
@@ -10,14 +10,14 @@ use utils::{Color};
 const SELECTION_BIAS: f32 = 0.8;
 
 
-pub struct SpeedSimulation<'a> {
+pub struct SpeedGA<'a> {
     ui: &'a UI,
     game: &'a mut Game,
 }
 
-impl<'a> SpeedSimulation<'a> {
-    pub fn new(game: &'a mut Game, ui: &'a UI) -> SpeedSimulation<'a> {
-        SpeedSimulation {
+impl<'a> SpeedGA<'a> {
+    pub fn new(game: &'a mut Game, ui: &'a UI) -> SpeedGA<'a> {
+        SpeedGA {
             ui,
             game,
         }
@@ -30,8 +30,8 @@ impl<'a> SpeedSimulation<'a> {
         let indy1 = self.get_game().field_state.beetles.get(&id1).unwrap();
         let indy2 = self.get_game().field_state.beetles.get(&id2).unwrap();
 
-        let fit1 = SpeedSimulation::fitness(&indy1);
-        let fit2 = SpeedSimulation::fitness(&indy2);
+        let fit1 = SpeedGA::fitness(&indy1);
+        let fit2 = SpeedGA::fitness(&indy2);
 
         let select_more_fit = thread_rng().gen::<f32>() < SELECTION_BIAS;
 
@@ -67,7 +67,7 @@ impl<'a> SpeedSimulation<'a> {
 
 }
 
-impl<'a> Simulate for SpeedSimulation<'a> {
+impl<'a> GeneticAlgorithm for SpeedGA<'a> {
 
     fn get_game(&self) -> &Game {
         self.game
@@ -99,8 +99,8 @@ impl<'a> Simulate for SpeedSimulation<'a> {
             offspring1 = self.mutate(&parent1);
             offspring2 = self.mutate(&parent2);
 
-            fitnesses.push(SpeedSimulation::fitness(&offspring1));
-            fitnesses.push(SpeedSimulation::fitness(&offspring2));
+            fitnesses.push(SpeedGA::fitness(&offspring1));
+            fitnesses.push(SpeedGA::fitness(&offspring2));
 
             genomes.push(offspring1.genome.clone());
             genomes.push(offspring2.genome.clone());

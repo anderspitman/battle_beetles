@@ -1,5 +1,5 @@
 use cgmath::{InnerSpace};
-use simulation::Simulate;
+use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game, STARTING_BEETLE_ID};
 use beetle::{Id, Beetle};
@@ -9,14 +9,14 @@ use std::time::{Duration};
 use utils::{SIMULATION_PERIOD_MS, Color};
 use rand::{Rng, thread_rng};
 
-pub struct BattleSimulation<'a> {
+pub struct BattleGA<'a> {
     ui: &'a UI,
     game: &'a mut Game,
 }
 
-impl<'a> BattleSimulation<'a> {
-    pub fn new(game: &'a mut Game, ui: &'a UI) -> BattleSimulation<'a> {
-        BattleSimulation {
+impl<'a> BattleGA<'a> {
+    pub fn new(game: &'a mut Game, ui: &'a UI) -> BattleGA<'a> {
+        BattleGA {
             ui,
             game,
         }
@@ -45,7 +45,7 @@ impl<'a> BattleSimulation<'a> {
     }
 }
 
-impl<'a> Simulate for BattleSimulation<'a> {
+impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
     fn get_game(&self) -> &Game {
         self.game
