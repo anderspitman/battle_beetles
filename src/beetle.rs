@@ -26,7 +26,7 @@ pub struct Beetle {
     max_speed_units_per_tick: f32,
     rotation_radians_per_tick: Rad<f32>,
     num_eaten: i32,
-    current_command: Command,
+    pub current_command: Command,
     attack_power: i32,
     pub health: i32,
     pub selected: bool,
@@ -117,6 +117,7 @@ impl Beetle {
                     }
                 }
                 else {
+                    self.set_command(Command::Idle);
                     Action::Nothing
                 }
             },

@@ -1,5 +1,5 @@
 use simulation::Simulate;
-use game::{Game, FieldState};
+use game::{Game, FieldState, Command};
 
 // Represents a single fight, without generations.
 pub struct FightSimulation<'a, T: Fn(&FieldState), U: Fn(&FieldState) -> bool> {
@@ -42,13 +42,16 @@ impl<'a, T: Fn(&FieldState), U: Fn(&FieldState) -> bool> Simulate<T> for FightSi
         while !(self.check_done_callback)(&self.game.field_state) {
 
             for (_, beetle) in beetles.iter() {
-                if let Some(closest_beetle_id) = self.game.find_closest_enemy(&beetle) {
-                    self.game.select_beetle(beetle.id);
-                    self.game.selected_interact_command(closest_beetle_id);
-                    self.game.deselect_all_beetles();
-                }
-                else {
-                    println!("no enemies for {}", beetle.id);
+
+                if beetle.current_command == Command::Idle {
+                    if let Some(closest_beetle_id) = self.game.find_closest_enemy(&beetle) {
+                        self.game.select_beetle(beetle.id);
+                        self.game.selected_interact_command(closest_beetle_id);
+                        self.game.deselect_all_beetles();
+                    }
+                    else {
+                        println!("no enemies for {}", beetle.id);
+                    }
                 }
             }
 

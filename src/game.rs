@@ -9,7 +9,7 @@ use std::f32;
 // 0s well. See https://github.com/google/protobuf/issues/1606
 pub const STARTING_BEETLE_ID: Id = 1;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(PartialEq, Serialize, Debug, Clone)]
 pub enum Command {
     Move {
         position: Point2<f32>,
