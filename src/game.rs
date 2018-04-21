@@ -220,14 +220,18 @@ impl Game {
         return rand_id;
     }
 
-    pub fn find_closest_beetle(&self, position: &Point2<f32>) -> Id {
+    pub fn find_closest_beetle(&self, beetle: &Beetle) -> Id {
 
         let mut closest_id = STARTING_BEETLE_ID;
         let mut closest_distance = f32::MAX;
 
         for (_, other_beetle) in self.field_state.beetles.iter() {
 
-            let vector = other_beetle.position - position;
+            if other_beetle.id == beetle.id {
+                continue;
+            }
+
+            let vector = other_beetle.position - beetle.position;
             let distance = vector.magnitude();
 
             if distance < closest_distance {

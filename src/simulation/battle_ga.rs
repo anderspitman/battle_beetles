@@ -44,7 +44,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         let beetles = self.game.field_state.beetles.clone();
 
         for (_, beetle) in beetles.iter() {
-            let closest_beetle_id = self.game.find_closest_beetle(&beetle.position);
+            let closest_beetle_id = self.game.find_closest_beetle(&beetle);
             self.game.select_beetle(beetle.id);
             self.game.selected_interact_command(closest_beetle_id);
             self.game.deselect_all_beetles();
