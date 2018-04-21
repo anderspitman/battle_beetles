@@ -1,4 +1,6 @@
+use simulation::Simulate;
 use simulation::GeneticAlgorithm;
+use simulation::fight_simulation::FightSimulation;
 use ui::UI;
 use game::{Game};
 use beetle_genome::{BeetleGenome};
@@ -34,37 +36,25 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
     fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>) {
 
-        println!("Run generation");
-
         let mut genomes = Vec::new();
 
         let population_size = self.game.field_state.beetles.len();
 
-        // TODO: get rid of clone somehow
-        let beetles = self.game.field_state.beetles.clone();
-
-        for (_, beetle) in beetles.iter() {
-            let closest_beetle_id = self.game.find_closest_beetle(&beetle);
-            self.game.select_beetle(beetle.id);
-            self.game.selected_interact_command(closest_beetle_id);
-            self.game.deselect_all_beetles();
+        {
+            let mut sim = FightSimulation::new(&mut self.game);
+            // TODO: should be a way to remove this. Currently its only
+            // purpose is so the type checker knows what kind of closure to
+            // implement above.
+            sim.set_tick_callback(|_state| {
+            });
+            sim.run();
         }
-
-        // TODO: remove the need for +10
-        // the +10 is because sometimes they gang up on each other and less than
-        // half get killed, which leads to an infinite loop.
-        while self.game.field_state.beetles.len() > ((population_size / 2) + 10) as usize {
-            //println!("loop {}", self.game.field_state.beetles.len());
-            self.game.tick();
-            //self.ui.update_game_state(self.game.tick());
-            //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
-        }
-
-        //println!("Beetles left: {}", self.game.field_state.beetles.len());
 
         while self.game.field_state.beetles.len() < population_size as usize {
+
             let mut offspring;
 
+            // scope to control borrowing
             {
                 let rando_id = self.get_random_individual_id();
                 let rando = self.game.field_state.beetles.get(&rando_id).unwrap();
@@ -74,6 +64,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
                 let rand_y: f32 = rng.gen_range(0.0, 500.0);
                 offspring.position.x = rand_x;
                 offspring.position.y = rand_y;
+                offspring.team_id = offspring.id;
             }
 
             self.game.add_beetle(offspring);
@@ -87,8 +78,6 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
         self.ui.update_game_state(self.game.tick());
         thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
-
-        println!("Beetles after breeding: {}", self.game.field_state.beetles.len());
 
         (Vec::new(), genomes)
     }

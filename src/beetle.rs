@@ -20,7 +20,7 @@ pub type Beetles = HashMap<Id, Beetle>;
 pub struct Beetle {
     pub id: Id,
     pub position: Point2<f32>,
-    direction: Vector2<f32>,
+    pub direction: Vector2<f32>,
     pub angle: Rad<f32>,
     smell_range: i32,
     max_speed_units_per_tick: f32,
@@ -32,6 +32,7 @@ pub struct Beetle {
     pub selected: bool,
     pub genome: BeetleGenome,
     pub color: Color,
+    pub team_id: Id,
 }
 
 impl Beetle {
@@ -52,6 +53,7 @@ impl Beetle {
             selected: false,
             genome: BeetleGenome::new(),
             color: Color::new(),
+            team_id: 0,
         }
     }
 

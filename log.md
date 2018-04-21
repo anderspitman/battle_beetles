@@ -13,3 +13,9 @@
   it for now. Probably should use Webpack to bundle everything anyway.
 * There's a problem with protobuf and having repeated values that aren't
   wrapped in a struct. Need to figure out if it's proto js or rust-proto
+
+
+# 2018-04-21
+
+* Faster beetles actually seem to do better in combat because it's team based
+  so they can quickly gang up on the bigger stronger ones.

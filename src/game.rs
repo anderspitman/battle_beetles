@@ -61,6 +61,8 @@ impl Game {
             &mut self, population_size: i32, max_speed: f32,
             max_rotation: f32) {
 
+        self.field_state.beetles = Beetles::new();
+
         let mut rng = thread_rng();
 
         for _ in 0..population_size {
@@ -77,7 +79,12 @@ impl Game {
                 .y_pos(rng.gen_range(0.0, 500.0))
                 .genome(genome)
                 .build();
-            self.add_beetle(beetle);
+            let id = self.add_beetle(beetle);
+
+            // TODO: hack
+            if let Some(beetle) = self.field_state.beetles.get_mut(&id) {
+                beetle.team_id = id;
+            }
         }
 
     }
@@ -146,9 +153,6 @@ impl Game {
         let center_y = ((y2 - y1) / 2.0) + y1;
         let vector = Point2::new(x, y) - Point2::new(center_x, center_y);
 
-        println!("center: {}, {}", center_x, center_y);
-        println!("move vector: {}, {}", vector.x, vector.y);
-
         for id in self.field_state.selected_beetles.iter() {
             if let Some(beetle) = self.field_state.beetles.get_mut(id) {
                 let position = beetle.position;
@@ -215,32 +219,70 @@ impl Game {
     pub fn get_random_beetle_id(&self) -> i32 {
         let ids: Vec<Id> = self.field_state.beetles.iter().map(|x| x.1.id).collect();
 
+        // TODO: if ids is empty this panics
         let rand_index = thread_rng().gen_range::<i32>(0, (ids.len() - 1) as i32);
         let rand_id = ids[rand_index as usize];
         return rand_id;
     }
 
-    pub fn find_closest_beetle(&self, beetle: &Beetle) -> Id {
+    //pub fn find_closest_beetle(&self, beetle: &Beetle) -> Id {
 
-        let mut closest_id = STARTING_BEETLE_ID;
+    //    let mut closest_id = STARTING_BEETLE_ID;
+    //    let mut closest_distance = f32::MAX;
+
+    //    for (_, other_beetle) in self.field_state.beetles.iter() {
+
+    //        if other_beetle.id == beetle.id {
+    //            continue;
+    //        }
+
+    //        let vector = other_beetle.position - beetle.position;
+    //        let distance = vector.magnitude();
+
+    //        if distance < closest_distance {
+    //            closest_distance = distance;
+    //            closest_id = other_beetle.id;
+    //        }
+    //    }
+
+    //    return closest_id;
+    //}
+    
+    pub fn find_closest_enemy(&self, beetle: &Beetle) -> Option<Id> {
+
+
+        let enemies = self.field_state.beetles.values().filter(|other| {
+            //other.id != beetle.id
+            other.team_id != beetle.team_id
+        })
+        .map(|other| {
+            other.id
+        })
+        .collect();
+
+        self.find_closest(beetle, enemies)
+    }
+
+    fn find_closest(&self, beetle: &Beetle, ids: Vec<Id>) -> Option<Id> {
+
+        let mut closest_id = None;
         let mut closest_distance = f32::MAX;
 
-        for (_, other_beetle) in self.field_state.beetles.iter() {
+        for id in ids {
 
-            if other_beetle.id == beetle.id {
-                continue;
-            }
+            if let Some(other) = self.field_state.beetles.get(&id) {
 
-            let vector = other_beetle.position - beetle.position;
-            let distance = vector.magnitude();
+                let vector = other.position - beetle.position;
+                let distance = vector.magnitude();
 
-            if distance < closest_distance {
-                closest_distance = distance;
-                closest_id = other_beetle.id;
+                if distance < closest_distance {
+                    closest_distance = distance;
+                    closest_id = Some(other.id);
+                }
             }
         }
 
-        return closest_id;
+        closest_id
     }
 
     pub fn tick(&mut self) -> &FieldState {

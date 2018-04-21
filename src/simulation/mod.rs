@@ -2,7 +2,7 @@ pub mod speed_ga;
 pub mod battle_ga;
 pub mod fight_simulation;
 
-use game::Game;
+use game::{Game};
 use ui::UI;
 use beetle::{Beetle, Beetles};
 use beetle_genome::{BeetleGenome};
@@ -11,8 +11,10 @@ use rand::{Rng, thread_rng};
 const NUM_GENERATIONS: i32 = 128;
 const MUTATION_RATE: f32 = 0.1;
 
-pub trait Simulate {
+pub trait Simulate<T> {
     fn run(&mut self);
+
+    fn get_tick_callback(&self) -> Option<&T>;
 }
 
 pub trait GeneticAlgorithm {

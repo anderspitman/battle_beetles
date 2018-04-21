@@ -24,10 +24,14 @@ use message_handler::MessageHandler;
 use simulation::GeneticAlgorithm;
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
+use simulation::Simulate;
+use simulation::fight_simulation::FightSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
 use rouille::Response;
+use rand::{Rng, thread_rng};
+use cgmath::{Vector2};
 
 
 fn main() {
@@ -48,21 +52,39 @@ fn main() {
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    let battle_population;
+    let mut rng = thread_rng();
+
+    let mut battle_population;
     {
         let mut ga = SpeedGA::new(&mut game, &ui);
         ga.run();
         battle_population = ga.get_population().clone();
     }
+    for (_, beetle) in battle_population.iter_mut() {
+        let rand_x: f32 = rng.gen_range(0.0, 500.0);
+        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        beetle.position.x = rand_x;
+        beetle.position.y = rand_y;
+        beetle.team_id = 0;
+        beetle.direction = Vector2::new(-1.0, 0.0);
+    }
 
     // run speed GA
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
-    let speed_population;
+    let mut speed_population;
     {
         let mut ga = BattleGA::new(&mut game, &ui);
         ga.run();
         speed_population = ga.get_population().clone();
+    }
+    for (_, beetle) in speed_population.iter_mut() {
+        let rand_x: f32 = rng.gen_range(600.0, 1100.0);
+        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        beetle.position.x = rand_x;
+        beetle.position.y = rand_y;
+        beetle.team_id = 1;
+        beetle.direction = Vector2::new(1.0, 0.0);
     }
 
     // reset population
@@ -77,6 +99,38 @@ fn main() {
         game.add_beetle(beetle);
     }
 
+    println!("All fight");
+
+    //for (_, beetle) in game.field_state.beetles.iter() {
+    //    println!("id: {:?}", beetle.id);
+    //    println!("team_id: {:?}", beetle.team_id);
+    //    println!("dir: {:?}", beetle.direction);
+    //    println!("pos: {:?}", beetle.position);
+
+    //    game.select_beetle(beetle.id);
+    //}
+
+    ui.update_game_state(game.tick());
+
+    {
+        let mut sim = FightSimulation::new(&mut game);
+        sim.set_tick_callback(|state| {
+            ui.update_game_state(&state);
+            //println!("{:?}", ui);
+            thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
+        });
+        sim.run();
+    }
+
+    //println!("End simulation");
+
+    // move all to center
+    //let ids: Vec<i32> = game.field_state.beetles.iter().map(|(_, b)| b.id).collect();
+    //for id in ids {
+    //    game.select_beetle(id);
+    //    game.selected_move_command(500.0, 250.0);
+    //    game.deselect_all_beetles();
+    //}
 
     let mut message_handler = MessageHandler::new();
 
