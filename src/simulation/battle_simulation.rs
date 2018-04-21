@@ -6,7 +6,7 @@ use beetle::{Id, Beetle};
 use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
-use utils::{SIMULATION_PERIOD_MS, POPULATION_SIZE};
+use utils::{SIMULATION_PERIOD_MS, POPULATION_SIZE, Color};
 use rand::{Rng, thread_rng};
 
 pub struct BattleSimulation<'a> {
@@ -27,7 +27,7 @@ impl<'a> BattleSimulation<'a> {
         let mut closest_id = STARTING_BEETLE_ID;
         let mut closest_distance = 1000000.0;
 
-        for (_, other_beetle) in &self.game.field_state.beetles {
+        for (_, other_beetle) in self.game.field_state.beetles.iter() {
             if beetle.id == other_beetle.id {
                 continue;
             }
@@ -101,6 +101,7 @@ impl<'a> Simulate for BattleSimulation<'a> {
 
         for (_, beetle) in self.game.field_state.beetles.iter_mut() {
             beetle.health = beetle.max_health();
+            beetle.color = Color { r: 213, g: 77, b: 77, a: 255 };
             genomes.push(beetle.genome.clone());
         }
 

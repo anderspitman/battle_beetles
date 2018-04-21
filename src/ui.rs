@@ -4,7 +4,10 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use websocket;
 use websocket::{OwnedMessage};
 use websocket::sync::Server;
-use gen::messages::{UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, FloatWrapper};
+use gen::messages::{
+    UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, FloatWrapper,
+    Color,
+};
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
 use game;
@@ -107,7 +110,7 @@ impl UI {
 
         let mut beetles = RepeatedField::new();
 
-        for (_, beetle) in &data.beetles {
+        for (_, beetle) in data.beetles.iter() {
             let mut new_beetle = UiBeetle::new();
 
             new_beetle.set_id(beetle.id);
@@ -116,6 +119,14 @@ impl UI {
             new_beetle.set_angle(beetle.angle.0);
             new_beetle.set_size(beetle.size());
             new_beetle.set_selected(beetle.selected);
+
+            let mut color = Color::new();
+            color.set_r(beetle.color.r as i32);
+            color.set_g(beetle.color.g as i32);
+            color.set_b(beetle.color.b as i32);
+            color.set_a(beetle.color.a as i32);
+
+            new_beetle.set_color(color);
 
             beetles.push(new_beetle);
         }

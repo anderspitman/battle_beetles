@@ -2,7 +2,7 @@ use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
-use utils;
+use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
 
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
@@ -31,6 +31,7 @@ pub struct Beetle {
     pub health: i32,
     pub selected: bool,
     pub genome: BeetleGenome,
+    pub color: Color,
 }
 
 impl Beetle {
@@ -50,6 +51,7 @@ impl Beetle {
             health: 100, 
             selected: false,
             genome: BeetleGenome::new(),
+            color: Color::new(),
         }
     }
 
@@ -60,8 +62,8 @@ impl Beetle {
             (1.0 - self.genome.size()) * 0.25 + 
             (1.0 - self.genome.carapace_density()) * 0.25;
 
-        let min_speed = utils::convert_value_for_sim_period(
-                utils::MIN_SPEED_UNITS_PER_SECOND);
+        let min_speed = convert_value_for_sim_period(
+                MIN_SPEED_UNITS_PER_SECOND);
         let speed = (speed_ratio * (self.max_speed_units_per_tick - min_speed)) + min_speed;
         return speed;
     }

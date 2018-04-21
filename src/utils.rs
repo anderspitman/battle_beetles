@@ -8,3 +8,17 @@ pub const POPULATION_SIZE: i32 = 128;
 pub fn convert_value_for_sim_period(value: f32) -> f32 {
     return value * ((SIMULATION_PERIOD_MS as f32) / MS_PER_SECOND);
 }
+
+#[derive(Serialize, Debug, Clone, Copy)]
+pub struct Color {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub a: u8,
+}
+
+impl Color {
+    pub fn new() -> Color {
+        Color{ r: 101, g: 224, b: 103, a: 255 }
+    }
+}

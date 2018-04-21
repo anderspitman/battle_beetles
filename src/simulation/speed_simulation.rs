@@ -5,6 +5,7 @@ use beetle::{Beetle, Beetles};
 use beetle_genome::{BeetleGenome};
 use cgmath::{Point2};
 use rand::{Rng, thread_rng};
+use utils::{Color};
 
 const SELECTION_BIAS: f32 = 0.8;
 
@@ -104,11 +105,14 @@ impl<'a> Simulate for SpeedSimulation<'a> {
             genomes.push(offspring1.genome.clone());
             genomes.push(offspring2.genome.clone());
 
+            let color = Color { r: 144, g: 153, b: 212, a: 255 };
             offspring1.id = id;
+            offspring1.color = color;
             offspring1.position = random_position();
             new_population.insert(id, offspring1);
             id += 1;
             offspring2.id = id;
+            offspring2.color = color;
             offspring2.position = random_position();
             new_population.insert(id, offspring2);
             id += 1;

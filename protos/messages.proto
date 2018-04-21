@@ -32,6 +32,14 @@ message UiBeetle {
     float size = 5;
     int32 health = 6;
     bool selected = 7;
+    Color color = 8;
+}
+
+message Color {
+    int32 r = 1;
+    int32 g = 2;
+    int32 b = 3;
+    int32 a = 4;
 }
 
 message UiMessage {

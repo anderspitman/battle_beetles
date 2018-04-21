@@ -311,6 +311,7 @@ function createBeetle() {
   return {
     beetle: newBeetle,
     selectedIndicator: selectedIndicator,
+    body: body,
   };
 }
 
@@ -323,6 +324,7 @@ function createFood() {
 function drawBeetle(beetle, index) {
   const visualBeetleData = visualBeetles[index];
   const visualBeetle = visualBeetleData.beetle;
+  const body = visualBeetleData.body;
 
   // use width for scale heuristic
   const scale = beetle.getSize() / beetleDim.width;
@@ -341,6 +343,13 @@ function drawBeetle(beetle, index) {
   visualBeetle.translation.set(beetle.getX(), beetle.getY());
   visualBeetle.rotation = beetle.getAngle();
   visualBeetle.scale = scale;
+
+  const color = beetle.getColor();
+  const r = color.getR();
+  const g = color.getG();
+  const b = color.getB();
+  const a = color.getA();
+  body.fill = 'rgba('+r+','+g+','+b+','+a+')';
 
   //const line = vectorLines[index];
   //const [anchor1, anchor2] = line.vertices;
