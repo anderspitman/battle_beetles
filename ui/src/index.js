@@ -9,6 +9,7 @@ const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
 const speedSimButton = document.getElementById('speed-sim-button');
 const battleSimButton = document.getElementById('battle-sim-button');
+const createFormationButton = document.getElementById('create-formation-button');
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
@@ -128,6 +129,10 @@ battleSimButton.onclick = (e) => {
   fitnessChart.reset();
   geneChart.reset();
   messageService.runBattleSimulation();
+}
+
+createFormationButton.onclick = (e) => {
+  messageService.createFormation();
 }
 
 function handleStateUpdate(gameState) {

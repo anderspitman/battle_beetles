@@ -53,6 +53,7 @@ message UiMessage {
         RunSpeedSimulation run_speed_simulation = 7;
         RunBattleSimulation run_battle_simulation = 8;
         SelectAllInArea select_all_in_area = 9;
+        CreateFormation create_formation = 10;
     }
 }
 
@@ -65,6 +66,9 @@ message SelectAllInArea {
     float y1 = 2;
     float x2 = 3;
     float y2 = 4;
+}
+
+message CreateFormation {
 }
 
 message DeselectAllBeetles {

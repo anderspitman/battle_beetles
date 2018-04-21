@@ -64,6 +64,9 @@ impl MessageHandler {
             let mut simulation = BattleGA::new(game, &ui);
             simulation.run();
         }
+        else if message.has_create_formation() {
+            game.create_formation();
+        }
 
         return done;
     }

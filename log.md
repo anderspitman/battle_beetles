@@ -17,5 +17,6 @@
 
 # 2018-04-21
 
-* Faster beetles actually seem to do better in combat because it's team based
-  so they can quickly gang up on the bigger stronger ones.
+* (Mention in report) Faster beetles actually seem to do better in combat
+  because it's team based so they can quickly gang up on the bigger stronger
+  ones.

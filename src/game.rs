@@ -147,6 +147,32 @@ impl Game {
         }
     }
 
+    pub fn create_formation(&mut self) {
+
+        // create rectangular formation in upper left corner of bounding box
+        let (x1, y1, _, _) = self.calculate_selected_bounding_box();
+
+        let spacing = 80.0;
+        let column_width = 8;
+        let mut row = -1;
+
+        for (i, id) in self.field_state.selected_beetles.iter().enumerate() {
+            if let Some(beetle) = self.field_state.beetles.get_mut(id) {
+
+                if i % column_width == 0 {
+                    row += 1;
+                }
+
+                let x_offset = (i % column_width) as f32;
+                let y_offset = row as f32;
+                let x = x1 + x_offset * spacing;
+                let y = y1 + y_offset * spacing;
+
+                beetle.set_command(Command::Move{ position: Point2::new(x, y) });
+            }
+        }
+    }
+
     fn move_in_formation(&mut self, x: f32, y: f32) {
         let (x1, y1, x2, y2) = self.calculate_selected_bounding_box();
         let center_x = ((x2 - x1) / 2.0) + x1;
