@@ -23,3 +23,25 @@ impl Color {
         Color{ r: 101, g: 224, b: 103, a: 255 }
     }
 }
+
+pub fn mean(values: &Vec<f32>) -> f32 {
+    let mut sum = 0.0;
+
+    for value in values {
+        sum += value;
+    }
+
+    sum / (values.len() as f32)
+}
+
+pub fn max(values: &Vec<f32>) -> f32 {
+    let mut cur_max = 0.0;
+
+    for value in values {
+        if *value > cur_max {
+            cur_max = *value;
+        }
+    }
+
+    cur_max
+}

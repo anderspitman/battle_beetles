@@ -22,7 +22,7 @@ pub trait GeneticAlgorithm {
 
         println!("Run GA");
 
-        let mut average_fitnesses = Vec::new();
+        let mut avg_speeds = Vec::new();
         let mut max_fitnesses = Vec::new();
         let mut average_sizes: Vec<f32> = Vec::new();
         let mut average_densities: Vec<f32> = Vec::new();
@@ -31,11 +31,11 @@ pub trait GeneticAlgorithm {
 
         for _ in 0..NUM_GENERATIONS {
 
-            let (fitnesses, genomes) = self.run_generation();
+            let (speeds, genomes) = self.run_generation();
 
-            let average_fitness = mean(&fitnesses);
-            average_fitnesses.push(average_fitness);
-            let max_fitness = max(&fitnesses);
+            let avg_speed = mean(&speeds);
+            avg_speeds.push(avg_speed);
+            let max_fitness = max(&speeds);
             max_fitnesses.push(max_fitness);
 
             let sizes = genomes.iter().map(|x| x.size()).collect();
@@ -53,11 +53,15 @@ pub trait GeneticAlgorithm {
             let quicknesses = genomes.iter().map(|x| x.quickness()).collect();
             let average_quickness = mean(&quicknesses);
             average_quicknesses.push(average_quickness);
+
+            self.get_ui().update_charts_incremental(
+                &self.get_game().field_state.beetles
+            );
         }
 
         self.get_ui().update_game_state(&self.get_game().field_state);
         self.get_ui().update_charts(
-            average_fitnesses, max_fitnesses, average_sizes, average_densities,
+            avg_speeds, max_fitnesses, average_sizes, average_densities,
             average_strengths, average_quicknesses);
     }
 

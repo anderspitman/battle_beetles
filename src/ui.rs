@@ -6,11 +6,13 @@ use websocket::{OwnedMessage};
 use websocket::sync::Server;
 use gen::messages::{
     UiMessage, UiUpdate, UiBeetle, UiGameState, UiCharts, FloatWrapper,
-    Color,
+    UiChartsIncremental, Color,
 };
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
+use beetle::Beetles;
 use game;
+use utils::{mean, max};
 //use FieldState;
 
 pub struct UI {
@@ -147,9 +149,52 @@ impl UI {
         }
     }
 
+    pub fn update_charts_incremental(&self, beetles: &Beetles) {
+
+        let len = beetles.len() as f32;
+        let mut speeds_sum = 0.0;
+        let mut max_health_sum = 0.0;
+        let mut sizes_sum = 0.0;
+        let mut densities_sum = 0.0;
+        let mut strengths_sum = 0.0;
+        let mut quicknesses_sum = 0.0;
+
+        for beetle in beetles.values() {
+            speeds_sum += beetle.speed();
+            max_health_sum += beetle.max_health() as f32;
+
+            sizes_sum += beetle.genome.size();
+            densities_sum += beetle.genome.carapace_density();
+            strengths_sum += beetle.genome.strength();
+            quicknesses_sum += beetle.genome.quickness();
+        }
+
+        let mut message = UiChartsIncremental::new();
+
+        message.set_avg_speed(speeds_sum / len);
+        message.set_avg_max_health(max_health_sum / len);
+        message.set_avg_size(sizes_sum / len);
+        message.set_avg_carapace_density(densities_sum / len);
+        message.set_avg_strength(strengths_sum / len);
+        message.set_avg_quickness(quicknesses_sum / len);
+
+
+        let mut ui_update = UiUpdate::new();
+        ui_update.set_charts_incremental(message);
+
+        match ui_update.write_to_bytes() {
+            Ok(encoded_message) => {
+                self.tx_sender.send(OwnedMessage::Binary(encoded_message)).unwrap();
+            },
+            Err(e) => {
+                println!("encode error: {}", e);
+            }
+        }
+    }
+
     pub fn update_charts(
             &self,
-            average_fitness_data: Vec<f32>,
+            avg_speed_data: Vec<f32>,
             max_fitness_data: Vec<f32>,
             average_sizes_data: Vec<f32>,
             average_densities_data: Vec<f32>,
@@ -158,19 +203,17 @@ impl UI {
 
         let mut ui_update = UiUpdate::new();
         let mut ui_charts = UiCharts::new();
-        let mut average_fitnesses = RepeatedField::new();
+        let mut avg_speeds = RepeatedField::new();
         let mut max_fitnesses = RepeatedField::new();
         let mut average_sizes = RepeatedField::new();
         let mut average_densities = RepeatedField::new();
         let mut average_strengths = RepeatedField::new();
         let mut average_quicknesses = RepeatedField::new();
-        //let mut average_sizes = RepeatedField::new();
 
-        //for (avg, max) in average_fitness_data.iter().zip(max_fitness_data) {
-        for i in 0..average_fitness_data.len() {
-            let mut average_fitness = FloatWrapper::new();
-            average_fitness.set_value(average_fitness_data[i]);
-            average_fitnesses.push(average_fitness);
+        for i in 0..avg_speed_data.len() {
+            let mut avg_speed = FloatWrapper::new();
+            avg_speed.set_value(avg_speed_data[i]);
+            avg_speeds.push(avg_speed);
 
             let mut max_fitness = FloatWrapper::new();
             max_fitness.set_value(max_fitness_data[i]);
@@ -193,7 +236,7 @@ impl UI {
             average_quicknesses.push(average_quickness);
         }
 
-        ui_charts.set_average_fitnesses(average_fitnesses);
+        ui_charts.set_avg_speeds(avg_speeds);
         ui_charts.set_max_fitnesses(max_fitnesses);
         ui_charts.set_average_sizes(average_sizes);
         ui_charts.set_average_densities(average_densities);

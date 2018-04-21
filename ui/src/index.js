@@ -38,40 +38,40 @@ window.onkeydown = function(e) {
 // TODO: get from server
 const numGenerations = 128;
 
-const fitnessChart = new Charts.ScatterPlot({
-  title: "Fitness",
+const phenotypeChart = new Charts.ScatterPlot({
+  title: "Phenotypes",
   xLabel: "Generation",
-  yLabel: "Fitness",
-  domElementId: 'chart-stats',
+  yLabel: "Average Phenotype Values",
+  domElementId: 'chart-pheno',
   yMin: 0,
-  yMax: 10,
+  yMax: 100,
   maxPoints: numGenerations,
   variableNames: [
-    "Average Fitness",
-    "Max Fitness",
+    "Avg Speed",
+    "Avg Max Health",
   ],
   legend: true,
 });
 
-const geneChart = new Charts.ScatterPlot({
-  title: "Gene Expression",
+const genotypeChart = new Charts.ScatterPlot({
+  title: "Genotypes",
   xLabel: "Generation",
-  yLabel: "Expression Ratio",
+  yLabel: "Average Genotype Values",
   domElementId: 'chart-genes',
   yMin: 0,
   yMax: 1,
   maxPoints: numGenerations,
   variableNames: [
-    "Size",
-    "Density",
-    "Strength",
-    "Quickness",
+    "Avg Size",
+    "Avg Density",
+    "Avg Strength",
+    "Avg Quickness",
   ],
   legend: true,
 });
 
-fitnessChart.reset();
-geneChart.reset();
+phenotypeChart.reset();
+genotypeChart.reset();
 
 const visualBeetles = [];
 const visualFoods = [];
@@ -97,8 +97,11 @@ socket.onmessage = (event) => {
   if (uiUpdate.hasGameState()) {
     handleStateUpdate(uiUpdate.getGameState());
   }
-  else if (uiUpdate.hasCharts()) {
-    handleChartsUpdate(uiUpdate.getCharts());
+  //else if (uiUpdate.hasCharts()) {
+  //  handleChartsUpdate(uiUpdate.getCharts());
+  //}
+  else if (uiUpdate.hasChartsIncremental()) {
+    handleChartsIncremental(uiUpdate.getChartsIncremental());
   }
 }
 
@@ -120,14 +123,14 @@ addBeetleButton.onclick = (e) => {
 }
 
 speedSimButton.onclick = (e) => {
-  fitnessChart.reset();
-  geneChart.reset();
+  phenotypeChart.reset();
+  genotypeChart.reset();
   messageService.runSpeedSimulation();
 }
 
 battleSimButton.onclick = (e) => {
-  fitnessChart.reset();
-  geneChart.reset();
+  phenotypeChart.reset();
+  genotypeChart.reset();
   messageService.runBattleSimulation();
 }
 
@@ -182,25 +185,45 @@ function handleStateUpdate(gameState) {
 
 }
 
+function handleChartsIncremental(msg) {
+  const avgSpeed = msg.getAvgSpeed();
+
+  phenotypeChart.addPoints({
+      yVals: [
+        msg.getAvgSpeed(),
+        msg.getAvgMaxHealth(),
+      ],
+  });
+
+  genotypeChart.addPoints({
+      yVals: [
+        msg.getAvgSize(),
+        msg.getAvgCarapaceDensity(),
+        msg.getAvgStrength(),
+        msg.getAvgQuickness(),
+      ],
+  });
+}
+
 function handleChartsUpdate(chartsMessage) {
 
-  const avgFitnessList = chartsMessage.getAverageFitnessesList();
+  const avgSpeeds = chartsMessage.getAvgSpeedsList();
   const maxFitnessList = chartsMessage.getMaxFitnessesList();
   const avgSizeList = chartsMessage.getAverageSizesList();
   const avgDensityList = chartsMessage.getAverageDensitiesList();
   const avgStrengthList = chartsMessage.getAverageStrengthsList();
   const avgQuicknessList = chartsMessage.getAverageQuicknessesList();
   
-  for (let i = 0; i < avgFitnessList.length; i++) {
+  for (let i = 0; i < avgSpeeds.length; i++) {
 
-    fitnessChart.addPoints({
+    phenotypeChart.addPoints({
       yVals: [
-        avgFitnessList[i].getValue(),
+        avgSpeeds[i].getValue(),
         maxFitnessList[i].getValue()
       ],
     });
 
-    geneChart.addPoints({
+    genotypeChart.addPoints({
       yVals: [
         avgSizeList[i].getValue(),
         avgDensityList[i].getValue(),

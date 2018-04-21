@@ -13,7 +13,6 @@ impl BeetleGenome {
                 BeetleGene::Quickness(0.5),
                 // other gene ideas:
                 // venom
-                // max health
                 // coordination (affects turning speed, etc)
                 // mandible size
                 // mandible sharpness

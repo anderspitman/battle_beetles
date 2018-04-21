@@ -31,4 +31,4 @@ $(JS_PROTO_GEN): $(PROTO_SRC)
 	protoc --proto_path=$(PROTO_DIR) --js_out=import_style=commonjs,binary:$(JS_GEN_DIR) $(PROTO_SRC)
 
 $(BUNDLE_JS): $(JS_SRC)
-	npm run --prefix ui build
+	npm run --prefix ui dev
