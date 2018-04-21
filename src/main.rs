@@ -18,7 +18,7 @@ mod simulation;
 mod message_handler;
 
 use beetle::{Beetles};
-use game::Game;
+use game::{Game, FieldState};
 use message_handler::MessageHandler;
 
 use simulation::GeneticAlgorithm;
@@ -113,7 +113,25 @@ fn main() {
     ui.update_game_state(game.tick());
 
     {
-        let mut sim = FightSimulation::new(&mut game);
+        let check_done_callback = |state: &FieldState| {
+            // whatever the first beetle's team is, make sure there are no
+            // enemies left.
+            if let Some(beetle) = state.beetles.iter().next() {
+                let team_id = beetle.1.team_id;
+
+                for (_, other) in &state.beetles {
+                    if other.team_id != team_id {
+                        return false;
+                    }
+                }
+
+                true
+            }
+            else {
+                true
+            }
+        };
+        let mut sim = FightSimulation::new(&mut game, check_done_callback);
         sim.set_tick_callback(|state| {
             ui.update_game_state(&state);
             //println!("{:?}", ui);

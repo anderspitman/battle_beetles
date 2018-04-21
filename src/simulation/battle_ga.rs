@@ -2,7 +2,7 @@ use simulation::Simulate;
 use simulation::GeneticAlgorithm;
 use simulation::fight_simulation::FightSimulation;
 use ui::UI;
-use game::{Game};
+use game::{Game, FieldState};
 use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
@@ -41,7 +41,11 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         let population_size = self.game.field_state.beetles.len();
 
         {
-            let mut sim = FightSimulation::new(&mut self.game);
+            let check_done_callback = |state: &FieldState| {
+                state.beetles.len() < ((population_size / 2) + 5) as usize
+            };
+
+            let mut sim = FightSimulation::new(&mut self.game, check_done_callback);
             // TODO: should be a way to remove this. Currently its only
             // purpose is so the type checker knows what kind of closure to
             // implement above.
