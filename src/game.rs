@@ -1,4 +1,4 @@
-use cgmath::{Rad, Point2};
+use cgmath::{Rad, Point2, InnerSpace};
 
 use beetle::{BeetleBuilder, Beetle, Id, Beetles};
 use beetle_genome::{BeetleGenome};
@@ -218,6 +218,25 @@ impl Game {
         let rand_index = thread_rng().gen_range::<i32>(0, (ids.len() - 1) as i32);
         let rand_id = ids[rand_index as usize];
         return rand_id;
+    }
+
+    pub fn find_closest_beetle(&self, position: &Point2<f32>) -> Id {
+
+        let mut closest_id = STARTING_BEETLE_ID;
+        let mut closest_distance = f32::MAX;
+
+        for (_, other_beetle) in self.field_state.beetles.iter() {
+
+            let vector = other_beetle.position - position;
+            let distance = vector.magnitude();
+
+            if distance < closest_distance {
+                closest_distance = distance;
+                closest_id = other_beetle.id;
+            }
+        }
+
+        return closest_id;
     }
 
     pub fn tick(&mut self) -> &FieldState {

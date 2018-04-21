@@ -1,13 +1,12 @@
-use cgmath::{InnerSpace};
 use simulation::GeneticAlgorithm;
 use ui::UI;
-use game::{Game, STARTING_BEETLE_ID};
-use beetle::{Id, Beetle};
+use game::{Game};
 use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
 use utils::{SIMULATION_PERIOD_MS, Color};
 use rand::{Rng, thread_rng};
+use std::f32;
 
 pub struct BattleGA<'a> {
     ui: &'a UI,
@@ -20,28 +19,6 @@ impl<'a> BattleGA<'a> {
             ui,
             game,
         }
-    }
-
-    fn find_closest_beetle(&self, beetle: &Beetle) -> Id {
-
-        let mut closest_id = STARTING_BEETLE_ID;
-        let mut closest_distance = 1000000.0;
-
-        for (_, other_beetle) in self.game.field_state.beetles.iter() {
-            if beetle.id == other_beetle.id {
-                continue;
-            }
-
-            let vector = other_beetle.position - beetle.position;
-            let distance = vector.magnitude();
-
-            if distance < closest_distance {
-                closest_distance = distance;
-                closest_id = other_beetle.id;
-            }
-        }
-
-        return closest_id;
     }
 }
 
@@ -67,7 +44,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         let beetles = self.game.field_state.beetles.clone();
 
         for (_, beetle) in beetles.iter() {
-            let closest_beetle_id = self.find_closest_beetle(&beetle);
+            let closest_beetle_id = self.game.find_closest_beetle(&beetle.position);
             self.game.select_beetle(beetle.id);
             self.game.selected_interact_command(closest_beetle_id);
             self.game.deselect_all_beetles();
