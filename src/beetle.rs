@@ -2,6 +2,7 @@ use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
+use beetle_state_machine::{BeetleStateMachine};
 use food_collector::{FoodCollector};
 use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
 
@@ -36,6 +37,7 @@ pub struct Beetle {
     pub color: Color,
     pub team_id: Id,
     food_collector: FoodCollector,
+    state_machine: BeetleStateMachine,
 }
 
 impl Beetle {
@@ -57,6 +59,7 @@ impl Beetle {
             color: Color::new(),
             team_id: 0,
             food_collector: FoodCollector::new(),
+            state_machine: BeetleStateMachine::new(),
         }
     }
 
@@ -120,9 +123,14 @@ impl Beetle {
             Command::Interact { target_id } => {
                 if let Some(target) = beetles.get(&target_id) {
                     if self.close_enough_to_interact(target.position) {
-                        Action::Attack{
-                            target_id: target_id,
-                            attack_power: self.attack_power(),
+                        if target.team_id != self.team_id {
+                            Action::Attack{
+                                target_id: target_id,
+                                attack_power: self.attack_power(),
+                            }
+                        }
+                        else {
+                            Action::Nothing
                         }
                     }
                     else {

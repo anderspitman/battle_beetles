@@ -13,6 +13,7 @@ mod ui;
 mod game;
 mod beetle;
 mod beetle_genome;
+mod beetle_state_machine;
 mod gen;
 mod simulation;
 mod message_handler;
@@ -90,6 +91,14 @@ fn main() {
     //}
 
     game.add_food_source(100.0, 100.0);
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
+
+    for beetle in game.field_state.beetles.values_mut() {
+        beetle.team_id = 0;
+    }
+
+
     {
         let mut ga = FoodGA::new(&mut game, &ui);
         ga.run();
@@ -107,35 +116,35 @@ fn main() {
     //    game.add_beetle(beetle);
     //}
 
-    ui.update_game_state(game.tick());
+    //ui.update_game_state(game.tick());
 
-    {
-        let check_done_callback = |state: &FieldState| {
-            // whatever the first beetle's team is, make sure there are no
-            // enemies left.
-            if let Some(beetle) = state.beetles.iter().next() {
-                let team_id = beetle.1.team_id;
+    //{
+    //    let check_done_callback = |state: &FieldState| {
+    //        // whatever the first beetle's team is, make sure there are no
+    //        // enemies left.
+    //        if let Some(beetle) = state.beetles.iter().next() {
+    //            let team_id = beetle.1.team_id;
 
-                for (_, other) in &state.beetles {
-                    if other.team_id != team_id {
-                        return false;
-                    }
-                }
+    //            for (_, other) in &state.beetles {
+    //                if other.team_id != team_id {
+    //                    return false;
+    //                }
+    //            }
 
-                true
-            }
-            else {
-                true
-            }
-        };
-        let mut sim = FightSimulation::new(&mut game, check_done_callback);
-        sim.set_tick_callback(|state| {
-            ui.update_game_state(&state);
-            //println!("{:?}", ui);
-            thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
-        });
-        sim.run();
-    }
+    //            true
+    //        }
+    //        else {
+    //            true
+    //        }
+    //    };
+    //    let mut sim = FightSimulation::new(&mut game, check_done_callback);
+    //    sim.set_tick_callback(|state| {
+    //        ui.update_game_state(&state);
+    //        //println!("{:?}", ui);
+    //        thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
+    //    });
+    //    sim.run();
+    //}
 
     //println!("End simulation");
 

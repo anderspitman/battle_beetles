@@ -171,7 +171,16 @@ function handleStateUpdate(gameState) {
   }
 
   for (let i = 0; i < foods.length; i++) {
+
     const food = foods[i];
+
+    if (visualFoods[i].obj._renderer && visualFoods[i].obj._renderer.elem) {
+      visualFoods[i].obj._renderer.elem.oncontextmenu = (e) => {
+        e.preventDefault();
+        messageService.selectedInteractCommand({ beetleId: food.getId() })
+      };
+    }
+
     drawFood(food, i);
   }
 
@@ -345,6 +354,7 @@ function createBeetle() {
 function createFood() {
   const newFood = two.makeRectangle(0, 0, 64, 64);
   newFood.fill = '#efc85d';
+
   return {
     obj: newFood,
   }
