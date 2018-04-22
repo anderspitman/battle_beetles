@@ -32,14 +32,55 @@ pub enum Action {
 
 #[derive(Serialize, Debug)]
 pub struct FieldState {
-    //food: Vec<Food>,
+    food_sources: Vec<FoodSource>,
     pub beetles: Beetles,
     selected_beetles: Vec<Id>,
     next_beetle_id: i32,
 }
 
+impl FieldState {
+
+    pub fn get_food_sources(&self) -> &Vec<FoodSource> {
+        &self.food_sources
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct FoodSource {
+    id: Id,
+    amount: i32,
+    position: Point2<f32>,
+}
+
+impl FoodSource {
+    pub fn new(id: i32) -> FoodSource {
+        FoodSource {
+            id: id,
+            amount: 100,
+            position: Point2::new(0.0, 0.0),
+        }
+    }
+
+    pub fn id(&self) -> Id {
+        self.id
+    }
+
+    pub fn amount(&self) -> i32 {
+        self.amount
+    }
+
+    pub fn position(&self) -> Point2<f32> {
+        self.position
+    }
+    pub fn set_position(&mut self, x: f32, y: f32) {
+        self.position.x = x;
+        self.position.y = y;
+    }
+}
+
 pub struct Game {
     pub field_state: FieldState,
+    next_food_source_id: i32,
 }
 
 impl Game {
@@ -47,11 +88,12 @@ impl Game {
     pub fn new() -> Game {
         let game = Game {
             field_state: FieldState {
-                //food: Vec::new(),
+                food_sources: Vec::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
                 next_beetle_id: STARTING_BEETLE_ID,
             },
+            next_food_source_id: 0,
         };
 
         return game;
@@ -239,6 +281,14 @@ impl Game {
         return id;
     }
 
+    pub fn add_food_source(&mut self, x: f32, y: f32) {
+        let id = self.next_food_source_id;
+        self.next_food_source_id += 1;
+        let mut food_source = FoodSource::new(id);
+        food_source.set_position(x, y);
+        self.field_state.food_sources.push(food_source);
+    }
+
     pub fn get_random_beetle_id(&self) -> i32 {
         let ids: Vec<Id> = self.field_state.beetles.iter().map(|x| x.1.id).collect();
 
@@ -248,29 +298,6 @@ impl Game {
         return rand_id;
     }
 
-    //pub fn find_closest_beetle(&self, beetle: &Beetle) -> Id {
-
-    //    let mut closest_id = STARTING_BEETLE_ID;
-    //    let mut closest_distance = f32::MAX;
-
-    //    for (_, other_beetle) in self.field_state.beetles.iter() {
-
-    //        if other_beetle.id == beetle.id {
-    //            continue;
-    //        }
-
-    //        let vector = other_beetle.position - beetle.position;
-    //        let distance = vector.magnitude();
-
-    //        if distance < closest_distance {
-    //            closest_distance = distance;
-    //            closest_id = other_beetle.id;
-    //        }
-    //    }
-
-    //    return closest_id;
-    //}
-    
     pub fn find_closest_enemy(&self, beetle: &Beetle) -> Option<Id> {
 
 

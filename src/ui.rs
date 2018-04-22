@@ -6,6 +6,7 @@ use websocket::{OwnedMessage};
 use websocket::sync::Server;
 use gen::messages::{
     UiMessage, UiUpdate, UiBeetle, UiGameState, UiChartsIncremental, Color,
+    UiFoodSource,
 };
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
@@ -130,8 +131,21 @@ impl UI {
 
             beetles.push(new_beetle);
         }
-
         ui_game_state.set_beetles(beetles);
+
+        let mut food_sources = RepeatedField::new();
+        for food_source in data.get_food_sources().iter() {
+            let mut new_food_source = UiFoodSource::new();
+
+            new_food_source.set_id(food_source.id());
+            new_food_source.set_amount(food_source.amount());
+            new_food_source.set_x(food_source.position().x);
+            new_food_source.set_y(food_source.position().y);
+
+            food_sources.push(new_food_source);
+        }
+        ui_game_state.set_food_sources(food_sources);
+
         ui_update.set_game_state(ui_game_state);
 
         match ui_update.write_to_bytes() {

@@ -16,6 +16,7 @@ mod beetle_genome;
 mod gen;
 mod simulation;
 mod message_handler;
+mod food_collector;
 
 use beetle::{Beetles};
 use game::{Game, FieldState};
@@ -24,6 +25,7 @@ use message_handler::MessageHandler;
 use simulation::GeneticAlgorithm;
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
+use simulation::food_ga::FoodGA;
 use simulation::Simulate;
 use simulation::fight_simulation::FightSimulation;
 
@@ -50,64 +52,59 @@ fn main() {
 
     let mut rng = thread_rng();
 
-    // run battle GA
-    game.set_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation);
+    //// run battle GA
+    //game.set_random_population(
+    //        utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    let mut battle_population;
+    //let mut battle_population;
+    //{
+    //    let mut ga = BattleGA::new(&mut game, &ui);
+    //    ga.run();
+    //    battle_population = ga.get_population().clone();
+    //}
+    //for (_, beetle) in battle_population.iter_mut() {
+    //    let rand_x: f32 = rng.gen_range(0.0, 500.0);
+    //    let rand_y: f32 = rng.gen_range(0.0, 500.0);
+    //    beetle.position.x = rand_x;
+    //    beetle.position.y = rand_y;
+    //    beetle.team_id = 0;
+    //    beetle.direction = Vector2::new(-1.0, 0.0);
+    //}
+
+    //// run speed GA
+    //game.set_random_population(
+    //        utils::POPULATION_SIZE, max_speed, max_rotation);
+    //let mut speed_population;
+    //{
+    //    let mut ga = SpeedGA::new(&mut game, &ui);
+    //    ga.run();
+    //    speed_population = ga.get_population().clone();
+    //}
+    //for (_, beetle) in speed_population.iter_mut() {
+    //    let rand_x: f32 = rng.gen_range(600.0, 1100.0);
+    //    let rand_y: f32 = rng.gen_range(0.0, 500.0);
+    //    beetle.position.x = rand_x;
+    //    beetle.position.y = rand_y;
+    //    beetle.team_id = 1;
+    //    beetle.direction = Vector2::new(1.0, 0.0);
+    //}
+
+    game.add_food_source(100.0, 100.0);
     {
-        let mut ga = BattleGA::new(&mut game, &ui);
+        let mut ga = FoodGA::new(&mut game, &ui);
         ga.run();
-        battle_population = ga.get_population().clone();
-    }
-    for (_, beetle) in battle_population.iter_mut() {
-        let rand_x: f32 = rng.gen_range(0.0, 500.0);
-        let rand_y: f32 = rng.gen_range(0.0, 500.0);
-        beetle.position.x = rand_x;
-        beetle.position.y = rand_y;
-        beetle.team_id = 0;
-        beetle.direction = Vector2::new(-1.0, 0.0);
     }
 
-    // run speed GA
-    game.set_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation);
-    let mut speed_population;
-    {
-        let mut ga = SpeedGA::new(&mut game, &ui);
-        ga.run();
-        speed_population = ga.get_population().clone();
-    }
-    for (_, beetle) in speed_population.iter_mut() {
-        let rand_x: f32 = rng.gen_range(600.0, 1100.0);
-        let rand_y: f32 = rng.gen_range(0.0, 500.0);
-        beetle.position.x = rand_x;
-        beetle.position.y = rand_y;
-        beetle.team_id = 1;
-        beetle.direction = Vector2::new(1.0, 0.0);
-    }
+    //// reset population
+    //game.field_state.beetles = Beetles::new();
 
-    // reset population
-    game.field_state.beetles = Beetles::new();
-
-    // TODO: could potentially use itertools chain method to do this, but I
-    // don't want an extra dependency just for that right now.
-    for (_, beetle) in battle_population.into_iter() {
-        game.add_beetle(beetle);
-    }
-    for (_, beetle) in speed_population.into_iter() {
-        game.add_beetle(beetle);
-    }
-
-    println!("All fight");
-
-    //for (_, beetle) in game.field_state.beetles.iter() {
-    //    println!("id: {:?}", beetle.id);
-    //    println!("team_id: {:?}", beetle.team_id);
-    //    println!("dir: {:?}", beetle.direction);
-    //    println!("pos: {:?}", beetle.position);
-
-    //    game.select_beetle(beetle.id);
+    //// TODO: could potentially use itertools chain method to do this, but I
+    //// don't want an extra dependency just for that right now.
+    //for (_, beetle) in battle_population.into_iter() {
+    //    game.add_beetle(beetle);
+    //}
+    //for (_, beetle) in speed_population.into_iter() {
+    //    game.add_beetle(beetle);
     //}
 
     ui.update_game_state(game.tick());

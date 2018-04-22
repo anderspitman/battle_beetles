@@ -2,6 +2,7 @@ use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
+use food_collector::{FoodCollector};
 use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
 
 //const MAX_QUICKNESS: f32 = 10.0;
@@ -34,6 +35,7 @@ pub struct Beetle {
     pub genome: BeetleGenome,
     pub color: Color,
     pub team_id: Id,
+    food_collector: FoodCollector,
 }
 
 impl Beetle {
@@ -54,6 +56,7 @@ impl Beetle {
             genome: BeetleGenome::new(),
             color: Color::new(),
             team_id: 0,
+            food_collector: FoodCollector::new(),
         }
     }
 

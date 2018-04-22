@@ -1,4 +1,5 @@
 pub mod speed_ga;
+pub mod food_ga;
 pub mod battle_ga;
 pub mod fight_simulation;
 

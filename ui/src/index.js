@@ -144,23 +144,16 @@ createFormationButton.onclick = (e) => {
 function handleStateUpdate(gameState) {
 
   const beetles = gameState.getBeetlesList();
-  //console.log(beetles.length);
-  //const data = JSON.parse(event.data);
-
-  // convert beetles object to array
-  //const beetles = Object.entries(data.beetles).map((tuple) => tuple[1]);
-  //console.log(beetles);
-  //const foods = data.food;
-  //console.log(foods);
+  const foods = gameState.getFoodSourcesList();
 
   matchArrays(beetles, visualBeetles, createBeetle);
-  //matchArrays(foods, visualFoods, createFood);
+  matchArrays(foods, visualFoods, createFood);
 
   for (let i = 0; i < beetles.length; i++) {
     const beetle = beetles[i];
 
-    if (visualBeetles[i].beetle._renderer && visualBeetles[i].beetle._renderer.elem) {
-      visualBeetles[i].beetle._renderer.elem.onclick = (e) => {
+    if (visualBeetles[i].obj._renderer && visualBeetles[i].obj._renderer.elem) {
+      visualBeetles[i].obj._renderer.elem.onclick = (e) => {
         if (!shiftKeyDown) {
           messageService.deselectAllBeetles()
         }
@@ -168,7 +161,7 @@ function handleStateUpdate(gameState) {
         messageService.selectBeetle({ beetleId: beetle.getId() })
       };
 
-      visualBeetles[i].beetle._renderer.elem.oncontextmenu = (e) => {
+      visualBeetles[i].obj._renderer.elem.oncontextmenu = (e) => {
         e.preventDefault();
         messageService.selectedInteractCommand({ beetleId: beetle.getId() })
       };
@@ -177,10 +170,10 @@ function handleStateUpdate(gameState) {
     drawBeetle(beetle, i);
   }
 
-  //for (let i = 0; i < foods.length; i++) {
-  //  const food = foods[i];
-  //  drawFood(food, i);
-  //}
+  for (let i = 0; i < foods.length; i++) {
+    const food = foods[i];
+    drawFood(food, i);
+  }
 
   requestAnimationFrame(() => {
     two.update();
@@ -245,7 +238,7 @@ function matchArrays(model, vis, createNew) {
 
     for (let i = vis.length; i < model.length; i++) {
       if (vis[i]) {
-        vis[i].beetle.visible = true;
+        vis[i].obj.visible = true;
       }
       else {
         vis.push(createNew());
@@ -255,11 +248,11 @@ function matchArrays(model, vis, createNew) {
   else if (vis.length >= model.length) {
 
     for (let i = 0; i < model.length; i++) {
-        vis[i].beetle.visible = true;
+        vis[i].obj.visible = true;
     }
 
     for (let i = model.length; i < vis.length; i++) {
-      vis[i].beetle.visible = false;
+      vis[i].obj.visible = false;
       vis[i].selectedIndicator.visible = false;
     }
   }
@@ -343,21 +336,23 @@ function createBeetle() {
   //vectorLines.push(vectorLine);
 
   return {
-    beetle: newBeetle,
+    obj: newBeetle,
     selectedIndicator: selectedIndicator,
     body: body,
   };
 }
 
 function createFood() {
-  const newFood = two.makeRectangle(0, 0, 10, 10);
-  newFood.fill = 'Tomato';
-  return newFood;
+  const newFood = two.makeRectangle(0, 0, 64, 64);
+  newFood.fill = '#efc85d';
+  return {
+    obj: newFood,
+  }
 }
 
 function drawBeetle(beetle, index) {
   const visualBeetleData = visualBeetles[index];
-  const visualBeetle = visualBeetleData.beetle;
+  const visualBeetle = visualBeetleData.obj;
   const body = visualBeetleData.body;
 
   // use width for scale heuristic
@@ -393,8 +388,8 @@ function drawBeetle(beetle, index) {
 }
 
 function drawFood(food, index) {
-  visualFood = visualFoods[index];
-  visualFood.translation.set(food.position.x, food.position.y);
+  const visualFood = visualFoods[index].obj;
+  visualFood.translation.set(food.getX(), food.getY());
 }
 
 function getViewportDimensions() {
