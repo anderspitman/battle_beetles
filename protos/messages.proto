@@ -3,34 +3,23 @@ syntax = "proto3";
 message UiUpdate {
     oneof actual {
         UiGameState game_state = 1;
-        UiCharts charts = 2;
-        UiChartsIncremental charts_incremental = 3;
+        UiChartsIncremental charts_incremental = 2;
     }
-}
-
-message UiCharts {
-    repeated FloatWrapper avg_speeds = 1;
-    repeated FloatWrapper max_fitnesses = 2;
-    repeated FloatWrapper average_sizes = 3;
-    repeated FloatWrapper average_densities = 4;
-    repeated FloatWrapper average_strengths = 5;
-    repeated FloatWrapper average_quicknesses = 6;
 }
 
 message UiChartsIncremental {
     // phenotype
     float avg_speed = 1;
     float avg_max_health = 2;
+    float avg_attack_power = 9;
 
     // genotype
     float avg_size = 3;
     float avg_carapace_density = 4;
     float avg_strength = 5;
     float avg_quickness = 6;
-}
-
-message FloatWrapper {
-    float value = 1;
+    float avg_venomosity = 7;
+    float avg_mandible_sharpness = 8;
 }
 
 message UiGameState {

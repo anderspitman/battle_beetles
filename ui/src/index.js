@@ -44,11 +44,12 @@ const phenotypeChart = new Charts.ScatterPlot({
   yLabel: "Average Phenotype Values",
   domElementId: 'chart-pheno',
   yMin: 0,
-  yMax: 100,
+  yMax: 1000,
   maxPoints: numGenerations,
   variableNames: [
     "Avg Speed",
     "Avg Max Health",
+    "Avg Attack Power",
   ],
   legend: true,
 });
@@ -66,6 +67,8 @@ const genotypeChart = new Charts.ScatterPlot({
     "Avg Density",
     "Avg Strength",
     "Avg Quickness",
+    "Avg Venomosity",
+    "Avg Mandible Sharpness",
   ],
   legend: true,
 });
@@ -192,6 +195,7 @@ function handleChartsIncremental(msg) {
       yVals: [
         msg.getAvgSpeed(),
         msg.getAvgMaxHealth(),
+        msg.getAvgAttackPower(),
       ],
   });
 
@@ -201,6 +205,8 @@ function handleChartsIncremental(msg) {
         msg.getAvgCarapaceDensity(),
         msg.getAvgStrength(),
         msg.getAvgQuickness(),
+        msg.getAvgVenomosity(),
+        msg.getAvgMandibleSharpness(),
       ],
   });
 }

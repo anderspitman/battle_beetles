@@ -42,7 +42,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
         {
             let check_done_callback = |state: &FieldState| {
-                state.beetles.len() < ((population_size / 2) + 5) as usize
+                state.beetles.len() < ((population_size / 2) + 10) as usize
             };
 
             let mut sim = FightSimulation::new(&mut self.game, check_done_callback);

@@ -50,24 +50,24 @@ fn main() {
 
     let mut rng = thread_rng();
 
-    //// run battle GA
-    //game.set_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation);
+    // run battle GA
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    //let mut battle_population;
-    //{
-    //    let mut ga = BattleGA::new(&mut game, &ui);
-    //    ga.run();
-    //    battle_population = ga.get_population().clone();
-    //}
-    //for (_, beetle) in battle_population.iter_mut() {
-    //    let rand_x: f32 = rng.gen_range(0.0, 500.0);
-    //    let rand_y: f32 = rng.gen_range(0.0, 500.0);
-    //    beetle.position.x = rand_x;
-    //    beetle.position.y = rand_y;
-    //    beetle.team_id = 0;
-    //    beetle.direction = Vector2::new(-1.0, 0.0);
-    //}
+    let mut battle_population;
+    {
+        let mut ga = BattleGA::new(&mut game, &ui);
+        ga.run();
+        battle_population = ga.get_population().clone();
+    }
+    for (_, beetle) in battle_population.iter_mut() {
+        let rand_x: f32 = rng.gen_range(0.0, 500.0);
+        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        beetle.position.x = rand_x;
+        beetle.position.y = rand_y;
+        beetle.team_id = 0;
+        beetle.direction = Vector2::new(-1.0, 0.0);
+    }
 
     // run speed GA
     game.set_random_population(
@@ -92,9 +92,9 @@ fn main() {
 
     // TODO: could potentially use itertools chain method to do this, but I
     // don't want an extra dependency just for that right now.
-    //for (_, beetle) in battle_population.into_iter() {
-    //    game.add_beetle(beetle);
-    //}
+    for (_, beetle) in battle_population.into_iter() {
+        game.add_beetle(beetle);
+    }
     for (_, beetle) in speed_population.into_iter() {
         game.add_beetle(beetle);
     }

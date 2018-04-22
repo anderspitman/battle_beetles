@@ -8,8 +8,10 @@ use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
 //const MAX_STRENGTH: f32 = 10.0;
 const MAX_SIZE_UNITS: f32 = 40.0;
 const MIN_SIZE_UNITS: f32 = 10.0;
-const MAX_HEALTH: f32 = 100.0;
+const MAX_HEALTH: f32 = 200.0;
 const MIN_HEALTH: f32 = 10.0;
+const MAX_ATTACK: f32 = 50.0;
+const MIN_ATTACK: f32 = 1.0;
 //const MAX_CARAPACE_DENSITY: f32 = 10.0;
 //const MAX_MASS: f32 = MAX_SIZE * MAX_CARAPACE_DENSITY;
 
@@ -27,7 +29,6 @@ pub struct Beetle {
     rotation_radians_per_tick: Rad<f32>,
     num_eaten: i32,
     pub current_command: Command,
-    attack_power: i32,
     pub health: i32,
     pub selected: bool,
     pub genome: BeetleGenome,
@@ -48,7 +49,6 @@ impl Beetle {
             rotation_radians_per_tick: Rad(0.10),
             num_eaten: 0,
             current_command: Command::Idle,
-            attack_power: 10,
             health: 100, 
             selected: false,
             genome: BeetleGenome::new(),
@@ -82,6 +82,17 @@ impl Beetle {
         return ((health_ratio * (MAX_HEALTH - MIN_HEALTH)) + MIN_HEALTH) as i32;
     }
 
+    pub fn attack_power(&self) -> i32 {
+        let attack_ratio =
+            self.genome.mandible_sharpness() * 0.30 +
+            self.genome.venomosity() * 0.30 +
+            self.genome.strength() * 0.20 +
+            self.genome.size() * 0.10 +
+            self.genome.quickness() * 0.10;
+
+        return ((attack_ratio * (MAX_ATTACK - MIN_ATTACK)) + MIN_ATTACK) as i32;
+    }
+
     //pub fn mass(&self) -> f32 {
     //    ((self.genome.size() * MAX_SIZE) *
     //    (self.genome.carapace_density() * MAX_CARAPACE_DENSITY)) /
@@ -108,7 +119,7 @@ impl Beetle {
                     if self.close_enough_to_interact(target.position) {
                         Action::Attack{
                             target_id: target_id,
-                            attack_power: self.attack_power,
+                            attack_power: self.attack_power(),
                         }
                     }
                     else {

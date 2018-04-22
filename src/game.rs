@@ -68,10 +68,7 @@ impl Game {
         for _ in 0..population_size {
 
             let mut genome = BeetleGenome::new();
-                genome.set_size(rng.gen());
-                genome.set_carapace_density(rng.gen());
-                genome.set_strength(rng.gen());
-                genome.set_quickness(rng.gen());
+                genome.set_random_genome();
             let mut beetle = BeetleBuilder::new()
                 .max_speed_units_per_tick(max_speed)
                 .rotation_radians_per_tick(Rad(max_rotation))

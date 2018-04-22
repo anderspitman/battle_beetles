@@ -22,37 +22,9 @@ pub trait GeneticAlgorithm {
 
         println!("Run GA");
 
-        let mut avg_speeds = Vec::new();
-        let mut max_fitnesses = Vec::new();
-        let mut average_sizes: Vec<f32> = Vec::new();
-        let mut average_densities: Vec<f32> = Vec::new();
-        let mut average_strengths: Vec<f32> = Vec::new();
-        let mut average_quicknesses: Vec<f32> = Vec::new();
-
         for _ in 0..NUM_GENERATIONS {
 
-            let (speeds, genomes) = self.run_generation();
-
-            let avg_speed = mean(&speeds);
-            avg_speeds.push(avg_speed);
-            let max_fitness = max(&speeds);
-            max_fitnesses.push(max_fitness);
-
-            let sizes = genomes.iter().map(|x| x.size()).collect();
-            let average_size = mean(&sizes);
-            average_sizes.push(average_size);
-
-            let densities = genomes.iter().map(|x| x.carapace_density()).collect();
-            let average_density = mean(&densities);
-            average_densities.push(average_density);
-
-            let strengths = genomes.iter().map(|x| x.strength()).collect();
-            let average_strength = mean(&strengths);
-            average_strengths.push(average_strength);
-
-            let quicknesses = genomes.iter().map(|x| x.quickness()).collect();
-            let average_quickness = mean(&quicknesses);
-            average_quicknesses.push(average_quickness);
+            let (_speeds, _genomes) = self.run_generation();
 
             self.get_ui().update_charts_incremental(
                 &self.get_game().field_state.beetles
@@ -60,9 +32,6 @@ pub trait GeneticAlgorithm {
         }
 
         self.get_ui().update_game_state(&self.get_game().field_state);
-        self.get_ui().update_charts(
-            avg_speeds, max_fitnesses, average_sizes, average_densities,
-            average_strengths, average_quicknesses);
     }
 
     fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>);
@@ -85,33 +54,10 @@ pub trait GeneticAlgorithm {
 
         if mutate {
             let random_val = thread_rng().gen::<f32>();
-            let num_genes = offspring.genome.get_num_genes();
-            let random_gene_index = thread_rng().gen_range::<i32>(0, num_genes);
+            let random_gene_index = BeetleGenome::get_random_gene_index();
             offspring.genome.set_gene_value(random_gene_index, random_val);
         }
 
         offspring
     }
-}
-
-fn mean(values: &Vec<f32>) -> f32 {
-    let mut sum = 0.0;
-
-    for value in values {
-        sum += value;
-    }
-
-    sum / (values.len() as f32)
-}
-
-fn max(values: &Vec<f32>) -> f32 {
-    let mut cur_max = 0.0;
-
-    for value in values {
-        if *value > cur_max {
-            cur_max = *value;
-        }
-    }
-
-    cur_max
 }
