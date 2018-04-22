@@ -134,7 +134,7 @@ impl UI {
         ui_game_state.set_beetles(beetles);
 
         let mut food_sources = RepeatedField::new();
-        for food_source in data.get_food_sources().iter() {
+        for food_source in data.get_food_sources().values() {
             let mut new_food_source = UiFoodSource::new();
 
             new_food_source.set_id(food_source.id());

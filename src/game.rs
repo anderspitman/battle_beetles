@@ -4,10 +4,13 @@ use beetle::{BeetleBuilder, Beetle, Id, Beetles};
 use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
+use std::collections::HashMap;
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
 pub const STARTING_BEETLE_ID: Id = 1;
+
+pub type FoodSources = HashMap<Id, FoodSource>;
 
 #[derive(PartialEq, Serialize, Debug, Clone)]
 pub enum Command {
@@ -23,16 +26,28 @@ pub enum Command {
 #[derive(Debug)]
 pub enum Action {
     Move,
+    MoveToward {
+        beetle_id: Id,
+        x: f32,
+        y: f32,
+    },
     Attack {
         target_id: i32,
         attack_power: i32,
+    },
+    TakeFood {
+        food_source_id: i32,
+        amount: i32,
+    },
+    Stop {
+        beetle_id: Id
     },
     Nothing,
 }
 
 #[derive(Serialize, Debug)]
 pub struct FieldState {
-    food_sources: Vec<FoodSource>,
+    food_sources: FoodSources,
     pub beetles: Beetles,
     selected_beetles: Vec<Id>,
     next_beetle_id: i32,
@@ -40,12 +55,12 @@ pub struct FieldState {
 
 impl FieldState {
 
-    pub fn get_food_sources(&self) -> &Vec<FoodSource> {
+    pub fn get_food_sources(&self) -> &FoodSources {
         &self.food_sources
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct FoodSource {
     id: Id,
     amount: i32,
@@ -88,7 +103,7 @@ impl Game {
     pub fn new() -> Game {
         let game = Game {
             field_state: FieldState {
-                food_sources: Vec::new(),
+                food_sources: FoodSources::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
                 next_beetle_id: STARTING_BEETLE_ID,
@@ -286,7 +301,7 @@ impl Game {
         self.next_food_source_id += 1;
         let mut food_source = FoodSource::new(id);
         food_source.set_position(x, y);
-        self.field_state.food_sources.push(food_source);
+        self.field_state.food_sources.insert(id, food_source);
     }
 
     pub fn get_random_beetle_id(&self) -> i32 {
@@ -337,18 +352,29 @@ impl Game {
 
     pub fn tick(&mut self) -> &FieldState {
 
-        // TODO: figure out how to not need to clone here
-        let cloned_beetles = self.field_state.beetles.clone();
         // TODO: maybe move this to struct level to avoid re-allocating
         let mut actions: Vec<Action> = Vec::with_capacity(self.field_state.beetles.len());
 
-        for (_, beetle) in self.field_state.beetles.iter_mut() {
-            let action = beetle.tick(&cloned_beetles);
+        for beetle in self.field_state.beetles.values() {
+            let action = beetle.tick(
+                    &self.field_state.beetles,
+                    &self.field_state.food_sources);
             actions.push(action);
         }
 
         for action in actions {
             match action {
+                Action::MoveToward{beetle_id, x, y} => {
+                    if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+
+                        let destination = Point2::new(x, y);
+                        beetle.move_toward(&destination);
+
+                        if beetle.basically_here(destination) {
+                            beetle.current_command = Command::Idle;
+                        }
+                    }
+                },
                 Action::Attack{target_id, attack_power} => {
                     let mut dead = false;
 

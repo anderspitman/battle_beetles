@@ -1,5 +1,5 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
-use game::{Command, Action};
+use game::{Command, Action, FoodSource, FoodSources};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
@@ -109,16 +109,18 @@ impl Beetle {
         self.current_command = command;
     }
 
-    pub fn tick(&mut self, beetles: &Beetles) -> Action {
+    pub fn tick(
+            &self, beetles: &Beetles,
+            food_sources: &FoodSources) -> Action {
+
         let action = match self.current_command {
             Command::Move{ position } => {
-                self.move_toward(&position);
 
-                if self.basically_here(position) {
-                    self.current_command = Command::Idle;
+                Action::MoveToward {
+                    beetle_id: self.id,
+                    x: position.x,
+                    y: position.y,
                 }
-
-                Action::Move
             },
             Command::Interact { target_id } => {
                 if let Some(target) = beetles.get(&target_id) {
@@ -134,12 +136,29 @@ impl Beetle {
                         }
                     }
                     else {
-                        self.move_toward(&target.position);
-                        Action::Move
+                        Action::MoveToward {
+                            beetle_id: self.id,
+                            x: target.position.x,
+                            y: target.position.y,
+                        }
+                    }
+                }
+                else if let Some(food_source) = food_sources.get(&target_id) {
+                    if self.close_enough_to_interact(food_source.position()) {
+                        Action::TakeFood {
+                            food_source_id: target_id,
+                            amount: 1,
+                        }
+                    }
+                    else {
+                        Action::MoveToward {
+                            beetle_id: self.id,
+                            x: food_source.position().x,
+                            y: food_source.position().y,
+                        }
                     }
                 }
                 else {
-                    self.set_command(Command::Idle);
                     Action::Nothing
                 }
             },
@@ -151,7 +170,7 @@ impl Beetle {
         return action;
     }
 
-    fn move_toward(&mut self, a: &Point2<f32>) {
+    pub fn move_toward(&mut self, a: &Point2<f32>) {
 
         let rot: Basis2<f32> =
             Rotation2::from_angle(self.rotation_radians_per_tick);
@@ -184,7 +203,7 @@ impl Beetle {
         return dist < 5.0;
     }
 
-    fn basically_here(&self, position: Point2<f32>) -> bool {
+    pub fn basically_here(&self, position: Point2<f32>) -> bool {
         let vector = position - self.position;
         let dist = vector.magnitude();
         return dist < 5.0;
