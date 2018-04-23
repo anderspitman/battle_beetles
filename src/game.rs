@@ -3,7 +3,7 @@ use entities::{BeetleBuilder, Beetle, Id, Beetles};
 use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
-use entities::{FoodSource, FoodSources, HomeBase, HomeBases};
+use entities::{FoodSource, FoodSources, HomeBase, HomeBases, HasFood};
 use utils::Positioned;
 
 // This needs to start at 1 because protobuf doesn't handle
@@ -35,6 +35,11 @@ pub enum Action {
     TakeFood {
         beetle_id: Id,
         food_source_id: Id,
+        amount: i32,
+    },
+    DumpFood {
+        beetle_id: Id,
+        home_base_id: Id,
         amount: i32,
     },
     Nothing,
@@ -337,7 +342,8 @@ impl Game {
         for beetle in self.field_state.beetles.values() {
             let action = beetle.tick(
                     &self.field_state.beetles,
-                    &self.field_state.food_sources);
+                    &self.field_state.food_sources,
+                    &self.field_state.home_bases);
             actions.push(action);
         }
 
@@ -381,7 +387,16 @@ impl Game {
                     if empty {
                         self.field_state.food_sources.remove(&food_source_id);
                     }
-                }
+                },
+                Action::DumpFood{beetle_id, home_base_id, amount} => {
+
+                    if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+                        if let Some(home_base) = self.field_state.home_bases.get_mut(&home_base_id) {
+                            beetle.remove_food(amount);
+                            home_base.add_food(amount);
+                        }
+                    }
+                },
                 Action::Nothing => {}
             }
         }

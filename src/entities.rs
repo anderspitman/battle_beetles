@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use cgmath::{Point2, InnerSpace};
 use utils::Positioned;
+use std::f32;
 
 pub use beetle::{Id, BeetleBuilder, Beetle, Beetles};
 
@@ -10,6 +11,11 @@ pub type HomeBases = HashMap<Id, HomeBase>;
 pub trait Entity : Positioned {
     fn get_id(&self) -> Id;
     fn set_id(&mut self, id: Id);
+}
+
+pub trait HasFood {
+    fn add_food(&mut self, amount: i32) -> i32;
+    fn remove_food(&mut self, amount: i32) -> i32;
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -40,6 +46,19 @@ impl Entity for HomeBase {
 
     fn set_id(&mut self, id: Id) {
         self.id = id;
+    }
+}
+
+impl HasFood for HomeBase {
+
+    fn add_food(&mut self, amount: i32) -> i32 {
+        self.food_stored_amount += amount;
+        amount
+    }
+
+    fn remove_food(&mut self, amount: i32) -> i32 {
+        self.food_stored_amount -= amount;
+        amount
     }
 }
 
@@ -102,4 +121,25 @@ impl Positioned for FoodSource {
     fn set_position(&mut self, position: Point2<f32>) {
         self.position = position;
     }
+}
+
+pub fn find_closest<'a, T: Entity, U: Entity>(entity: &T, collection: &'a HashMap<Id, U>) -> Option<&'a U> {
+    
+    let mut closest_id = None;
+    let mut closest_distance = f32::MAX;
+    let mut closest = None;
+
+    for other in collection.values() {
+        let vector = other.get_position() - entity.get_position();
+        let distance = vector.magnitude();
+
+        if distance < closest_distance {
+            closest_distance = distance;
+            closest_id = Some(other.get_id());
+            closest = Some(other);
+        }
+    }
+
+    //closest_id
+    closest
 }

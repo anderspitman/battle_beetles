@@ -1,6 +1,8 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
-use entities::{FoodSource, FoodSources, Entity};
+use entities::{
+    FoodSource, FoodSources, Entity, HomeBases, HomeBase, HasFood, find_closest
+};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
@@ -39,6 +41,7 @@ pub struct Beetle {
     pub color: Color,
     pub team_id: Id,
     food_collected: i32,
+    food_carrying: i32,
     state_machine: BeetleStateMachine,
 }
 
@@ -61,6 +64,7 @@ impl Beetle {
             color: Color::new(),
             team_id: 0,
             food_collected: 0,
+            food_carrying: 0,
             state_machine: BeetleStateMachine::new(),
         }
     }
@@ -101,6 +105,10 @@ impl Beetle {
         return ((attack_ratio * (MAX_ATTACK - MIN_ATTACK)) + MIN_ATTACK) as i32;
     }
 
+    pub fn carrying_capacity(&self) -> i32 {
+        1
+    }
+
     //pub fn mass(&self) -> f32 {
     //    ((self.genome.size() * MAX_SIZE) *
     //    (self.genome.carapace_density() * MAX_CARAPACE_DENSITY)) /
@@ -113,7 +121,8 @@ impl Beetle {
 
     pub fn tick(
             &self, beetles: &Beetles,
-            food_sources: &FoodSources) -> Action {
+            food_sources: &FoodSources,
+            home_bases: &HomeBases) -> Action {
 
         let action = match self.current_command {
             Command::Move{ position } => {
@@ -151,20 +160,7 @@ impl Beetle {
                     }
                 }
                 else if let Some(food_source) = food_sources.get(&target_id) {
-                    if self.close_enough_to_interact(food_source.get_position()) {
-                        Action::TakeFood {
-                            beetle_id: self.id,
-                            food_source_id: target_id,
-                            amount: 1,
-                        }
-                    }
-                    else {
-                        Action::MoveToward {
-                            beetle_id: self.id,
-                            x: food_source.get_position().x,
-                            y: food_source.get_position().y,
-                        }
-                    }
+                    self.handle_collect_food_command(food_source, home_bases) 
                 }
                 else {
                     Action::Nothing
@@ -176,6 +172,54 @@ impl Beetle {
         };
 
         return action;
+    }
+
+    fn handle_collect_food_command(
+            &self, food_source: &FoodSource, home_bases: &HomeBases) -> Action {
+
+        // TODO: need to be careful with this. As it's currently coded if the
+        // beetle ever drops off less than its entire load it's going to be
+        // carrying food back and forth
+        //
+        // get more food
+        if self.food_carrying < self.carrying_capacity() {
+            if self.close_enough_to_interact(food_source.get_position()) {
+                Action::TakeFood {
+                    beetle_id: self.get_id(),
+                    food_source_id: food_source.get_id(),
+                    amount: 1,
+                }
+            }
+            else {
+                Action::MoveToward {
+                    beetle_id: self.id,
+                    x: food_source.get_position().x,
+                    y: food_source.get_position().y,
+                }
+            }
+        }
+        // take food to nearest base
+        else {
+            if let Some(closest_base) = find_closest(self, home_bases) {
+                if self.close_enough_to_interact(closest_base.get_position()) {
+                    Action::DumpFood {
+                        beetle_id: self.get_id(),
+                        home_base_id: closest_base.get_id(),
+                        amount: self.carrying_capacity(),
+                    }
+                }
+                else {
+                    Action::MoveToward {
+                        beetle_id: self.id,
+                        x: closest_base.get_position().x,
+                        y: closest_base.get_position().y,
+                    }
+                }
+            }
+            else {
+                Action::Nothing
+            }
+        }
     }
 
     pub fn move_toward(&mut self, a: &Point2<f32>) {
@@ -226,9 +270,6 @@ impl Beetle {
         return dead;
     }
 
-    pub fn add_food(&mut self, amount: i32) {
-        self.food_collected += amount;
-    }
 }
 
 pub struct BeetleBuilder {
@@ -305,5 +346,18 @@ impl Positioned for Beetle {
     }
     fn set_position(&mut self, position: Point2<f32>) {
         self.position = position;
+    }
+}
+
+impl HasFood for Beetle {
+
+    fn add_food(&mut self, amount: i32) -> i32 {
+        self.food_carrying += amount;
+        amount
+    }
+
+    fn remove_food(&mut self, amount: i32) -> i32 {
+        self.food_carrying -= amount;
+        amount
     }
 }

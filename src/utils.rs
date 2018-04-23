@@ -31,6 +31,8 @@ impl Color {
     }
 }
 
+
+
 //pub fn mean(values: &Vec<f32>) -> f32 {
 //    let mut sum = 0.0;
 //
