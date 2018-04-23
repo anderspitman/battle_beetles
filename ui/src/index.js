@@ -364,20 +364,26 @@ function createBeetle() {
 }
 
 function createFood() {
-  const newFood = two.makeRectangle(0, 0, 64, 64);
-  newFood.fill = '#efc85d';
+  const mainArea = two.makeRectangle(0, 0, 64, 64);
+  mainArea.fill = '#efc85d';
+  const text = new Two.Text("Hi there", 0, 0);
+  const newFood = two.makeGroup(mainArea, text);
 
   return {
     obj: newFood,
+    text: text,
   }
 }
 
 function createBase() {
-  const newBase = two.makeRectangle(0, 0, 128, 128);
-  newBase.fill = '#724100';
+  const mainArea = two.makeRectangle(0, 0, 128, 128);
+  mainArea.fill = '#724100';
+  const text = new Two.Text("Hi there", 0, 0);
+  const newBase = two.makeGroup(mainArea, text);
 
   return {
     obj: newBase,
+    text,
   }
 }
 
@@ -421,11 +427,15 @@ function drawBeetle(beetle, index) {
 function drawFood(food, index) {
   const visualFood = visualFoods[index].obj;
   visualFood.translation.set(food.getX(), food.getY());
+  const text = visualFoods[index].text;
+  text.value = food.getAmount();
 }
 
 function drawBase(base, index) {
   const visualBase = visualBases[index].obj;
   visualBase.translation.set(base.getX(), base.getY());
+  const text = visualBases[index].text;
+  text.value = base.getFoodStoredAmount();
 }
 
 function getViewportDimensions() {
