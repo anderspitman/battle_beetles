@@ -3,7 +3,7 @@ use entities::{BeetleBuilder, Beetle, Id, Beetles};
 use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
-use entities::{FoodSource, FoodSources, HomeBase, HomeBases, HasFood};
+use entities::{Entity, FoodSource, FoodSources, HomeBase, HomeBases, HasFood};
 use utils::Positioned;
 
 // This needs to start at 1 because protobuf doesn't handle
@@ -18,6 +18,7 @@ pub enum Command {
     Interact {
         target_id: Id,
     },
+    HarvestClosestFood,
     Idle,
 }
 
@@ -47,7 +48,7 @@ pub enum Action {
 
 #[derive(Serialize, Debug)]
 pub struct FieldState {
-    food_sources: FoodSources,
+    pub food_sources: FoodSources,
     pub beetles: Beetles,
     home_bases: HomeBases,
     selected_beetles: Vec<Id>,
@@ -91,13 +92,14 @@ impl Game {
         return id;
     }
 
-    pub fn set_random_population(
-            &mut self, population_size: i32, max_speed: f32,
-            max_rotation: f32) {
+    pub fn generate_random_population(
+            population_size: i32, max_speed: f32, max_rotation: f32) -> Beetles {
 
-        self.field_state.beetles = Beetles::new();
+        let mut beetles = Beetles::new();
 
         let mut rng = thread_rng();
+
+        let mut next_id = 1;
 
         for _ in 0..population_size {
 
@@ -110,14 +112,23 @@ impl Game {
                 .y_pos(rng.gen_range(0.0, 500.0))
                 .genome(genome)
                 .build();
-            let id = self.add_beetle(beetle);
 
-            // TODO: hack
-            if let Some(beetle) = self.field_state.beetles.get_mut(&id) {
-                beetle.team_id = id;
-            }
+            beetle.set_id(next_id);
+            next_id += 1;
+
+            beetles.insert(beetle.get_id(), beetle);
         }
 
+        beetles
+    }
+            
+
+    pub fn set_random_population(
+            &mut self, population_size: i32, max_speed: f32,
+            max_rotation: f32) {
+
+      self.field_state.beetles = Game::generate_random_population(
+          population_size, max_speed, max_rotation); 
     }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {
@@ -264,21 +275,20 @@ impl Game {
 
     pub fn add_beetle(&mut self, mut beetle: Beetle) -> Id {
 
-        let id = self.next_id;
+        let id = self.get_next_id();
         beetle.id = id;
-        self.field_state.beetles.insert(self.next_id, beetle);
-
-        self.next_id += 1;
-
+        self.field_state.beetles.insert(id, beetle);
         return id;
     }
 
-    pub fn add_food_source(&mut self, x: f32, y: f32) {
+    pub fn add_food_source(&mut self, x: f32, y: f32) -> Id {
         let id = self.next_id;
         self.next_id += 1;
         let mut food_source = FoodSource::new(id);
         food_source.set_position(Point2::new(x, y));
         self.field_state.food_sources.insert(id, food_source);
+
+        id
     }
 
     pub fn add_home_base(&mut self, x: f32, y: f32) {
@@ -394,6 +404,8 @@ impl Game {
                         if let Some(home_base) = self.field_state.home_bases.get_mut(&home_base_id) {
                             beetle.remove_food(amount);
                             home_base.add_food(amount);
+
+                            beetle.food_collected += amount;
                         }
                     }
                 },

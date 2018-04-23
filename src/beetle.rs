@@ -40,7 +40,7 @@ pub struct Beetle {
     pub genome: BeetleGenome,
     pub color: Color,
     pub team_id: Id,
-    food_collected: i32,
+    pub food_collected: i32,
     food_carrying: i32,
     state_machine: BeetleStateMachine,
 }
@@ -172,6 +172,14 @@ impl Beetle {
                 }
                 else if self.food_carrying > 0 {
                     self.take_food_to_closest_base(home_bases)
+                }
+                else {
+                    Action::Nothing
+                }
+            },
+            Command::HarvestClosestFood => {
+                if let Some(closest_food) = find_closest(self, food_sources) {
+                   self.handle_collect_food_command(closest_food, home_bases)
                 }
                 else {
                     Action::Nothing

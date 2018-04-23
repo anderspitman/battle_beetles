@@ -181,6 +181,7 @@ impl UI {
         let mut speeds_sum = 0.0;
         let mut max_health_sum = 0.0;
         let mut attack_power_sum = 0.0;
+        let mut food_collected_sum = 0.0;
 
         let mut sizes_sum = 0.0;
         let mut densities_sum = 0.0;
@@ -193,6 +194,7 @@ impl UI {
             speeds_sum += beetle.speed();
             max_health_sum += beetle.max_health() as f32;
             attack_power_sum += beetle.attack_power() as f32;
+            food_collected_sum += beetle.food_collected as f32;
 
             sizes_sum += beetle.genome.size();
             densities_sum += beetle.genome.carapace_density();
@@ -207,6 +209,8 @@ impl UI {
         message.set_avg_speed(speeds_sum / len);
         message.set_avg_max_health(max_health_sum / len);
         message.set_avg_attack_power(attack_power_sum / len);
+        println!("{}", food_collected_sum / len);
+        message.set_avg_food_collected(food_collected_sum / len);
 
         message.set_avg_size(sizes_sum / len);
         message.set_avg_carapace_density(densities_sum / len);

@@ -12,6 +12,7 @@ message UiChartsIncremental {
     float avg_speed = 1;
     float avg_max_health = 2;
     float avg_attack_power = 9;
+    float avg_food_collected = 10;
 
     // genotype
     float avg_size = 3;

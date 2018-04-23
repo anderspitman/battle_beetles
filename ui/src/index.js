@@ -44,12 +44,13 @@ const phenotypeChart = new Charts.ScatterPlot({
   yLabel: "Average Phenotype Values",
   domElementId: 'chart-pheno',
   yMin: 0,
-  yMax: 1000,
+  yMax: 100,
   maxPoints: numGenerations,
   variableNames: [
     "Avg Speed",
     "Avg Max Health",
     "Avg Attack Power",
+    "Avg Food Collected",
   ],
   legend: true,
 });
@@ -215,6 +216,7 @@ function handleChartsIncremental(msg) {
         msg.getAvgSpeed(),
         msg.getAvgMaxHealth(),
         msg.getAvgAttackPower(),
+        msg.getAvgFoodCollected(),
       ],
   });
 

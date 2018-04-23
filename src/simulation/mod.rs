@@ -11,6 +11,7 @@ use rand::{Rng, thread_rng};
 
 const NUM_GENERATIONS: i32 = 128;
 const MUTATION_RATE: f32 = 0.1;
+const SELECTION_BIAS: f32 = 0.8;
 
 pub trait Simulate<T> {
     fn run(&mut self);
@@ -19,9 +20,15 @@ pub trait Simulate<T> {
 }
 
 pub trait GeneticAlgorithm {
+    fn setup(&mut self) {
+        println!("Setup GA");
+    }
+
     fn run(&mut self) {
 
         println!("Run GA");
+
+        self.setup();
 
         for _ in 0..NUM_GENERATIONS {
 
@@ -60,5 +67,43 @@ pub trait GeneticAlgorithm {
         }
 
         offspring
+    }
+
+    fn fitness(&self, beetle: &Beetle) -> f32 {
+        1.0
+    }
+
+    fn tournament_select_individual(&self) -> i32 {
+        let id1 = self.get_random_individual_id();
+        let id2 = self.get_random_individual_id();
+
+        let indy1 = self.get_game().field_state.beetles.get(&id1).unwrap();
+        let indy2 = self.get_game().field_state.beetles.get(&id2).unwrap();
+
+        let fit1 = self.fitness(&indy1);
+        let fit2 = self.fitness(&indy2);
+
+        let select_more_fit = thread_rng().gen::<f32>() < SELECTION_BIAS;
+
+        let selected;
+
+        if select_more_fit {
+            if fit1 > fit2 {
+                selected = id1;
+            }
+            else {
+                selected = id2;
+            }
+        }
+        else {
+            if fit1 > fit2 {
+                selected = id2;
+            }
+            else {
+                selected = id1;
+            }
+        }
+
+        selected
     }
 }

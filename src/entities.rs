@@ -87,10 +87,11 @@ impl FoodSource {
         }
     }
 
-    pub fn amount(&self) -> i32 {
+    pub fn get_food_amount(&self) -> i32 {
         self.amount
     }
 
+    // TODO: impl HasFood instead
     pub fn reduce_food(&mut self, amount: i32) -> i32 {
         if self.amount > amount {
             self.amount -= amount;
@@ -101,6 +102,16 @@ impl FoodSource {
             self.amount = 0;
             return remaining;
         }
+    }
+
+    // TODO: impl HasFood instead
+    pub fn increase_food(&mut self, amount: i32) -> i32 {
+        self.amount += amount;
+        self.amount
+    }
+
+    pub fn amount(&self) -> i32 {
+        self.amount
     }
 }
 

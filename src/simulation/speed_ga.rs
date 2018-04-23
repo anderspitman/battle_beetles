@@ -23,48 +23,9 @@ impl<'a> SpeedGA<'a> {
         }
     }
 
-    fn tournament_select_individual(&self) -> i32 {
-        let id1 = self.get_random_individual_id();
-        let id2 = self.get_random_individual_id();
-
-        let indy1 = self.get_game().field_state.beetles.get(&id1).unwrap();
-        let indy2 = self.get_game().field_state.beetles.get(&id2).unwrap();
-
-        let fit1 = SpeedGA::fitness(&indy1);
-        let fit2 = SpeedGA::fitness(&indy2);
-
-        let select_more_fit = thread_rng().gen::<f32>() < SELECTION_BIAS;
-
-        let selected;
-
-        if select_more_fit {
-            if fit1 > fit2 {
-                selected = id1;
-            }
-            else {
-                selected = id2;
-            }
-        }
-        else {
-            if fit1 > fit2 {
-                selected = id2;
-            }
-            else {
-                selected = id1;
-            }
-        }
-
-        selected
-    }
-
     fn get_random_individual_id(&self) -> i32 {
         self.get_game().get_random_beetle_id()
     }
-
-    fn fitness(beetle: &Beetle) -> f32 {
-        beetle.speed()
-    }
-
 }
 
 impl<'a> GeneticAlgorithm for SpeedGA<'a> {
@@ -99,8 +60,8 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
             offspring1 = self.mutate(&parent1);
             offspring2 = self.mutate(&parent2);
 
-            fitnesses.push(SpeedGA::fitness(&offspring1));
-            fitnesses.push(SpeedGA::fitness(&offspring2));
+            fitnesses.push(self.fitness(&offspring1));
+            fitnesses.push(self.fitness(&offspring2));
 
             genomes.push(offspring1.genome.clone());
             genomes.push(offspring2.genome.clone());
@@ -123,6 +84,10 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
         self.game.field_state.beetles = new_population;
 
         return (fitnesses, genomes);
+    }
+
+    fn fitness(&self, beetle: &Beetle) -> f32 {
+        beetle.speed()
     }
 }
 

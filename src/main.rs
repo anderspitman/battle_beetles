@@ -90,19 +90,11 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
-    game.add_food_source(128.0, 128.0);
-    game.add_food_source(768.0, 512.0);
-    game.add_home_base(512.0, 256.0);
-    game.set_random_population(
+    let population = Game::generate_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    for beetle in game.field_state.beetles.values_mut() {
-        beetle.team_id = 0;
-    }
-
-
     {
-        let mut ga = FoodGA::new(&mut game, &ui);
+        let mut ga = FoodGA::new(&population, &ui);
         ga.run();
     }
 
