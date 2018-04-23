@@ -47,7 +47,6 @@ pub struct FieldState {
     food_sources: FoodSources,
     pub beetles: Beetles,
     selected_beetles: Vec<Id>,
-    next_id: i32,
 }
 
 impl FieldState {
@@ -104,6 +103,7 @@ impl FoodSource {
 
 pub struct Game {
     pub field_state: FieldState,
+    next_id: i32,
 }
 
 impl Game {
@@ -114,8 +114,8 @@ impl Game {
                 food_sources: FoodSources::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
-                next_id: STARTING_ID,
             },
+            next_id: STARTING_ID,
         };
 
         return game;
@@ -294,18 +294,18 @@ impl Game {
 
     pub fn add_beetle(&mut self, mut beetle: Beetle) -> Id {
 
-        let id = self.field_state.next_id;
+        let id = self.next_id;
         beetle.id = id;
-        self.field_state.beetles.insert(self.field_state.next_id, beetle);
+        self.field_state.beetles.insert(self.next_id, beetle);
 
-        self.field_state.next_id += 1;
+        self.next_id += 1;
 
         return id;
     }
 
     pub fn add_food_source(&mut self, x: f32, y: f32) {
-        let id = self.field_state.next_id;
-        self.field_state.next_id += 1;
+        let id = self.next_id;
+        self.next_id += 1;
         let mut food_source = FoodSource::new(id);
         food_source.set_position(x, y);
         self.field_state.food_sources.insert(id, food_source);

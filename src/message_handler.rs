@@ -49,7 +49,7 @@ impl MessageHandler {
         }
         else if message.has_selected_interact_command() {
             game.selected_interact_command(
-                message.get_selected_interact_command().get_beetle_id());
+                message.get_selected_interact_command().get_target_id());
         }
         else if message.has_terminate() {
             done = true;
