@@ -46,9 +46,9 @@ export class MessageService {
     this.socket.send(uiMessage.serializeBinary());
   }
 
-  selectedInteractCommand({ beetleId }) {
+  selectedInteractCommand({ targetId }) {
     const message = new messages.SelectedInteractCommand();
-    message.setTargetId(beetleId);
+    message.setTargetId(targetId);
     const uiMessage = new messages.UiMessage();
     uiMessage.setSelectedInteractCommand(message);
     this.socket.send(uiMessage.serializeBinary());

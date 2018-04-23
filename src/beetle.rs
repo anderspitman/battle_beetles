@@ -162,6 +162,17 @@ impl Beetle {
                 else if let Some(food_source) = food_sources.get(&target_id) {
                     self.handle_collect_food_command(food_source, home_bases) 
                 }
+                else if let Some(home_base) = home_bases.get(&target_id) {
+                    if self.food_carrying > 0 {
+                        self.take_food_to_base(&home_base)
+                    }
+                    else {
+                        Action::Nothing
+                    }
+                }
+                else if self.food_carrying > 0 {
+                    self.take_food_to_closest_base(home_bases)
+                }
                 else {
                     Action::Nothing
                 }
@@ -198,26 +209,33 @@ impl Beetle {
                 }
             }
         }
-        // take food to nearest base
         else {
-            if let Some(closest_base) = find_closest(self, home_bases) {
-                if self.close_enough_to_interact(closest_base.get_position()) {
-                    Action::DumpFood {
-                        beetle_id: self.get_id(),
-                        home_base_id: closest_base.get_id(),
-                        amount: self.carrying_capacity(),
-                    }
-                }
-                else {
-                    Action::MoveToward {
-                        beetle_id: self.id,
-                        x: closest_base.get_position().x,
-                        y: closest_base.get_position().y,
-                    }
-                }
+            self.take_food_to_closest_base(&home_bases)
+        }
+    }
+
+    fn take_food_to_closest_base(&self, home_bases: &HomeBases) -> Action {
+        if let Some(closest_base) = find_closest(self, home_bases) {
+           self.take_food_to_base(closest_base)
+        }
+        else {
+            Action::Nothing
+        }
+    }
+
+    fn take_food_to_base(&self, home_base: &HomeBase) -> Action {
+        if self.close_enough_to_interact(home_base.get_position()) {
+            Action::DumpFood {
+                beetle_id: self.get_id(),
+                home_base_id: home_base.get_id(),
+                amount: self.carrying_capacity(),
             }
-            else {
-                Action::Nothing
+        }
+        else {
+            Action::MoveToward {
+                beetle_id: self.id,
+                x: home_base.get_position().x,
+                y: home_base.get_position().y,
             }
         }
     }

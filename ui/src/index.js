@@ -166,7 +166,7 @@ function handleStateUpdate(gameState) {
 
       visualBeetles[i].obj._renderer.elem.oncontextmenu = (e) => {
         e.preventDefault();
-        messageService.selectedInteractCommand({ beetleId: beetle.getId() })
+        messageService.selectedInteractCommand({ targetId: beetle.getId() })
       };
     }
 
@@ -180,8 +180,7 @@ function handleStateUpdate(gameState) {
     if (visualFoods[i].obj._renderer && visualFoods[i].obj._renderer.elem) {
       visualFoods[i].obj._renderer.elem.oncontextmenu = (e) => {
         e.preventDefault();
-        // TODO: rename beetleId to targetId
-        messageService.selectedInteractCommand({ beetleId: food.getId() })
+        messageService.selectedInteractCommand({ targetId: food.getId() })
       };
     }
 
@@ -189,7 +188,16 @@ function handleStateUpdate(gameState) {
   }
 
   for (let i = 0; i < bases.length; i++) {
+
     const base = bases[i];
+
+    if (visualBases[i].obj._renderer && visualBases[i].obj._renderer.elem) {
+      visualBases[i].obj._renderer.elem.oncontextmenu = (e) => {
+        e.preventDefault();
+        messageService.selectedInteractCommand({ targetId: base.getId() })
+      };
+    }
+
     drawBase(base, i);
   }
 
