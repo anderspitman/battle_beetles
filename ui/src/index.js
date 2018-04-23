@@ -14,6 +14,12 @@ const createFormationButton = document.getElementById('create-formation-button')
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
 
+const beetleDim = {
+  width: 20,
+  length: 20,
+  headRadius: 7,
+};
+
 const params = {
   //width: viewportDimensions.width,
   width: rightPanel.clientWidth,
@@ -51,6 +57,7 @@ const phenotypeChart = new Charts.ScatterPlot({
     "Avg Max Health",
     "Avg Attack Power",
     "Avg Food Collected",
+    "Avg Size",
   ],
   legend: true,
 });
@@ -64,12 +71,13 @@ const genotypeChart = new Charts.ScatterPlot({
   yMax: 1,
   maxPoints: numGenerations,
   variableNames: [
-    "Avg Size",
     "Avg Density",
     "Avg Strength",
     "Avg Quickness",
     "Avg Venomosity",
     "Avg Mandible Sharpness",
+    "Avg Body Width",
+    "Avg Body Length",
   ],
   legend: true,
 });
@@ -217,6 +225,7 @@ function handleChartsIncremental(msg) {
         msg.getAvgMaxHealth(),
         msg.getAvgAttackPower(),
         msg.getAvgFoodCollected(),
+        msg.getAvgSize(),
       ],
   });
 
@@ -228,6 +237,8 @@ function handleChartsIncremental(msg) {
         msg.getAvgQuickness(),
         msg.getAvgVenomosity(),
         msg.getAvgMandibleSharpness(),
+        msg.getAvgBodyWidth(),
+        msg.getAvgBodyLength(),
       ],
   });
 }
@@ -338,12 +349,6 @@ function drawBackground() {
   }
 }
 
-const beetleDim = {
-  width: 20,
-  height: 20,
-  headRadius: 7,
-};
-
 function getWorldPosition(e) {
     return {
       x: e.clientX - canvasRect.left,
@@ -357,7 +362,7 @@ function createBeetle() {
   selectedIndicator.stroke = 'lightgreen';
   selectedIndicator.fill = 'none';
 
-  const body = two.makeRectangle(0, 0, beetleDim.width, beetleDim.height);
+  const body = two.makeRectangle(0, 0, beetleDim.width, beetleDim.length);
   body.fill = '#679b50';
   const head = two.makeCircle(17, 0, beetleDim.headRadius);
   head.fill = '#1c1c1c';
@@ -403,7 +408,10 @@ function drawBeetle(beetle, index) {
   const body = visualBeetleData.body;
 
   // use width for scale heuristic
-  const scale = beetle.getSize() / beetleDim.width;
+  const scale = beetle.getBodyLength() / beetleDim.length;
+  //if (index === 0) {
+  //  console.log(beetle.getBodyLength(), scale);
+  //}
 
   const selectedIndicator = visualBeetleData.selectedIndicator;
   selectedIndicator.translation.set(beetle.getX(), beetle.getY());

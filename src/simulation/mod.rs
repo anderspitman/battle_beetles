@@ -62,8 +62,10 @@ pub trait GeneticAlgorithm {
 
         if mutate {
             let random_val = thread_rng().gen::<f32>();
-            let random_gene_index = BeetleGenome::get_random_gene_index();
-            offspring.genome.set_gene_value(random_gene_index, random_val);
+            let random_gene_index =
+                offspring.genome.get_random_gene_index();
+            offspring.genome.set_gene_value(
+                random_gene_index, random_val);
         }
 
         offspring

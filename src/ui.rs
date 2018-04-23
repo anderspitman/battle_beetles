@@ -13,6 +13,7 @@ use protobuf::{parse_from_bytes, RepeatedField, Message};
 use entities::{Entity, Beetles};
 use utils::Positioned;
 use game;
+use beetle_genome::BeetleGeneIndex as Gene;
 //use FieldState;
 
 pub struct UI {
@@ -119,8 +120,10 @@ impl UI {
             new_beetle.set_x(beetle.position.x);
             new_beetle.set_y(beetle.position.y);
             new_beetle.set_angle(beetle.angle.0);
-            new_beetle.set_size(beetle.size());
             new_beetle.set_selected(beetle.selected);
+            new_beetle.set_body_width(beetle.body_width());
+            new_beetle.set_body_length(beetle.body_length());
+            println!("{}", beetle.body_length());
 
             let mut color = Color::new();
             color.set_r(beetle.color.r as i32);
@@ -178,30 +181,45 @@ impl UI {
     pub fn update_charts_incremental(&self, beetles: &Beetles) {
 
         let len = beetles.len() as f32;
+
+        // phenotype
         let mut speeds_sum = 0.0;
         let mut max_health_sum = 0.0;
         let mut attack_power_sum = 0.0;
         let mut food_collected_sum = 0.0;
-
         let mut sizes_sum = 0.0;
+
+        // genotype
         let mut densities_sum = 0.0;
         let mut strengths_sum = 0.0;
         let mut quicknesses_sum = 0.0;
         let mut venomosities_sum = 0.0;
         let mut mandible_sharpness_sum = 0.0;
+        let mut body_width_sum = 0.0;
+        let mut body_length_sum = 0.0;
 
         for beetle in beetles.values() {
+
             speeds_sum += beetle.speed();
             max_health_sum += beetle.max_health() as f32;
             attack_power_sum += beetle.attack_power() as f32;
             food_collected_sum += beetle.food_collected as f32;
+            sizes_sum += beetle.size();
 
-            sizes_sum += beetle.genome.size();
-            densities_sum += beetle.genome.carapace_density();
-            strengths_sum += beetle.genome.strength();
-            quicknesses_sum += beetle.genome.quickness();
-            venomosities_sum += beetle.genome.venomosity();
-            mandible_sharpness_sum += beetle.genome.mandible_sharpness();
+            densities_sum +=
+                beetle.genome.get_gene(Gene::CarapaceDensity);
+            strengths_sum +=
+                beetle.genome.get_gene(Gene::Strength);
+            quicknesses_sum +=
+                beetle.genome.get_gene(Gene::Quickness);
+            venomosities_sum +=
+                beetle.genome.get_gene(Gene::Venomosity);
+            mandible_sharpness_sum += 
+                beetle.genome.get_gene(Gene::MandibleSharpness);
+            body_width_sum += 
+                beetle.genome.get_gene(Gene::BodyWidth);
+            body_length_sum += 
+                beetle.genome.get_gene(Gene::BodyLength);
         }
 
         let mut message = UiChartsIncremental::new();
@@ -211,13 +229,15 @@ impl UI {
         message.set_avg_attack_power(attack_power_sum / len);
         println!("{}", food_collected_sum / len);
         message.set_avg_food_collected(food_collected_sum / len);
-
         message.set_avg_size(sizes_sum / len);
+
         message.set_avg_carapace_density(densities_sum / len);
         message.set_avg_strength(strengths_sum / len);
         message.set_avg_quickness(quicknesses_sum / len);
         message.set_avg_venomosity(venomosities_sum / len);
         message.set_avg_mandible_sharpness(mandible_sharpness_sum / len);
+        message.set_avg_body_width(body_width_sum / len);
+        message.set_avg_body_length(body_length_sum / len);
 
 
         let mut ui_update = UiUpdate::new();

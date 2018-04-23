@@ -11,16 +11,18 @@ message UiChartsIncremental {
     // phenotype
     float avg_speed = 1;
     float avg_max_health = 2;
-    float avg_attack_power = 9;
-    float avg_food_collected = 10;
+    float avg_attack_power = 3;
+    float avg_food_collected = 4;
 
     // genotype
-    float avg_size = 3;
-    float avg_carapace_density = 4;
-    float avg_strength = 5;
-    float avg_quickness = 6;
-    float avg_venomosity = 7;
-    float avg_mandible_sharpness = 8;
+    float avg_size = 5;
+    float avg_carapace_density = 6;
+    float avg_strength = 7;
+    float avg_quickness = 8;
+    float avg_venomosity = 9;
+    float avg_mandible_sharpness = 10;
+    float avg_body_width = 11;
+    float avg_body_length = 12;
 }
 
 message UiGameState {
@@ -34,10 +36,11 @@ message UiBeetle {
     float x = 2;
     float y = 3;
     float angle = 4;
-    float size = 5;
     int32 health = 6;
     bool selected = 7;
     Color color = 8;
+    float body_width = 9;
+    float body_length = 10;
 }
 
 message UiFoodSource {

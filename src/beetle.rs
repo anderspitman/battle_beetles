@@ -4,16 +4,18 @@ use entities::{
     FoodSource, FoodSources, Entity, HomeBases, HomeBase, HasFood, find_closest
 };
 use std::collections::HashMap;
-use beetle_genome::{BeetleGenome};
+use beetle_genome::{BeetleGenome, BeetleGeneIndex as Gene};
 use utils::{
     convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color, Positioned
 };
 
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
-const MAX_SIZE_UNITS: f32 = 40.0;
-const MIN_SIZE_UNITS: f32 = 10.0;
-const FOOD_SIZE_UNITS: f32 = MAX_SIZE_UNITS / 4.0;
+const MAX_BODY_LENGTH_UNITS: f32 = 40.0;
+const MAX_BODY_WIDTH_UNITS: f32 = MAX_BODY_LENGTH_UNITS;
+const MIN_BODY_LENGTH_UNITS: f32 = 10.0;
+const MIN_BODY_WIDTH_UNITS: f32 = MIN_BODY_LENGTH_UNITS;
+//const FOOD_SIZE_UNITS: f32 = MAX_SIZE_UNITS / 4.0;
 const MAX_HEALTH: f32 = 200.0;
 const MIN_HEALTH: f32 = 10.0;
 const MAX_ATTACK: f32 = 50.0;
@@ -69,10 +71,10 @@ impl Beetle {
 
     pub fn speed(&self) -> f32 {
         let speed_ratio =
-            self.genome.quickness() * 0.25 +
-            self.genome.strength() * 0.25 +
-            (1.0 - self.genome.size()) * 0.25 + 
-            (1.0 - self.genome.carapace_density()) * 0.25;
+            self.genome.get_gene(Gene::Quickness) * 0.25 +
+            self.genome.get_gene(Gene::Strength) * 0.25 +
+            (1.0 - self.size() * 0.25) + 
+            (1.0 - self.genome.get_gene(Gene::CarapaceDensity)) * 0.25;
 
         let min_speed = convert_value_for_sim_period(
                 MIN_SPEED_UNITS_PER_SECOND);
@@ -81,24 +83,43 @@ impl Beetle {
     }
 
     pub fn size(&self) -> f32 {
-        (self.genome.size() * (MAX_SIZE_UNITS - MIN_SIZE_UNITS)) + MIN_SIZE_UNITS
+        let max_size = MAX_BODY_LENGTH_UNITS * MAX_BODY_LENGTH_UNITS;
+        let size_units = self.body_width() * self.body_length();
+        let size_ratio = size_units / max_size;
+
+        size_ratio
+    }
+
+    pub fn body_width(&self) -> f32 {
+        let width_range = MAX_BODY_WIDTH_UNITS - MIN_BODY_WIDTH_UNITS;
+
+        (self.genome.get_gene(Gene::BodyWidth) * width_range) +
+            MIN_BODY_WIDTH_UNITS
+
+    }
+
+    pub fn body_length(&self) -> f32 {
+        let length_range = MAX_BODY_LENGTH_UNITS - MIN_BODY_LENGTH_UNITS;
+
+        (self.genome.get_gene(Gene::BodyLength) * length_range) +
+            MIN_BODY_LENGTH_UNITS
     }
 
     pub fn max_health(&self) -> i32 {
         let health_ratio = 
-            self.genome.carapace_density() * 0.50 +
-            self.genome.size() * 0.30 +
-            self.genome.strength() * 0.20;
+            self.genome.get_gene(Gene::CarapaceDensity) * 0.50 +
+            self.size() * 0.30 +
+            self.genome.get_gene(Gene::Strength) * 0.20;
         return ((health_ratio * (MAX_HEALTH - MIN_HEALTH)) + MIN_HEALTH) as i32;
     }
 
     pub fn attack_power(&self) -> i32 {
         let attack_ratio =
-            self.genome.mandible_sharpness() * 0.30 +
-            self.genome.venomosity() * 0.30 +
-            self.genome.strength() * 0.20 +
-            self.genome.size() * 0.10 +
-            self.genome.quickness() * 0.10;
+            self.genome.get_gene(Gene::MandibleSharpness) * 0.30 +
+            self.genome.get_gene(Gene::Venomosity) * 0.30 +
+            self.genome.get_gene(Gene::Strength) * 0.20 +
+            self.size() * 0.10 +
+            self.genome.get_gene(Gene::Quickness) * 0.10;
 
         return ((attack_ratio * (MAX_ATTACK - MIN_ATTACK)) + MIN_ATTACK) as i32;
     }
