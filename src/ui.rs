@@ -6,11 +6,11 @@ use websocket::{OwnedMessage};
 use websocket::sync::Server;
 use gen::messages::{
     UiMessage, UiUpdate, UiBeetle, UiGameState, UiChartsIncremental, Color,
-    UiFoodSource,
+    UiFoodSource, UiHomeBase
 };
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
-use entities::Beetles;
+use entities::{Entity, Beetles};
 use utils::Positioned;
 use game;
 //use FieldState;
@@ -138,7 +138,7 @@ impl UI {
         for food_source in data.get_food_sources().values() {
             let mut new_food_source = UiFoodSource::new();
 
-            new_food_source.set_id(food_source.id());
+            new_food_source.set_id(food_source.get_id());
             new_food_source.set_amount(food_source.amount());
             new_food_source.set_x(food_source.get_position().x);
             new_food_source.set_y(food_source.get_position().y);
@@ -146,6 +146,19 @@ impl UI {
             food_sources.push(new_food_source);
         }
         ui_game_state.set_food_sources(food_sources);
+
+        let mut home_bases = RepeatedField::new();
+        for home_base in data.get_home_bases().values() {
+            let mut new_home_base = UiHomeBase::new();
+
+            new_home_base.set_id(home_base.get_id());
+            new_home_base.set_x(home_base.get_position().x);
+            new_home_base.set_y(home_base.get_position().y);
+            new_home_base.set_food_stored_amount(home_base.get_food_stored_amount());
+
+            home_bases.push(new_home_base);
+        }
+        ui_game_state.set_home_bases(home_bases);
 
         ui_update.set_game_state(ui_game_state);
 

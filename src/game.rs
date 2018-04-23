@@ -53,6 +53,10 @@ impl FieldState {
     pub fn get_food_sources(&self) -> &FoodSources {
         &self.food_sources
     }
+
+    pub fn get_home_bases(&self) -> &HomeBases {
+        &self.home_bases
+    }
 }
 
 pub struct Game {
@@ -74,6 +78,12 @@ impl Game {
         };
 
         return game;
+    }
+
+    pub fn get_next_id(&mut self) -> Id {
+        let id = self.next_id;
+        self.next_id += 1;
+        return id;
     }
 
     pub fn set_random_population(
@@ -267,11 +277,10 @@ impl Game {
     }
 
     pub fn add_home_base(&mut self, x: f32, y: f32) {
-        //let id = self.next_id;
-        //self.next_id += 1;
-        //let mut home_base = HomeBase::new(id);
-        //home_base.set_position(x, y);
-        //self.field_state.food_sources.insert(id, food_source);
+        let id = self.get_next_id();
+        let mut home_base = HomeBase::new(id);
+        home_base.set_position(Point2::new(x, y));
+        self.field_state.home_bases.insert(id, home_base);
     }
 
     pub fn get_random_beetle_id(&self) -> i32 {

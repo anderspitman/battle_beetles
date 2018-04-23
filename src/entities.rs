@@ -15,8 +15,22 @@ pub trait Entity : Positioned {
 #[derive(Serialize, Debug, Clone)]
 pub struct HomeBase {
     id: Id,
-    amount: i32,
+    food_stored_amount: i32,
     position: Point2<f32>,
+}
+
+impl HomeBase {
+    pub fn new(id: Id) -> HomeBase {
+        HomeBase {
+            id: id,
+            food_stored_amount: 0,
+            position: Point2::new(0.0, 0.0),
+        }
+    }
+
+    pub fn get_food_stored_amount(&self) -> i32 {
+        self.food_stored_amount
+    }
 }
 
 impl Entity for HomeBase {
@@ -52,10 +66,6 @@ impl FoodSource {
             amount: 100,
             position: Point2::new(0.0, 0.0),
         }
-    }
-
-    pub fn id(&self) -> Id {
-        self.id
     }
 
     pub fn amount(&self) -> i32 {

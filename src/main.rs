@@ -91,7 +91,8 @@ fn main() {
     //}
 
     game.add_food_source(128.0, 128.0);
-    game.add_food_source(1024.0, 512.0);
+    game.add_food_source(768.0, 512.0);
+    game.add_home_base(512.0, 256.0);
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 

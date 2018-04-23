@@ -78,6 +78,7 @@ genotypeChart.reset();
 
 const visualBeetles = [];
 const visualFoods = [];
+const visualBases = [];
 //const vectorLines = [];
 
 const messageService = new MessageService();
@@ -145,9 +146,11 @@ function handleStateUpdate(gameState) {
 
   const beetles = gameState.getBeetlesList();
   const foods = gameState.getFoodSourcesList();
+  const bases = gameState.getHomeBasesList();
 
   matchArrays(beetles, visualBeetles, createBeetle);
   matchArrays(foods, visualFoods, createFood);
+  matchArrays(bases, visualBases, createBase);
 
   for (let i = 0; i < beetles.length; i++) {
     const beetle = beetles[i];
@@ -183,6 +186,11 @@ function handleStateUpdate(gameState) {
     }
 
     drawFood(food, i);
+  }
+
+  for (let i = 0; i < bases.length; i++) {
+    const base = bases[i];
+    drawBase(base, i);
   }
 
   requestAnimationFrame(() => {
@@ -281,7 +289,7 @@ function createSelecticle() {
 function drawBackground() {
   const rect = two.makeRectangle(
     params.width / 2, params.height / 2, params.width, params.height);
-  rect.fill = '#c3c3c3';
+  rect.fill = '#c98c5a';
 
   two.update();
 
@@ -364,6 +372,15 @@ function createFood() {
   }
 }
 
+function createBase() {
+  const newBase = two.makeRectangle(0, 0, 128, 128);
+  newBase.fill = '#724100';
+
+  return {
+    obj: newBase,
+  }
+}
+
 function drawBeetle(beetle, index) {
   const visualBeetleData = visualBeetles[index];
   const visualBeetle = visualBeetleData.obj;
@@ -404,6 +421,11 @@ function drawBeetle(beetle, index) {
 function drawFood(food, index) {
   const visualFood = visualFoods[index].obj;
   visualFood.translation.set(food.getX(), food.getY());
+}
+
+function drawBase(base, index) {
+  const visualBase = visualBases[index].obj;
+  visualBase.translation.set(base.getX(), base.getY());
 }
 
 function getViewportDimensions() {
