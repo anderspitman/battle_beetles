@@ -1,7 +1,7 @@
 use simulation::GeneticAlgorithm;
 use game::Game;
 use gen::messages::UiMessage;
-use beetle::BeetleBuilder;
+use entities::BeetleBuilder;
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
 use ui::UI;

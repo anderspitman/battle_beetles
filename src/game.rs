@@ -1,16 +1,13 @@
 use cgmath::{Rad, Point2, InnerSpace};
-
-use beetle::{BeetleBuilder, Beetle, Id, Beetles};
+use entities::{BeetleBuilder, Beetle, Id, Beetles};
 use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
-use std::collections::HashMap;
+use entities::{FoodSource, FoodSources, HomeBase, HomeBases};
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
 pub const STARTING_ID: Id = 1;
-
-pub type FoodSources = HashMap<Id, FoodSource>;
 
 #[derive(PartialEq, Serialize, Debug, Clone)]
 pub enum Command {
@@ -46,6 +43,7 @@ pub enum Action {
 pub struct FieldState {
     food_sources: FoodSources,
     pub beetles: Beetles,
+    home_bases: HomeBases,
     selected_beetles: Vec<Id>,
 }
 
@@ -53,51 +51,6 @@ impl FieldState {
 
     pub fn get_food_sources(&self) -> &FoodSources {
         &self.food_sources
-    }
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct FoodSource {
-    id: Id,
-    amount: i32,
-    position: Point2<f32>,
-}
-
-impl FoodSource {
-    pub fn new(id: i32) -> FoodSource {
-        FoodSource {
-            id: id,
-            amount: 100,
-            position: Point2::new(0.0, 0.0),
-        }
-    }
-
-    pub fn id(&self) -> Id {
-        self.id
-    }
-
-    pub fn amount(&self) -> i32 {
-        self.amount
-    }
-
-    pub fn position(&self) -> Point2<f32> {
-        self.position
-    }
-    pub fn set_position(&mut self, x: f32, y: f32) {
-        self.position.x = x;
-        self.position.y = y;
-    }
-
-    pub fn reduce_food(&mut self, amount: i32) -> i32 {
-        if self.amount > amount {
-            self.amount -= amount;
-            return amount;
-        }
-        else {
-            let remaining = self.amount;
-            self.amount = 0;
-            return remaining;
-        }
     }
 }
 
@@ -113,6 +66,7 @@ impl Game {
             field_state: FieldState {
                 food_sources: FoodSources::new(),
                 beetles: Beetles::new(),
+                home_bases: HomeBases::new(),
                 selected_beetles: Vec::new(),
             },
             next_id: STARTING_ID,

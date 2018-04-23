@@ -10,7 +10,7 @@ use gen::messages::{
 };
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
-use beetle::Beetles;
+use entities::Beetles;
 use game;
 //use FieldState;
 

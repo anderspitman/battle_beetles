@@ -17,8 +17,9 @@ mod beetle_state_machine;
 mod gen;
 mod simulation;
 mod message_handler;
+mod entities;
 
-use beetle::{Beetles};
+use entities::{Beetles};
 use game::{Game, FieldState};
 use message_handler::MessageHandler;
 

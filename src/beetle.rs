@@ -1,5 +1,6 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
-use game::{Command, Action, FoodSource, FoodSources};
+use game::{Command, Action};
+use entities::{FoodSource, FoodSources};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
