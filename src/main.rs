@@ -13,28 +13,26 @@ mod ui;
 mod game;
 mod beetle;
 mod beetle_genome;
-mod beetle_state_machine;
 mod gen;
 mod simulation;
 mod message_handler;
 mod entities;
 
-use entities::{Beetles};
-use game::{Game, FieldState};
+use game::{Game};
 use message_handler::MessageHandler;
 
 use simulation::GeneticAlgorithm;
-use simulation::speed_ga::SpeedGA;
-use simulation::battle_ga::BattleGA;
+//use simulation::speed_ga::SpeedGA;
+//use simulation::battle_ga::BattleGA;
 use simulation::food_ga::FoodGA;
-use simulation::Simulate;
-use simulation::fight_simulation::FightSimulation;
+//use simulation::Simulate;
+//use simulation::fight_simulation::FightSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
 use rouille::Response;
-use rand::{Rng, thread_rng};
-use cgmath::{Vector2};
+//use rand::{Rng, thread_rng};
+//use cgmath::{Vector2};
 
 
 fn main() {
@@ -51,7 +49,7 @@ fn main() {
         utils::convert_value_for_sim_period(utils::ROTATION_RADIANS_PER_SECOND);
 
 
-    let mut rng = thread_rng();
+    //let mut rng = thread_rng();
 
     //// run battle GA
     //game.set_random_population(

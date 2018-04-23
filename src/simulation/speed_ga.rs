@@ -7,8 +7,6 @@ use cgmath::{Point2};
 use rand::{Rng, thread_rng};
 use utils::{Color};
 
-const SELECTION_BIAS: f32 = 0.8;
-
 
 pub struct SpeedGA<'a> {
     ui: &'a UI,
@@ -21,10 +19,6 @@ impl<'a> SpeedGA<'a> {
             ui,
             game,
         }
-    }
-
-    fn get_random_individual_id(&self) -> i32 {
-        self.get_game().get_random_beetle_id()
     }
 }
 

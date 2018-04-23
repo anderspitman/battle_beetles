@@ -87,10 +87,6 @@ impl FoodSource {
         }
     }
 
-    pub fn get_food_amount(&self) -> i32 {
-        self.amount
-    }
-
     // TODO: impl HasFood instead
     pub fn reduce_food(&mut self, amount: i32) -> i32 {
         if self.amount > amount {
@@ -136,7 +132,6 @@ impl Positioned for FoodSource {
 
 pub fn find_closest<'a, T: Entity, U: Entity>(entity: &T, collection: &'a HashMap<Id, U>) -> Option<&'a U> {
     
-    let mut closest_id = None;
     let mut closest_distance = f32::MAX;
     let mut closest = None;
 
@@ -146,11 +141,9 @@ pub fn find_closest<'a, T: Entity, U: Entity>(entity: &T, collection: &'a HashMa
 
         if distance < closest_distance {
             closest_distance = distance;
-            closest_id = Some(other.get_id());
             closest = Some(other);
         }
     }
 
-    //closest_id
     closest
 }

@@ -5,7 +5,6 @@ use entities::{
 };
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
-use beetle_state_machine::{BeetleStateMachine};
 use utils::{
     convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color, Positioned
 };
@@ -14,6 +13,7 @@ use utils::{
 //const MAX_STRENGTH: f32 = 10.0;
 const MAX_SIZE_UNITS: f32 = 40.0;
 const MIN_SIZE_UNITS: f32 = 10.0;
+const FOOD_SIZE_UNITS: f32 = MAX_SIZE_UNITS / 4.0;
 const MAX_HEALTH: f32 = 200.0;
 const MIN_HEALTH: f32 = 10.0;
 const MAX_ATTACK: f32 = 50.0;
@@ -42,7 +42,6 @@ pub struct Beetle {
     pub team_id: Id,
     pub food_collected: i32,
     food_carrying: i32,
-    state_machine: BeetleStateMachine,
 }
 
 impl Beetle {
@@ -65,7 +64,6 @@ impl Beetle {
             team_id: 0,
             food_collected: 0,
             food_carrying: 0,
-            state_machine: BeetleStateMachine::new(),
         }
     }
 

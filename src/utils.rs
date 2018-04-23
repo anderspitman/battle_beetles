@@ -1,4 +1,4 @@
-use cgmath::{Point2, InnerSpace};
+use cgmath::{Point2};
 
 pub const SIMULATION_PERIOD_MS: u64 = 20;
 pub const MAX_SPEED_UNITS_PER_SECOND: f32 = 200.0;

@@ -69,7 +69,7 @@ pub trait GeneticAlgorithm {
         offspring
     }
 
-    fn fitness(&self, beetle: &Beetle) -> f32 {
+    fn fitness(&self, _beetle: &Beetle) -> f32 {
         1.0
     }
 

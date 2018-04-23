@@ -5,8 +5,8 @@ use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game, Command};
 use beetle_genome::{BeetleGenome};
-use utils::{POPULATION_SIZE, SIMULATION_PERIOD_MS};
-use entities::{HasFood, Entity, Beetle, Beetles, find_closest};
+use utils::{SIMULATION_PERIOD_MS};
+use entities::{Entity, Beetle, Beetles};
 
 pub struct FoodGA<'a> {
     initial_population: &'a Beetles,
