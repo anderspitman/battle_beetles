@@ -1,6 +1,6 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
 use game::{Command, Action};
-use entities::{FoodSource, FoodSources};
+use entities::{FoodSource, FoodSources, Entity};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
@@ -289,3 +289,21 @@ impl BeetleBuilder {
     }
 }
 
+impl Entity for Beetle {
+    fn get_id(&self) -> Id {
+        self.id
+    }
+
+    fn set_id(&mut self, id: Id) {
+        self.id = id;
+    }
+}
+
+impl Positioned for Beetle {
+    fn get_position(&self) -> Point2<f32> {
+        self.position
+    }
+    fn set_position(&mut self, position: Point2<f32>) {
+        self.position = position;
+    }
+}

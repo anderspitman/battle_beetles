@@ -7,11 +7,35 @@ pub use beetle::{Id, BeetleBuilder, Beetle, Beetles};
 pub type FoodSources = HashMap<Id, FoodSource>;
 pub type HomeBases = HashMap<Id, HomeBase>;
 
+pub trait Entity : Positioned {
+    fn get_id(&self) -> Id;
+    fn set_id(&mut self, id: Id);
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct HomeBase {
     id: Id,
     amount: i32,
     position: Point2<f32>,
+}
+
+impl Entity for HomeBase {
+    fn get_id(&self) -> Id {
+        self.id
+    }
+
+    fn set_id(&mut self, id: Id) {
+        self.id = id;
+    }
+}
+
+impl Positioned for HomeBase {
+    fn get_position(&self) -> Point2<f32> {
+        self.position
+    }
+    fn set_position(&mut self, position: Point2<f32>) {
+        self.position = position;
+    }
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -48,6 +72,16 @@ impl FoodSource {
             self.amount = 0;
             return remaining;
         }
+    }
+}
+
+impl Entity for FoodSource {
+    fn get_id(&self) -> Id {
+        self.id
+    }
+
+    fn set_id(&mut self, id: Id) {
+        self.id = id;
     }
 }
 
