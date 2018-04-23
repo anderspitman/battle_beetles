@@ -11,6 +11,7 @@ use gen::messages::{
 use protobuf::{parse_from_bytes, RepeatedField, Message};
 
 use entities::Beetles;
+use utils::Positioned;
 use game;
 //use FieldState;
 
@@ -139,8 +140,8 @@ impl UI {
 
             new_food_source.set_id(food_source.id());
             new_food_source.set_amount(food_source.amount());
-            new_food_source.set_x(food_source.position().x);
-            new_food_source.set_y(food_source.position().y);
+            new_food_source.set_x(food_source.get_position().x);
+            new_food_source.set_y(food_source.get_position().y);
 
             food_sources.push(new_food_source);
         }

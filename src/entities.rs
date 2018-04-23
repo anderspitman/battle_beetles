@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use cgmath::{Point2, InnerSpace};
+use utils::Positioned;
 
 pub use beetle::{Id, BeetleBuilder, Beetle, Beetles};
 
@@ -37,14 +38,6 @@ impl FoodSource {
         self.amount
     }
 
-    pub fn position(&self) -> Point2<f32> {
-        self.position
-    }
-    pub fn set_position(&mut self, x: f32, y: f32) {
-        self.position.x = x;
-        self.position.y = y;
-    }
-
     pub fn reduce_food(&mut self, amount: i32) -> i32 {
         if self.amount > amount {
             self.amount -= amount;
@@ -55,5 +48,14 @@ impl FoodSource {
             self.amount = 0;
             return remaining;
         }
+    }
+}
+
+impl Positioned for FoodSource {
+    fn get_position(&self) -> Point2<f32> {
+        self.position
+    }
+    fn set_position(&mut self, position: Point2<f32>) {
+        self.position = position;
     }
 }

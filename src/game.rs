@@ -4,6 +4,7 @@ use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 use std::f32;
 use entities::{FoodSource, FoodSources, HomeBase, HomeBases};
+use utils::Positioned;
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
@@ -261,8 +262,16 @@ impl Game {
         let id = self.next_id;
         self.next_id += 1;
         let mut food_source = FoodSource::new(id);
-        food_source.set_position(x, y);
+        food_source.set_position(Point2::new(x, y));
         self.field_state.food_sources.insert(id, food_source);
+    }
+
+    pub fn add_home_base(&mut self, x: f32, y: f32) {
+        //let id = self.next_id;
+        //self.next_id += 1;
+        //let mut home_base = HomeBase::new(id);
+        //home_base.set_position(x, y);
+        //self.field_state.food_sources.insert(id, food_source);
     }
 
     pub fn get_random_beetle_id(&self) -> i32 {

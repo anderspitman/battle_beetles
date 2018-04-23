@@ -4,7 +4,9 @@ use entities::{FoodSource, FoodSources};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
-use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
+use utils::{
+    convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color, Positioned
+};
 
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
@@ -149,7 +151,7 @@ impl Beetle {
                     }
                 }
                 else if let Some(food_source) = food_sources.get(&target_id) {
-                    if self.close_enough_to_interact(food_source.position()) {
+                    if self.close_enough_to_interact(food_source.get_position()) {
                         Action::TakeFood {
                             beetle_id: self.id,
                             food_source_id: target_id,
@@ -159,8 +161,8 @@ impl Beetle {
                     else {
                         Action::MoveToward {
                             beetle_id: self.id,
-                            x: food_source.position().x,
-                            y: food_source.position().y,
+                            x: food_source.get_position().x,
+                            y: food_source.get_position().y,
                         }
                     }
                 }
