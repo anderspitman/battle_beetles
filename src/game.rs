@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 // This needs to start at 1 because protobuf doesn't handle
 // 0s well. See https://github.com/google/protobuf/issues/1606
-pub const STARTING_BEETLE_ID: Id = 1;
+pub const STARTING_ID: Id = 1;
 
 pub type FoodSources = HashMap<Id, FoodSource>;
 
@@ -25,7 +25,6 @@ pub enum Command {
 
 #[derive(Debug)]
 pub enum Action {
-    Move,
     MoveToward {
         beetle_id: Id,
         x: f32,
@@ -36,11 +35,9 @@ pub enum Action {
         attack_power: i32,
     },
     TakeFood {
-        food_source_id: i32,
+        beetle_id: Id,
+        food_source_id: Id,
         amount: i32,
-    },
-    Stop {
-        beetle_id: Id
     },
     Nothing,
 }
@@ -50,7 +47,7 @@ pub struct FieldState {
     food_sources: FoodSources,
     pub beetles: Beetles,
     selected_beetles: Vec<Id>,
-    next_beetle_id: i32,
+    next_id: i32,
 }
 
 impl FieldState {
@@ -91,11 +88,22 @@ impl FoodSource {
         self.position.x = x;
         self.position.y = y;
     }
+
+    pub fn reduce_food(&mut self, amount: i32) -> i32 {
+        if self.amount > amount {
+            self.amount -= amount;
+            return amount;
+        }
+        else {
+            let remaining = self.amount;
+            self.amount = 0;
+            return remaining;
+        }
+    }
 }
 
 pub struct Game {
     pub field_state: FieldState,
-    next_food_source_id: i32,
 }
 
 impl Game {
@@ -106,9 +114,8 @@ impl Game {
                 food_sources: FoodSources::new(),
                 beetles: Beetles::new(),
                 selected_beetles: Vec::new(),
-                next_beetle_id: STARTING_BEETLE_ID,
+                next_id: STARTING_ID,
             },
-            next_food_source_id: 0,
         };
 
         return game;
@@ -287,18 +294,18 @@ impl Game {
 
     pub fn add_beetle(&mut self, mut beetle: Beetle) -> Id {
 
-        let id = self.field_state.next_beetle_id;
+        let id = self.field_state.next_id;
         beetle.id = id;
-        self.field_state.beetles.insert(self.field_state.next_beetle_id, beetle);
+        self.field_state.beetles.insert(self.field_state.next_id, beetle);
 
-        self.field_state.next_beetle_id += 1;
+        self.field_state.next_id += 1;
 
         return id;
     }
 
     pub fn add_food_source(&mut self, x: f32, y: f32) {
-        let id = self.next_food_source_id;
-        self.next_food_source_id += 1;
+        let id = self.field_state.next_id;
+        self.field_state.next_id += 1;
         let mut food_source = FoodSource::new(id);
         food_source.set_position(x, y);
         self.field_state.food_sources.insert(id, food_source);
@@ -369,10 +376,6 @@ impl Game {
 
                         let destination = Point2::new(x, y);
                         beetle.move_toward(&destination);
-
-                        if beetle.basically_here(destination) {
-                            beetle.current_command = Command::Idle;
-                        }
                     }
                 },
                 Action::Attack{target_id, attack_power} => {
@@ -386,8 +389,28 @@ impl Game {
                         self.field_state.beetles.remove(&target_id);
                     }
                 },
-                _ => {
+                Action::TakeFood{beetle_id, food_source_id, amount} => {
+
+                    let mut empty = false;
+                    if let Some(food_source) = self.field_state.food_sources.get_mut(&food_source_id) {
+
+                        let amount_collected = food_source.reduce_food(amount);
+
+                        if amount_collected > 0 {
+                            if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+                                beetle.add_food(amount_collected);
+                            }
+                        }
+                        else {
+                            empty = true;
+                        }
+                    }
+
+                    if empty {
+                        self.field_state.food_sources.remove(&food_source_id);
+                    }
                 }
+                Action::Nothing => {}
             }
         }
         

@@ -3,7 +3,6 @@ use game::{Command, Action, FoodSource, FoodSources};
 use std::collections::HashMap;
 use beetle_genome::{BeetleGenome};
 use beetle_state_machine::{BeetleStateMachine};
-use food_collector::{FoodCollector};
 use utils::{convert_value_for_sim_period, MIN_SPEED_UNITS_PER_SECOND, Color};
 
 //const MAX_QUICKNESS: f32 = 10.0;
@@ -36,7 +35,7 @@ pub struct Beetle {
     pub genome: BeetleGenome,
     pub color: Color,
     pub team_id: Id,
-    food_collector: FoodCollector,
+    food_collected: i32,
     state_machine: BeetleStateMachine,
 }
 
@@ -58,7 +57,7 @@ impl Beetle {
             genome: BeetleGenome::new(),
             color: Color::new(),
             team_id: 0,
-            food_collector: FoodCollector::new(),
+            food_collected: 0,
             state_machine: BeetleStateMachine::new(),
         }
     }
@@ -116,10 +115,15 @@ impl Beetle {
         let action = match self.current_command {
             Command::Move{ position } => {
 
-                Action::MoveToward {
-                    beetle_id: self.id,
-                    x: position.x,
-                    y: position.y,
+                if self.basically_here(position) {
+                    Action::Nothing
+                }
+                else {
+                    Action::MoveToward {
+                        beetle_id: self.id,
+                        x: position.x,
+                        y: position.y,
+                    }
                 }
             },
             Command::Interact { target_id } => {
@@ -146,6 +150,7 @@ impl Beetle {
                 else if let Some(food_source) = food_sources.get(&target_id) {
                     if self.close_enough_to_interact(food_source.position()) {
                         Action::TakeFood {
+                            beetle_id: self.id,
                             food_source_id: target_id,
                             amount: 1,
                         }
@@ -216,6 +221,10 @@ impl Beetle {
             dead = true;
         }
         return dead;
+    }
+
+    pub fn add_food(&mut self, amount: i32) {
+        self.food_collected += amount;
     }
 }
 

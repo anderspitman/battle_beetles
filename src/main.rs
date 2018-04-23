@@ -17,7 +17,6 @@ mod beetle_state_machine;
 mod gen;
 mod simulation;
 mod message_handler;
-mod food_collector;
 
 use beetle::{Beetles};
 use game::{Game, FieldState};
@@ -90,7 +89,8 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
-    game.add_food_source(100.0, 100.0);
+    game.add_food_source(128.0, 128.0);
+    game.add_food_source(1024.0, 512.0);
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 

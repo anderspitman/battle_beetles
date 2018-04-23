@@ -177,6 +177,7 @@ function handleStateUpdate(gameState) {
     if (visualFoods[i].obj._renderer && visualFoods[i].obj._renderer.elem) {
       visualFoods[i].obj._renderer.elem.oncontextmenu = (e) => {
         e.preventDefault();
+        // TODO: rename beetleId to targetId
         messageService.selectedInteractCommand({ beetleId: food.getId() })
       };
     }
@@ -262,7 +263,10 @@ function matchArrays(model, vis, createNew) {
 
     for (let i = model.length; i < vis.length; i++) {
       vis[i].obj.visible = false;
-      vis[i].selectedIndicator.visible = false;
+
+      if (vis[i].selectedIndicator) {
+        vis[i].selectedIndicator.visible = false;
+      }
     }
   }
 }

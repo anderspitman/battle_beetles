@@ -1,6 +1,6 @@
 use simulation::GeneticAlgorithm;
 use ui::UI;
-use game::{Game, STARTING_BEETLE_ID};
+use game::{Game, STARTING_ID};
 use beetle::{Beetle, Beetles};
 use beetle_genome::{BeetleGenome};
 use cgmath::{Point2};
@@ -84,7 +84,7 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
 
         let mut new_population = Beetles::new();
 
-        let mut id = STARTING_BEETLE_ID;
+        let mut id = STARTING_ID;
         while new_population.len() < self.game.field_state.beetles.len() {
 
             let parent1_id = self.tournament_select_individual();
