@@ -65,8 +65,8 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
             // put them all on different teams so it's a free for all
             beetle.team_id = beetle.id;
 
-            let rand_x: f32 = rng.gen_range(0.0, 500.0);
-            let rand_y: f32 = rng.gen_range(0.0, 500.0);
+            let rand_x: f32 = rng.gen_range(100.0, 600.0);
+            let rand_y: f32 = rng.gen_range(100.0, 600.0);
             beetle.position.x = rand_x;
             beetle.position.y = rand_y;
         }

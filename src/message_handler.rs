@@ -4,6 +4,7 @@ use gen::messages::UiMessage;
 use entities::BeetleBuilder;
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
+use simulation::food_ga::FoodGA;
 use ui::UI;
 
 pub struct MessageHandler {
@@ -61,8 +62,17 @@ impl MessageHandler {
         }
         else if message.has_run_battle_simulation() {
 
-            //let mut simulation = BattleGA::new(game, &ui);
-            //simulation.run();
+            let mut ga = BattleGA::new(game.field_state.beetles.clone(), &ui);
+            ga.run();
+
+            game.set_population(ga.get_population().clone());
+        }
+        else if message.has_run_food_ga() {
+
+            let mut ga = FoodGA::new(game.field_state.beetles.clone(), &ui);
+            ga.run();
+
+            game.set_population(ga.get_population().clone());
         }
         else if message.has_create_formation() {
             game.create_formation();

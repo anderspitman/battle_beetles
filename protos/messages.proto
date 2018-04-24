@@ -76,8 +76,9 @@ message UiMessage {
         CreateBeetle create_beetle = 6;
         RunSpeedSimulation run_speed_simulation = 7;
         RunBattleSimulation run_battle_simulation = 8;
-        SelectAllInArea select_all_in_area = 9;
-        CreateFormation create_formation = 10;
+        RunFoodGA run_food_ga = 9;
+        SelectAllInArea select_all_in_area = 10;
+        CreateFormation create_formation = 11;
     }
 }
 
@@ -114,6 +115,9 @@ message RunSpeedSimulation {
 }
 
 message RunBattleSimulation {
+}
+
+message RunFoodGA {
 }
 
 message CreateBeetle {

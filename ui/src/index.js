@@ -8,8 +8,9 @@ const canvas = document.getElementById('canvas');
 const rightPanel = document.getElementById('right-panel');
 const stopButton = document.getElementById('stop-button');
 const addBeetleButton = document.getElementById('add-beetle-button');
-const speedSimButton = document.getElementById('speed-sim-button');
+//const speedSimButton = document.getElementById('speed-sim-button');
 const battleSimButton = document.getElementById('battle-sim-button');
+const foodGAButton = document.getElementById('food-ga-button');
 const createFormationButton = document.getElementById('create-formation-button');
 const DEGREES_PER_RADIAN = 57.2958;
 
@@ -142,16 +143,22 @@ addBeetleButton.onclick = (e) => {
   messageService.createBeetle({ x: 0.0, y: 0.0 });
 }
 
-speedSimButton.onclick = (e) => {
-  phenotypeChart.reset();
-  genotypeChart.reset();
-  messageService.runSpeedSimulation();
-}
+//speedSimButton.onclick = (e) => {
+//  phenotypeChart.reset();
+//  genotypeChart.reset();
+//  messageService.runSpeedSimulation();
+//}
 
 battleSimButton.onclick = (e) => {
   phenotypeChart.reset();
   genotypeChart.reset();
   messageService.runBattleSimulation();
+}
+
+foodGAButton.onclick = (e) => {
+  phenotypeChart.reset();
+  genotypeChart.reset();
+  messageService.runFoodGA();
 }
 
 createFormationButton.onclick = (e) => {

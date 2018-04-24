@@ -5,7 +5,7 @@ use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game, Command};
 use beetle_genome::{BeetleGenome};
-use utils::{SIMULATION_PERIOD_MS};
+use utils::{SIMULATION_PERIOD_MS, Color};
 use entities::{Entity, Beetle, Beetles};
 
 pub struct FoodGA<'a> {
@@ -39,6 +39,8 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
         }
 
         for beetle in self.game.field_state.beetles.values_mut() {
+            let color = Color { r: 144, g: 153, b: 212, a: 255 };
+            beetle.color = color;
             beetle.set_command(Command::HarvestClosestFood);
         }
     }
