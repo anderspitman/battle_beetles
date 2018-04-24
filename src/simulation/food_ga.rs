@@ -9,17 +9,19 @@ use utils::{SIMULATION_PERIOD_MS};
 use entities::{Entity, Beetle, Beetles};
 
 pub struct FoodGA<'a> {
-    initial_population: &'a Beetles,
     ui: &'a UI,
     game: Game,
 }
 
 impl<'a> FoodGA<'a> {
-    pub fn new(initial_population: &'a Beetles, ui: &'a UI) -> FoodGA<'a> {
+    pub fn new(population: Beetles, ui: &'a UI) -> FoodGA<'a> {
+
+        let mut game = Game::new();
+        game.set_population(population);
+
         FoodGA {
-            initial_population,
             ui,
-            game: Game::new(),
+            game,
         }
     }
 }
@@ -36,12 +38,8 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
             food_source.increase_food(1_000_000);
         }
 
-        // TODO: maybe there's a way to get rid of this clone.
-        let population = self.initial_population.clone();
-
-        for (_, mut beetle) in population.into_iter() {
+        for beetle in self.game.field_state.beetles.values_mut() {
             beetle.set_command(Command::HarvestClosestFood);
-            self.game.add_beetle(beetle);
         }
     }
 

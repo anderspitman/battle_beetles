@@ -24,6 +24,10 @@ pub trait GeneticAlgorithm {
         println!("Setup GA");
     }
 
+    fn cleanup(&mut self) {
+        println!("No cleanup");
+    }
+
     fn run(&mut self) {
 
         println!("Run GA");
@@ -38,6 +42,8 @@ pub trait GeneticAlgorithm {
                 &self.get_game().field_state.beetles
             );
         }
+
+        self.cleanup();
 
         self.get_ui().update_game_state(&self.get_game().field_state);
     }

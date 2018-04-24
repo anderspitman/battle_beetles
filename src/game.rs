@@ -104,7 +104,7 @@ impl Game {
 
     pub fn generate_random_population<T: FnMut() -> Id>(
             population_size: i32, max_speed: f32, max_rotation: f32,
-            mut id_generator: T) -> Beetles {
+            id_generator: &mut T) -> Beetles {
 
         let mut beetles = Beetles::new();
 
@@ -133,6 +133,10 @@ impl Game {
     }
             
 
+    pub fn set_population(&mut self, population: Beetles) {
+        self.field_state.beetles = population;
+    }
+
     pub fn set_random_population(
             &mut self, population_size: i32, max_speed: f32,
             max_rotation: f32) {
@@ -140,13 +144,13 @@ impl Game {
         let beetles;
 
         {
-            let id_generator = || {
+            let mut id_generator = || {
                 self.get_next_id()
             };
 
 
             beetles = Game::generate_random_population(
-                population_size, max_speed, max_rotation, id_generator); 
+                population_size, max_speed, max_rotation, &mut id_generator); 
         }
 
         self.field_state.beetles = beetles;

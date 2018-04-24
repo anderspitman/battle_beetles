@@ -59,15 +59,23 @@ fn main() {
         beetle.team_id = beetle.id;
     }
 
-    let mut battle_population;
+    let mut next_id = 0;
+    let mut id_generator = || {
+        next_id += 1;
+        next_id
+    };
+
+    let mut battle_population = Game::generate_random_population(
+        utils::POPULATION_SIZE, max_speed, max_rotation, &mut id_generator);
+
     {
-        let mut ga = BattleGA::new(&mut game, &ui);
+        let mut ga = BattleGA::new(battle_population, &ui);
         ga.run();
         battle_population = ga.get_population().clone();
     }
     for beetle in battle_population.values_mut() {
-        let rand_x: f32 = rng.gen_range(0.0, 500.0);
-        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        let rand_x: f32 = rng.gen_range(0.0, 200.0);
+        let rand_y: f32 = rng.gen_range(0.0, 700.0);
         beetle.position.x = rand_x;
         beetle.position.y = rand_y;
         beetle.team_id = 0;
@@ -75,31 +83,22 @@ fn main() {
     }
 
     // run food GA
-    game.set_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation);
-    let mut food_population;
+    let mut food_population = Game::generate_random_population(
+        utils::POPULATION_SIZE, max_speed, max_rotation, &mut id_generator);
     {
-        let mut ga = FoodGA::new(&game.field_state.beetles, &ui);
+        let mut ga = FoodGA::new(food_population, &ui);
         ga.run();
         food_population = ga.get_population().clone();
     }
     for beetle in food_population.values_mut() {
-        let rand_x: f32 = rng.gen_range(600.0, 1100.0);
-        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        let rand_x: f32 = rng.gen_range(250.0, 450.0);
+        let rand_y: f32 = rng.gen_range(0.0, 700.0);
         beetle.position.x = rand_x;
         beetle.position.y = rand_y;
         beetle.team_id = 1;
         beetle.direction = Vector2::new(1.0, 0.0);
     }
 
-    //let mut next_id = 0;
-    //let id_generator = || {
-    //    next_id += 1;
-    //    next_id
-    //};
-
-    //let population = Game::generate_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
 
     // reset population
     game.field_state.beetles = Beetles::new();
@@ -113,7 +112,7 @@ fn main() {
         game.add_beetle(beetle);
     }
 
-    ui.update_game_state(game.tick());
+    //ui.update_game_state(game.tick());
 
     {
         let check_done_callback = |state: &FieldState| {

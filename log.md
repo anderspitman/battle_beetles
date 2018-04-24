@@ -20,3 +20,8 @@
 * (Mention in report) Faster beetles actually seem to do better in combat
   because it's team based so they can quickly gang up on the bigger stronger
   ones.
+
+
+# 2018-04-24
+
+* create idle beetles vec
