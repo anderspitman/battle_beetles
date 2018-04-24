@@ -40,6 +40,9 @@ const canvasRect = canvas.getBoundingClientRect();
 
 renderBackground();
 
+svg.append('g')
+    .attr('class', 'beetles')
+
 let shiftKeyDown = false;
 window.onkeyup = function(e) {
   shiftKeyDown = false;
@@ -212,10 +215,22 @@ function renderHomeBases(bases) {
     .append('rect')
       .attr('class', 'base__main-area')
 
+  baseEnter
+    .append('text')
+      .attr('class', 'base__text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('font-size', 18)
+      .attr('font-weight', 'bold')
+      .attr('fill', '#eeeeee')
+      .attr('font-family', 'Helvetica')
+
   baseUpdate
       .attr('transform', (d) => {
         return 'translate('+d.getX()+', '+d.getY()+')';
       })
+    .select('.base__text')
+      .text((d) => d.getFoodStoredAmount())
 
   mainArea 
       .attr('x', -(baseWidth / 2))
@@ -246,10 +261,21 @@ function renderFoodSources(foods) {
     .append('rect')
       .attr('class', 'food__main-area')
 
+  enter
+    .append('text')
+      .attr('class', 'food__text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('font-size', 16)
+      .attr('font-weight', 'bold')
+      .attr('font-family', 'Helvetica')
+
   update
       .attr('transform', (d) => {
         return 'translate('+d.getX()+', '+d.getY()+')';
       })
+    .select('.food__text')
+      .text((d) => d.getAmount())
 
   mainArea 
       .attr('x', -(width / 2))
@@ -261,9 +287,11 @@ function renderFoodSources(foods) {
   update.exit().remove();
 }
 
-function renderBeetles(beetles) {
-  const beetleUpdate = svg.selectAll('.beetle')
-    .data(beetles)
+function renderBeetles(data) {
+
+  const beetles = svg.select('.beetles')
+  const beetleUpdate = beetles.selectAll('.beetle')
+    .data(data)
 
   const beetleEnter = beetleUpdate.enter()
     .append('g')
@@ -297,6 +325,16 @@ function renderBeetles(beetles) {
       .attr('stroke', 'lightgreen')
       .attr('visibility', 'hidden')
 
+  beetleEnter
+    .append('text')
+      .attr('class', 'beetle__text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('font-size', 16)
+      .attr('font-weight', 'bold')
+      .attr('font-family', 'Helvetica')
+      .attr('fill', '#eeeeee')
+
   head 
       .attr('r', (d) => calcHeadRadius(d.getBodyWidth()))
       .attr('cx', (d) => {
@@ -309,9 +347,10 @@ function renderBeetles(beetles) {
         const deg =  d.getAngle() * DEGREES_PER_RADIAN;
         return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
       })
-
   const bodyUpdate = beetleUpdate
     .select('.beetle__body')
+  const textUpdate = beetleUpdate
+    .select('.beetle__text')
 
   bodyUpdate
       .attr('x', (d) => -d.getBodyLength() / 2)
@@ -335,6 +374,12 @@ function renderBeetles(beetles) {
   selectedIndicatorUpdate
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
       .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
+
+  textUpdate
+      .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
+      .attr('x', (d) => d.getBodyLength() / 2)
+      .attr('y', (d) => -d.getBodyLength() / 2)
+      .text((d) => d.getFoodCarrying())
 
   beetleUpdate.exit().remove();
 }

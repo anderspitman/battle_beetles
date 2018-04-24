@@ -5,8 +5,8 @@ extern crate serde_derive;
 extern crate cgmath;
 extern crate rand;
 extern crate protobuf;
-#[macro_use]
-extern crate rouille;
+//#[macro_use]
+//extern crate rouille;
 
 mod utils;
 mod ui;
@@ -21,16 +21,16 @@ mod entities;
 use game::{Game};
 use message_handler::MessageHandler;
 
-use simulation::GeneticAlgorithm;
+//use simulation::GeneticAlgorithm;
 //use simulation::speed_ga::SpeedGA;
 //use simulation::battle_ga::BattleGA;
-use simulation::food_ga::FoodGA;
+//use simulation::food_ga::FoodGA;
 //use simulation::Simulate;
 //use simulation::fight_simulation::FightSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
-use rouille::Response;
+//use rouille::Response;
 //use rand::{Rng, thread_rng};
 //use cgmath::{Vector2};
 
@@ -90,8 +90,14 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
+    //let mut next_id = 0;
+    //let id_generator = || {
+    //    next_id += 1;
+    //    next_id
+    //};
+
     //let population = Game::generate_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation);
+    //        utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
 
     //{
     //    let mut ga = FoodGA::new(&population, &ui);

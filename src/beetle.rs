@@ -15,7 +15,7 @@ const MAX_BODY_LENGTH_UNITS: f32 = 40.0;
 //const MAX_BODY_WIDTH_UNITS: f32 = MAX_BODY_LENGTH_UNITS;
 const MIN_BODY_LENGTH_UNITS: f32 = 10.0;
 const MIN_BODY_WIDTH_UNITS: f32 = MIN_BODY_LENGTH_UNITS;
-//const FOOD_SIZE_UNITS: f32 = MAX_SIZE_UNITS / 4.0;
+const FOOD_SIZE_UNITS: f32 = MAX_BODY_LENGTH_UNITS / 4.0;
 const MAX_HEALTH: f32 = 200.0;
 const MIN_HEALTH: f32 = 10.0;
 const MAX_ATTACK: f32 = 50.0;
@@ -43,7 +43,7 @@ pub struct Beetle {
     pub color: Color,
     pub team_id: Id,
     pub food_collected: i32,
-    food_carrying: i32,
+    pub food_carrying: i32,
 }
 
 impl Beetle {
@@ -126,7 +126,7 @@ impl Beetle {
     }
 
     pub fn carrying_capacity(&self) -> i32 {
-        1
+        (self.body_length() / FOOD_SIZE_UNITS).floor() as i32
     }
 
     //pub fn mass(&self) -> f32 {

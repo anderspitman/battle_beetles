@@ -41,6 +41,7 @@ message UiBeetle {
     Color color = 8;
     float body_width = 9;
     float body_length = 10;
+    int32 food_carrying = 11;
 }
 
 message UiFoodSource {
