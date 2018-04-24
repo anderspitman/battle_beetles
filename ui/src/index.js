@@ -1,7 +1,8 @@
 import { MessageService } from './message_service';
 import * as messages from './gen/messages_pb';
-import * as Two from 'two.js';
+//import * as Two from 'two.js';
 import * as Charts from './charts';
+import * as d3 from 'd3';
 
 const canvas = document.getElementById('canvas');
 const rightPanel = document.getElementById('right-panel');
@@ -10,6 +11,7 @@ const addBeetleButton = document.getElementById('add-beetle-button');
 const speedSimButton = document.getElementById('speed-sim-button');
 const battleSimButton = document.getElementById('battle-sim-button');
 const createFormationButton = document.getElementById('create-formation-button');
+const DEGREES_PER_RADIAN = 57.2958;
 
 const viewportDimensions = getViewportDimensions();
 const buttonRowHeight = 50;
@@ -27,9 +29,16 @@ const params = {
   //height: rightPanel.clientHeight,
   //type: Two.Types.webgl,
 };
-const two = new Two(params).appendTo(canvas);
+//const two = new Two(params).appendTo(canvas);
 
+const svg = d3.select(canvas)
+  .append('svg')
+    .attr('class', 'svg-canvas')
+    .attr('width', rightPanel.clientWidth)
+    .attr('height', rightPanel.clientHeight)
 const canvasRect = canvas.getBoundingClientRect();
+
+renderBackground();
 
 let shiftKeyDown = false;
 window.onkeyup = function(e) {
@@ -85,11 +94,6 @@ const genotypeChart = new Charts.ScatterPlot({
 phenotypeChart.reset();
 genotypeChart.reset();
 
-const visualBeetles = [];
-const visualFoods = [];
-const visualBases = [];
-//const vectorLines = [];
-
 const messageService = new MessageService();
 const socket = messageService.getSocket();
 socket.binaryType = 'arraybuffer';
@@ -97,8 +101,8 @@ socket.binaryType = 'arraybuffer';
 let dragging = false;
 let dragStart = { x: 0.0, y: 0.0 };
 let dragEnd = { x: 0.0, y: 0.0 };
-drawBackground();
-const selecticle = createSelecticle();
+//drawBackground();
+//const selecticle = createSelecticle();
 
 socket.onmessage = (event) => {
 
@@ -151,69 +155,188 @@ createFormationButton.onclick = (e) => {
   messageService.createFormation();
 }
 
-function handleStateUpdate(gameState) {
+function renderHomeBases(bases) {
+  const baseWidth = 128;
+  const baseHeight = baseWidth;
 
-  const beetles = gameState.getBeetlesList();
-  const foods = gameState.getFoodSourcesList();
-  const bases = gameState.getHomeBasesList();
+  const baseUpdate = svg.selectAll('.base')
+    .data(bases)
 
-  matchArrays(beetles, visualBeetles, createBeetle);
-  matchArrays(foods, visualFoods, createFood);
-  matchArrays(bases, visualBases, createBase);
+  const baseEnter = baseUpdate.enter()
+    .append('g')
+      .attr('class', 'base')
+      .on('click', (d) => {
+        d3.event.preventDefault();
+        messageService.selectedInteractCommand({ targetId: d.getId() })
+      })
 
-  for (let i = 0; i < beetles.length; i++) {
-    const beetle = beetles[i];
+  const mainArea = baseEnter
+    .append('rect')
+      .attr('class', 'base__main-area')
 
-    if (visualBeetles[i].obj._renderer && visualBeetles[i].obj._renderer.elem) {
-      visualBeetles[i].obj._renderer.elem.onclick = (e) => {
+  baseUpdate
+      .attr('transform', (d) => {
+        return 'translate('+d.getX()+', '+d.getY()+')';
+      })
+
+  mainArea 
+      .attr('x', -(baseWidth / 2))
+      .attr('y', -(baseHeight / 2))
+      .attr('width', baseWidth)
+      .attr('height', baseHeight)
+      .attr('fill', '#724100')
+}
+
+function renderFoodSources(foods) {
+  const width = 64;
+  const height = width;
+
+  const update = svg.selectAll('.food')
+    .data(foods)
+
+  const enter = update.enter()
+    .append('g')
+      .attr('class', 'food')
+      .on('click', (d) =>{
+        d3.event.preventDefault();
+        messageService.selectedInteractCommand({ targetId: d.getId() })
+      })
+
+  const mainArea = enter
+    .append('rect')
+      .attr('class', 'food__main-area')
+
+  update
+      .attr('transform', (d) => {
+        return 'translate('+d.getX()+', '+d.getY()+')';
+      })
+
+  mainArea 
+      .attr('x', -(width / 2))
+      .attr('y', -(height / 2))
+      .attr('width', width)
+      .attr('height', height)
+      .attr('fill', '#efc85d')
+}
+
+function renderBackground() {
+
+  // draw background
+  const background = svg.append('g')
+    .attr('class', 'background')
+    .on('contextmenu', (d) => {
+      d3.event.preventDefault();
+      messageService.selectedMoveCommand({
+        // accounts for where the canvas is on the page
+        x: d3.event.clientX - canvasRect.left,
+        y: d3.event.clientY - canvasRect.top,
+      });
+    })
+    .on('mousedown', (d) => {
+      dragging = true;
+      dragStart = getWorldPosition(d3.event)
+      d3.event.preventDefault();
+    })
+    .on('mouseup', (d) => {
+      const LEFT_MOUSE_BUTTON_ID = 0;
+      if (d3.event.button === LEFT_MOUSE_BUTTON_ID) {
+        dragEnd = getWorldPosition(d3.event)
+        dragging = false;
+        messageService.selectAllInArea({
+          x1: dragStart.x,
+          y1: dragStart.y,
+          x2: dragEnd.x,
+          y2: dragEnd.y, 
+        })
+      }
+    })
+
+  background.append('rect')
+    .attr('width', rightPanel.clientWidth)
+    .attr('height', rightPanel.clientHeight)
+    .attr('fill',   '#c98c5a')
+}
+
+function renderBeetles(beetles) {
+  const beetleUpdate = svg.selectAll('.beetle')
+    .data(beetles)
+
+  const beetleEnter = beetleUpdate.enter()
+    .append('g')
+      .attr('class', 'beetle')
+      .on('click', (d) => {
         if (!shiftKeyDown) {
           messageService.deselectAllBeetles()
         }
+        messageService.selectBeetle({ beetleId: d.getId() });
+      })
+      .on('contextmenu', (d) => {
+        d3.event.preventDefault();
+        messageService.selectedInteractCommand({ targetId: d.getId() })
+      })
 
-        messageService.selectBeetle({ beetleId: beetle.getId() })
-      };
+  const head = beetleEnter
+    .append('circle')
+      .attr('class', 'beetle__head')
+  const body = beetleEnter
+    .append('rect')
+      .attr('class', 'beetle__body')
+  const selectedIndicator = beetleEnter
+    .append('rect')
+      .attr('class', 'beetle__selected-indicator')
+      .attr('width', 50)
+      .attr('height', 50)
+      .attr('x', -25)
+      .attr('y', -25)
+      .attr('fill', 'none')
+      .attr('stroke', 'lightgreen')
+      .attr('visibility', 'hidden')
 
-      visualBeetles[i].obj._renderer.elem.oncontextmenu = (e) => {
-        e.preventDefault();
-        messageService.selectedInteractCommand({ targetId: beetle.getId() })
-      };
-    }
+  beetleUpdate
+      .attr('transform', (d) => {
+        const deg =  d.getAngle() * DEGREES_PER_RADIAN;
+        return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
+      })
 
-    drawBeetle(beetle, i);
-  }
+  head 
+      .attr('r', (d) => calcHeadRadius(d.getBodyWidth()))
+      .attr('cx', (d) => {
+        return (d.getBodyLength() / 2) + calcHeadRadius(d.getBodyWidth());
+      })
+      .attr('fill', '#1c1c1c')
 
-  for (let i = 0; i < foods.length; i++) {
+  body
+      .attr('x', (d) => -d.getBodyWidth() / 2)
+      .attr('y', (d) => -d.getBodyLength() / 2)
+      .attr('width', (d) => {
+        return d.getBodyLength()
+      })
+      .attr('height', (d) => d.getBodyWidth())
+      .attr('fill', (d) => {
+        const color = d.getColor();
+        const r = color.getR();
+        const g = color.getG();
+        const b = color.getB();
+        const a = color.getA();
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      })
 
-    const food = foods[i];
+  selectedIndicator
+      .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
+}
 
-    if (visualFoods[i].obj._renderer && visualFoods[i].obj._renderer.elem) {
-      visualFoods[i].obj._renderer.elem.oncontextmenu = (e) => {
-        e.preventDefault();
-        messageService.selectedInteractCommand({ targetId: food.getId() })
-      };
-    }
+function calcHeadRadius(bodyWidth) {
+  return bodyWidth / 3;
+}
 
-    drawFood(food, i);
-  }
+function handleStateUpdate(gameState) {
+  const beetles = gameState.getBeetlesList();
+  const bases = gameState.getHomeBasesList();
+  const foods = gameState.getFoodSourcesList();
 
-  for (let i = 0; i < bases.length; i++) {
-
-    const base = bases[i];
-
-    if (visualBases[i].obj._renderer && visualBases[i].obj._renderer.elem) {
-      visualBases[i].obj._renderer.elem.oncontextmenu = (e) => {
-        e.preventDefault();
-        messageService.selectedInteractCommand({ targetId: base.getId() })
-      };
-    }
-
-    drawBase(base, i);
-  }
-
-  requestAnimationFrame(() => {
-    two.update();
-  });
-
+  renderHomeBases(bases);
+  renderFoodSources(foods);
+  renderBeetles(beetles);
 }
 
 function handleChartsIncremental(msg) {
@@ -307,48 +430,6 @@ function createSelecticle() {
   return selecticle;
 }
 
-function drawBackground() {
-  const rect = two.makeRectangle(
-    params.width / 2, params.height / 2, params.width, params.height);
-  rect.fill = '#c98c5a';
-
-  two.update();
-
-  //rect._renderer.elem.onclick = (e) => {
-  //  messageService.deselectAllBeetles();
-  //};
-
-  rect._renderer.elem.oncontextmenu = (e) => {
-    e.preventDefault();
-    messageService.selectedMoveCommand({
-      // accounts for where the canvas is on the page
-      x: e.clientX - canvasRect.left,
-      y: e.clientY - canvasRect.top,
-    });
-  };
-
-  rect._renderer.elem.onmousedown = (e) => {
-    dragging = true;
-    dragStart = getWorldPosition(e)
-    e.preventDefault();
-  }
-
-  rect._renderer.elem.onmouseup = (e) => {
-
-    const LEFT_MOUSE_BUTTON_ID = 0;
-    if (e.button === LEFT_MOUSE_BUTTON_ID) {
-      dragEnd = getWorldPosition(e)
-      dragging = false;
-      messageService.selectAllInArea({
-        x1: dragStart.x,
-        y1: dragStart.y,
-        x2: dragEnd.x,
-        y2: dragEnd.y, 
-      })
-    }
-  }
-}
-
 function getWorldPosition(e) {
     return {
       x: e.clientX - canvasRect.left,
@@ -376,30 +457,6 @@ function createBeetle() {
     selectedIndicator: selectedIndicator,
     body: body,
   };
-}
-
-function createFood() {
-  const mainArea = two.makeRectangle(0, 0, 64, 64);
-  mainArea.fill = '#efc85d';
-  const text = new Two.Text("Hi there", 0, 0);
-  const newFood = two.makeGroup(mainArea, text);
-
-  return {
-    obj: newFood,
-    text: text,
-  }
-}
-
-function createBase() {
-  const mainArea = two.makeRectangle(0, 0, 128, 128);
-  mainArea.fill = '#724100';
-  const text = new Two.Text("Hi there", 0, 0);
-  const newBase = two.makeGroup(mainArea, text);
-
-  return {
-    obj: newBase,
-    text,
-  }
 }
 
 function drawBeetle(beetle, index) {
@@ -440,20 +497,6 @@ function drawBeetle(beetle, index) {
   //anchor1.set(beetle.position.x, beetle.position.y);
   //anchor2.set(beetle.position.x + (beetle.direction.x * 50),
   //  beetle.position.y + (beetle.direction.y * 50));
-}
-
-function drawFood(food, index) {
-  const visualFood = visualFoods[index].obj;
-  visualFood.translation.set(food.getX(), food.getY());
-  const text = visualFoods[index].text;
-  text.value = food.getAmount();
-}
-
-function drawBase(base, index) {
-  const visualBase = visualBases[index].obj;
-  visualBase.translation.set(base.getX(), base.getY());
-  const text = visualBases[index].text;
-  text.value = base.getFoodStoredAmount();
 }
 
 function getViewportDimensions() {

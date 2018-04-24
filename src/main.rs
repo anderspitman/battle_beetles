@@ -37,7 +37,7 @@ use rouille::Response;
 
 fn main() {
 
-    start_web_server_thread();
+    //start_web_server_thread();
 
     let ui = ui::UI::new();
     let mut game = Game::new();
@@ -52,8 +52,8 @@ fn main() {
     //let mut rng = thread_rng();
 
     //// run battle GA
-    //game.set_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation);
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
 
     //let mut battle_population;
     //{
@@ -88,13 +88,13 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
-    let population = Game::generate_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation);
+    //let population = Game::generate_random_population(
+    //        utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    {
-        let mut ga = FoodGA::new(&population, &ui);
-        ga.run();
-    }
+    //{
+    //    let mut ga = FoodGA::new(&population, &ui);
+    //    ga.run();
+    //}
 
     //// reset population
     //game.field_state.beetles = Beetles::new();
@@ -174,34 +174,34 @@ fn main() {
     ui.shutdown();
 }
 
-fn start_web_server_thread() {
-
-    thread::spawn(move || {
-        let index = include_str!("../ui/dist/index.html");
-        let bundle = include_str!("../ui/dist/bundle.js");
-        // TODO: figure out how to separately load CSS
-        //let styles = include_str!("../ui/dist/styles.css");
-        rouille::start_server("0.0.0.0:8000", move |request| {
-
-            let response = router!(request,
-                (GET) ["/"] => {
-                    Response::html(index)
-                },
-                (GET) ["/bundle.js"] => {
-                    Response::text(bundle)
-                },
-                //(GET) ["/styles.css"] => {
-                //    Response::text(styles)
-                //},
-                _ => {
-                    Response::empty_404()
-                }
-            );
-
-            response
-        });
-    });
-}
+//fn start_web_server_thread() {
+//
+//    thread::spawn(move || {
+//        let index = include_str!("../ui/dist/index.html");
+//        let bundle = include_str!("../ui/dist/bundle.js");
+//        // TODO: figure out how to separately load CSS
+//        //let styles = include_str!("../ui/dist/styles.css");
+//        rouille::start_server("0.0.0.0:8000", move |request| {
+//
+//            let response = router!(request,
+//                (GET) ["/"] => {
+//                    Response::html(index)
+//                },
+//                (GET) ["/bundle.js"] => {
+//                    Response::text(bundle)
+//                },
+//                //(GET) ["/styles.css"] => {
+//                //    Response::text(styles)
+//                //},
+//                _ => {
+//                    Response::empty_404()
+//                }
+//            );
+//
+//            response
+//        });
+//    });
+//}
 
 
 fn duration_as_float(duration: Duration) -> f64 {

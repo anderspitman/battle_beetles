@@ -123,13 +123,13 @@ impl Game {
     }
             
 
-    //pub fn set_random_population(
-    //        &mut self, population_size: i32, max_speed: f32,
-    //        max_rotation: f32) {
+    pub fn set_random_population(
+            &mut self, population_size: i32, max_speed: f32,
+            max_rotation: f32) {
 
-    //  self.field_state.beetles = Game::generate_random_population(
-    //      population_size, max_speed, max_rotation); 
-    //}
+      self.field_state.beetles = Game::generate_random_population(
+          population_size, max_speed, max_rotation); 
+    }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {
 

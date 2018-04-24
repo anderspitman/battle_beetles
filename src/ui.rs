@@ -123,7 +123,7 @@ impl UI {
             new_beetle.set_selected(beetle.selected);
             new_beetle.set_body_width(beetle.body_width());
             new_beetle.set_body_length(beetle.body_length());
-            println!("{}", beetle.body_length());
+            //println!("{}", beetle.body_length());
 
             let mut color = Color::new();
             color.set_r(beetle.color.r as i32);
