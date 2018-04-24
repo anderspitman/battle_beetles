@@ -366,14 +366,17 @@ impl Game {
     pub fn tick(&mut self) -> &FieldState {
 
         // TODO: maybe move this to struct level to avoid re-allocating
-        let mut actions: Vec<Action> = Vec::with_capacity(self.field_state.beetles.len());
+        //let mut actions: Vec<Action> = Vec::with_capacity(self.field_state.beetles.len());
 
-        for beetle in self.field_state.beetles.values() {
-            let action = beetle.tick(
-                    &self.field_state.beetles,
-                    &self.field_state.food_sources,
-                    &self.field_state.home_bases);
-            actions.push(action);
+        let actions: Vec<Action>;
+        {
+            actions = self.field_state.beetles.values().map(|beetle| {
+                let action = beetle.tick(
+                        &self.field_state.beetles,
+                        &self.field_state.food_sources,
+                        &self.field_state.home_bases);
+                action
+            }).collect();
         }
 
         for action in actions {
