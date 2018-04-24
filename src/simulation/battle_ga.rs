@@ -1,14 +1,15 @@
+use std::f32;
 use simulation::Simulate;
 use simulation::GeneticAlgorithm;
 use simulation::fight_simulation::FightSimulation;
 use ui::UI;
 use game::{Game, FieldState};
+use entities::Beetle;
 use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
 use utils::{SIMULATION_PERIOD_MS, Color};
 use rand::{Rng, thread_rng};
-use std::f32;
 
 pub struct BattleGA<'a> {
     ui: &'a UI,
@@ -37,12 +38,17 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         self.ui
     }
 
+    fn fitness(&self, beetle: &Beetle) -> f32 {
+        beetle.damage_inflicted as f32
+    }
+
     fn run_generation(&mut self) {
 
         let population_size = self.game.field_state.beetles.len();
 
         for beetle in self.game.field_state.beetles.values_mut() {
             beetle.health = beetle.max_health();
+            beetle.damage_inflicted = 0;
             beetle.color = Color { r: 213, g: 77, b: 77, a: 255 };
         }
 
@@ -69,7 +75,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
             // scope to control borrowing
             {
-                let rando_id = self.get_random_individual_id();
+                let rando_id = self.tournament_select_individual();
                 let rando = self.game.field_state.beetles.get(&rando_id).unwrap();
                 offspring = self.mutate(&rando);
                 let mut rng = thread_rng();

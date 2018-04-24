@@ -37,6 +37,7 @@ pub enum Action {
         y: f32,
     },
     Attack {
+        source_id: i32,
         target_id: i32,
         attack_power: i32,
     },
@@ -388,11 +389,20 @@ impl Game {
                         beetle.move_toward(&destination);
                     }
                 },
-                Action::Attack{target_id, attack_power} => {
+                Action::Attack{source_id, target_id, attack_power} => {
+
                     let mut dead = false;
+                    let mut went_through = false;
 
                     if let Some(target) = self.field_state.beetles.get_mut(&target_id) {
+                        went_through = true;
                         dead = target.take_damage(attack_power);
+                    }
+
+                    if went_through {
+                        if let Some(source) = self.field_state.beetles.get_mut(&source_id) {
+                            source.damage_inflicted += attack_power;
+                        }
                     }
 
                     if dead {

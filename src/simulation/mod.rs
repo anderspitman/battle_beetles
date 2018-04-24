@@ -71,9 +71,7 @@ pub trait GeneticAlgorithm {
         offspring
     }
 
-    fn fitness(&self, _beetle: &Beetle) -> f32 {
-        1.0
-    }
+    fn fitness(&self, _beetle: &Beetle) -> f32;
 
     fn tournament_select_individual(&self) -> i32 {
         let id1 = self.get_random_individual_id();

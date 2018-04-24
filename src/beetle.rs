@@ -45,6 +45,7 @@ pub struct Beetle {
     pub team_id: Id,
     pub food_collected: i32,
     pub food_carrying: i32,
+    pub damage_inflicted: i32,
 }
 
 impl Beetle {
@@ -68,6 +69,7 @@ impl Beetle {
             team_id: 0,
             food_collected: 0,
             food_carrying: 0,
+            damage_inflicted: 0,
         }
     }
 
@@ -167,6 +169,7 @@ impl Beetle {
                     if self.can_interact(target.position) {
                         if target.team_id != self.team_id {
                             Action::Attack{
+                                source_id: self.id,
                                 target_id: target_id,
                                 attack_power: self.attack_power(),
                             }
