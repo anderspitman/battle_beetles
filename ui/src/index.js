@@ -336,10 +336,6 @@ function renderBeetles(data) {
       .attr('fill', '#eeeeee')
 
   head 
-      .attr('r', (d) => calcHeadRadius(d.getBodyWidth()))
-      .attr('cx', (d) => {
-        return (d.getBodyLength() / 2) + calcHeadRadius(d.getBodyWidth());
-      })
       .attr('fill', '#1c1c1c')
 
   beetleUpdate
@@ -351,6 +347,8 @@ function renderBeetles(data) {
     .select('.beetle__body')
   const textUpdate = beetleUpdate
     .select('.beetle__text')
+  const headUpdate = beetleUpdate
+    .select('.beetle__head')
 
   bodyUpdate
       .attr('x', (d) => -d.getBodyLength() / 2)
@@ -366,6 +364,12 @@ function renderBeetles(data) {
         const b = color.getB();
         const a = color.getA();
         return 'rgba('+r+','+g+','+b+','+a+')';
+      })
+
+  headUpdate
+      .attr('r', (d) => calcHeadRadius(d.getBodyWidth()))
+      .attr('cx', (d) => {
+        return (d.getBodyLength() / 2) + calcHeadRadius(d.getBodyWidth());
       })
 
   const selectedIndicatorUpdate = beetleUpdate

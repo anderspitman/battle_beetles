@@ -28,9 +28,9 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
 
     fn setup(&mut self) {
 
-        self.game.add_home_base(512.0, 256.0);
+        self.game.add_home_base(128.0, 128.0);
 
-        let food_source_id = self.game.add_food_source(128.0, 128.0);
+        let food_source_id = self.game.add_food_source(256.0, 256.0);
 
         if let Some(food_source) = self.game.field_state.food_sources.get_mut(&food_source_id) {
             food_source.increase_food(1_000_000);

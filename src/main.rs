@@ -90,17 +90,20 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
-    let mut next_id = 0;
-    let id_generator = || {
-        next_id += 1;
-        next_id
-    };
+    //let mut next_id = 0;
+    //let id_generator = || {
+    //    next_id += 1;
+    //    next_id
+    //};
 
-    let population = Game::generate_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
+    //let population = Game::generate_random_population(
+    //        utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
+
+    game.set_random_population(
+        utils::POPULATION_SIZE, max_speed, max_rotation);
 
     {
-        let mut ga = FoodGA::new(&population, &ui);
+        let mut ga = FoodGA::new(&game.field_state.beetles, &ui);
         ga.run();
     }
 

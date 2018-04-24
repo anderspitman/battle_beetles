@@ -76,8 +76,6 @@ impl Beetle {
             (1.0 - self.size()) * 0.25 + 
             (1.0 - self.genome.get_gene(Gene::CarapaceDensity)) * 0.25;
 
-        println!("speed ratio: {}", speed_ratio);
-
         let min_speed = convert_value_for_sim_period(
                 MIN_SPEED_UNITS_PER_SECOND);
         let speed = (speed_ratio * (self.max_speed_units_per_tick - min_speed)) + min_speed;
