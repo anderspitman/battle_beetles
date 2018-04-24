@@ -53,10 +53,7 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
         self.ui
     }
 
-    fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>) {
-
-        println!("run gen");
-
+    fn run_generation(&mut self) {
 
         for beetle in self.game.field_state.beetles.values_mut() {
             beetle.food_collected = 0;
@@ -99,8 +96,6 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
 
         self.ui.update_game_state(&self.game.field_state);
         thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
-
-        (Vec::new(), Vec::new())
     }
 
     fn fitness(&self, beetle: &Beetle) -> f32 {

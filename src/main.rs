@@ -18,21 +18,22 @@ mod simulation;
 mod message_handler;
 mod entities;
 
-use game::{Game};
+use game::{Game, FieldState};
 use message_handler::MessageHandler;
+use entities::{Beetles};
 
 use simulation::GeneticAlgorithm;
 //use simulation::speed_ga::SpeedGA;
-//use simulation::battle_ga::BattleGA;
+use simulation::battle_ga::BattleGA;
 use simulation::food_ga::FoodGA;
-//use simulation::Simulate;
-//use simulation::fight_simulation::FightSimulation;
+use simulation::Simulate;
+use simulation::fight_simulation::FightSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
 //use rouille::Response;
-//use rand::{Rng, thread_rng};
-//use cgmath::{Vector2};
+use rand::{Rng, thread_rng};
+use cgmath::{Vector2};
 
 
 fn main() {
@@ -48,47 +49,48 @@ fn main() {
     let max_rotation =
         utils::convert_value_for_sim_period(utils::ROTATION_RADIANS_PER_SECOND);
 
+    let mut rng = thread_rng();
 
-    //let mut rng = thread_rng();
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    //// run battle GA
-    //game.add_food_source(512.0, 512.0);
-    //game.add_home_base(128.0, 128.0);
-    //game.set_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation);
+    // run battle GA
+    for beetle in game.field_state.beetles.values_mut() {
+        beetle.team_id = beetle.id;
+    }
 
-    //let mut battle_population;
-    //{
-    //    let mut ga = BattleGA::new(&mut game, &ui);
-    //    ga.run();
-    //    battle_population = ga.get_population().clone();
-    //}
-    //for (_, beetle) in battle_population.iter_mut() {
-    //    let rand_x: f32 = rng.gen_range(0.0, 500.0);
-    //    let rand_y: f32 = rng.gen_range(0.0, 500.0);
-    //    beetle.position.x = rand_x;
-    //    beetle.position.y = rand_y;
-    //    beetle.team_id = 0;
-    //    beetle.direction = Vector2::new(-1.0, 0.0);
-    //}
+    let mut battle_population;
+    {
+        let mut ga = BattleGA::new(&mut game, &ui);
+        ga.run();
+        battle_population = ga.get_population().clone();
+    }
+    for beetle in battle_population.values_mut() {
+        let rand_x: f32 = rng.gen_range(0.0, 500.0);
+        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        beetle.position.x = rand_x;
+        beetle.position.y = rand_y;
+        beetle.team_id = 0;
+        beetle.direction = Vector2::new(-1.0, 0.0);
+    }
 
-    //// run speed GA
-    //game.set_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation);
-    //let mut speed_population;
-    //{
-    //    let mut ga = SpeedGA::new(&mut game, &ui);
-    //    ga.run();
-    //    speed_population = ga.get_population().clone();
-    //}
-    //for (_, beetle) in speed_population.iter_mut() {
-    //    let rand_x: f32 = rng.gen_range(600.0, 1100.0);
-    //    let rand_y: f32 = rng.gen_range(0.0, 500.0);
-    //    beetle.position.x = rand_x;
-    //    beetle.position.y = rand_y;
-    //    beetle.team_id = 1;
-    //    beetle.direction = Vector2::new(1.0, 0.0);
-    //}
+    // run food GA
+    game.set_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation);
+    let mut food_population;
+    {
+        let mut ga = FoodGA::new(&game.field_state.beetles, &ui);
+        ga.run();
+        food_population = ga.get_population().clone();
+    }
+    for beetle in food_population.values_mut() {
+        let rand_x: f32 = rng.gen_range(600.0, 1100.0);
+        let rand_y: f32 = rng.gen_range(0.0, 500.0);
+        beetle.position.x = rand_x;
+        beetle.position.y = rand_y;
+        beetle.team_id = 1;
+        beetle.direction = Vector2::new(1.0, 0.0);
+    }
 
     //let mut next_id = 0;
     //let id_generator = || {
@@ -99,55 +101,47 @@ fn main() {
     //let population = Game::generate_random_population(
     //        utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
 
-    game.set_random_population(
-        utils::POPULATION_SIZE, max_speed, max_rotation);
+    // reset population
+    game.field_state.beetles = Beetles::new();
 
-    {
-        let mut ga = FoodGA::new(&game.field_state.beetles, &ui);
-        ga.run();
+    // TODO: could potentially use itertools chain method to do this, but I
+    // don't want an extra dependency just for that right now.
+    for (_, beetle) in battle_population.into_iter() {
+        game.add_beetle(beetle);
+    }
+    for (_, beetle) in food_population.into_iter() {
+        game.add_beetle(beetle);
     }
 
-    //// reset population
-    //game.field_state.beetles = Beetles::new();
+    ui.update_game_state(game.tick());
 
-    //// TODO: could potentially use itertools chain method to do this, but I
-    //// don't want an extra dependency just for that right now.
-    //for (_, beetle) in battle_population.into_iter() {
-    //    game.add_beetle(beetle);
-    //}
-    //for (_, beetle) in speed_population.into_iter() {
-    //    game.add_beetle(beetle);
-    //}
+    {
+        let check_done_callback = |state: &FieldState| {
+            // whatever the first beetle's team is, make sure there are no
+            // enemies left.
+            if let Some(beetle) = state.beetles.iter().next() {
+                let team_id = beetle.1.team_id;
 
-    //ui.update_game_state(game.tick());
+                for other in state.beetles.values() {
+                    if other.team_id != team_id {
+                        return false;
+                    }
+                }
 
-    //{
-    //    let check_done_callback = |state: &FieldState| {
-    //        // whatever the first beetle's team is, make sure there are no
-    //        // enemies left.
-    //        if let Some(beetle) = state.beetles.iter().next() {
-    //            let team_id = beetle.1.team_id;
-
-    //            for (_, other) in &state.beetles {
-    //                if other.team_id != team_id {
-    //                    return false;
-    //                }
-    //            }
-
-    //            true
-    //        }
-    //        else {
-    //            true
-    //        }
-    //    };
-    //    let mut sim = FightSimulation::new(&mut game, check_done_callback);
-    //    sim.set_tick_callback(|state| {
-    //        ui.update_game_state(&state);
-    //        //println!("{:?}", ui);
-    //        thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
-    //    });
-    //    sim.run();
-    //}
+                true
+            }
+            else {
+                true
+            }
+        };
+        let mut sim = FightSimulation::new(&mut game, check_done_callback);
+        sim.set_tick_callback(|state| {
+            ui.update_game_state(&state);
+            //println!("{:?}", ui);
+            thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
+        });
+        sim.run();
+    }
 
     //println!("End simulation");
 

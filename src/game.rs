@@ -11,6 +11,13 @@ use utils::Positioned;
 pub const STARTING_ID: Id = 1;
 
 #[derive(PartialEq, Serialize, Debug, Clone)]
+pub enum State {
+    Idle,
+    Moving,
+    Attacking,
+}
+
+#[derive(PartialEq, Serialize, Debug, Clone)]
 pub enum Command {
     Move {
         position: Point2<f32>,
@@ -19,7 +26,7 @@ pub enum Command {
         target_id: Id,
     },
     HarvestClosestFood,
-    Idle,
+    Stop,
 }
 
 #[derive(Debug)]
@@ -43,7 +50,9 @@ pub enum Action {
         home_base_id: Id,
         amount: i32,
     },
-    Nothing,
+    Nothing {
+        beetle_id: Id,
+    },
 }
 
 #[derive(Serialize, Debug)]
@@ -419,7 +428,11 @@ impl Game {
                         }
                     }
                 },
-                Action::Nothing => {}
+                Action::Nothing{beetle_id} => {
+                    if let Some(beetle) = self.field_state.beetles.get_mut(&beetle_id) {
+                        beetle.current_state = State::Idle;
+                    }
+                }
             }
         }
         

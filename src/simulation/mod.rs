@@ -32,7 +32,7 @@ pub trait GeneticAlgorithm {
 
         for _ in 0..NUM_GENERATIONS {
 
-            let (_speeds, _genomes) = self.run_generation();
+            self.run_generation();
 
             self.get_ui().update_charts_incremental(
                 &self.get_game().field_state.beetles
@@ -42,7 +42,7 @@ pub trait GeneticAlgorithm {
         self.get_ui().update_game_state(&self.get_game().field_state);
     }
 
-    fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>);
+    fn run_generation(&mut self);
 
     fn get_game(&self) -> &Game;
     fn get_ui(&self) -> &UI;

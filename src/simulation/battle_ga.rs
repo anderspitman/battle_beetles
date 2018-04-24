@@ -26,6 +26,9 @@ impl<'a> BattleGA<'a> {
 
 impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
+    fn setup(&mut self) {
+    }
+
     fn get_game(&self) -> &Game {
         self.game
     }
@@ -34,11 +37,14 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         self.ui
     }
 
-    fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>) {
-
-        let mut genomes = Vec::new();
+    fn run_generation(&mut self) {
 
         let population_size = self.game.field_state.beetles.len();
+
+        for beetle in self.game.field_state.beetles.values_mut() {
+            beetle.health = beetle.max_health();
+            beetle.color = Color { r: 213, g: 77, b: 77, a: 255 };
+        }
 
         {
             let check_done_callback = |state: &FieldState| {
@@ -49,7 +55,10 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
             // TODO: should be a way to remove this. Currently its only
             // purpose is so the type checker knows what kind of closure to
             // implement above.
-            sim.set_tick_callback(|_state| {
+            let ui = self.ui.clone();
+            sim.set_tick_callback(move |_state| {
+                //ui.update_game_state(&_state);
+                //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
             });
             sim.run();
         }
@@ -74,16 +83,11 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
             self.game.add_beetle(offspring);
         }
 
-        for (_, beetle) in self.game.field_state.beetles.iter_mut() {
-            beetle.health = beetle.max_health();
-            beetle.color = Color { r: 213, g: 77, b: 77, a: 255 };
-            genomes.push(beetle.genome.clone());
-        }
-
-        self.ui.update_game_state(self.game.tick());
+        // TODO: I think they're still running and killing a few off after
+        // the sim ends
+        
+        self.ui.update_game_state(&self.game.field_state);
         thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
-
-        (Vec::new(), genomes)
     }
 
 }

@@ -1,5 +1,5 @@
 use cgmath::{Point2, Vector2, InnerSpace, Rotation, Rotation2, Rad, Basis2};
-use game::{Command, Action};
+use game::{State, Command, Action};
 use entities::{
     FoodSource, FoodSources, Entity, HomeBases, HomeBase, HasFood, find_closest
 };
@@ -36,6 +36,7 @@ pub struct Beetle {
     max_speed_units_per_tick: f32,
     rotation_radians_per_tick: Rad<f32>,
     num_eaten: i32,
+    pub current_state: State,
     pub current_command: Command,
     pub health: i32,
     pub selected: bool,
@@ -58,7 +59,8 @@ impl Beetle {
             max_speed_units_per_tick: 0.0,
             rotation_radians_per_tick: Rad(0.10),
             num_eaten: 0,
-            current_command: Command::Idle,
+            current_state: State::Idle,
+            current_command: Command::Stop,
             health: 100, 
             selected: false,
             genome: BeetleGenome::new(),
@@ -148,7 +150,9 @@ impl Beetle {
             Command::Move{ position } => {
 
                 if self.basically_here(position) {
-                    Action::Nothing
+                    Action::Nothing {
+                        beetle_id: self.id,
+                    }
                 }
                 else {
                     Action::MoveToward {
@@ -160,7 +164,7 @@ impl Beetle {
             },
             Command::Interact { target_id } => {
                 if let Some(target) = beetles.get(&target_id) {
-                    if self.close_enough_to_interact(target.position) {
+                    if self.can_interact(target.position) {
                         if target.team_id != self.team_id {
                             Action::Attack{
                                 target_id: target_id,
@@ -168,7 +172,9 @@ impl Beetle {
                             }
                         }
                         else {
-                            Action::Nothing
+                            Action::Nothing {
+                                beetle_id: self.id,
+                            }
                         }
                     }
                     else {
@@ -187,14 +193,18 @@ impl Beetle {
                         self.take_food_to_base(&home_base)
                     }
                     else {
-                        Action::Nothing
+                        Action::Nothing {
+                            beetle_id: self.id,
+                        }
                     }
                 }
                 else if self.food_carrying > 0 {
                     self.take_food_to_closest_base(home_bases)
                 }
                 else {
-                    Action::Nothing
+                    Action::Nothing {
+                        beetle_id: self.id,
+                    }
                 }
             },
             Command::HarvestClosestFood => {
@@ -202,11 +212,15 @@ impl Beetle {
                    self.handle_collect_food_command(closest_food, home_bases)
                 }
                 else {
-                    Action::Nothing
+                    Action::Nothing {
+                        beetle_id: self.id,
+                    }
                 }
             },
-            Command::Idle => {
-                Action::Nothing
+            Command::Stop => {
+                Action::Nothing {
+                    beetle_id: self.id,
+                }
             },
         };
 
@@ -222,7 +236,7 @@ impl Beetle {
         //
         // get more food
         if self.food_carrying < self.carrying_capacity() {
-            if self.close_enough_to_interact(food_source.get_position()) {
+            if self.can_interact(food_source.get_position()) {
                 Action::TakeFood {
                     beetle_id: self.get_id(),
                     food_source_id: food_source.get_id(),
@@ -247,12 +261,14 @@ impl Beetle {
            self.take_food_to_base(closest_base)
         }
         else {
-            Action::Nothing
+            Action::Nothing {
+                beetle_id: self.id,
+            }
         }
     }
 
     fn take_food_to_base(&self, home_base: &HomeBase) -> Action {
-        if self.close_enough_to_interact(home_base.get_position()) {
+        if self.can_interact(home_base.get_position()) {
             Action::DumpFood {
                 beetle_id: self.get_id(),
                 home_base_id: home_base.get_id(),
@@ -294,11 +310,21 @@ impl Beetle {
         self.angle = Vector2::new(1.0, 0.0).angle(self.direction);
     }
 
+    fn can_interact(&self, target_position: Point2<f32>) -> bool {
+        self.close_enough_to_interact(target_position) &&
+            self.facing_target(target_position)
+    }
+
     fn close_enough_to_interact(&self, target_position: Point2<f32>) -> bool {
         let vector = target_position - self.position;
         let dist = vector.magnitude();
 
         return dist < 5.0;
+    }
+
+    fn facing_target(&self, target_position: Point2<f32>) -> bool {
+        let vector_to_target = target_position - self.position;
+        self.direction.angle(vector_to_target).0 < 0.1
     }
 
     pub fn basically_here(&self, position: Point2<f32>) -> bool {

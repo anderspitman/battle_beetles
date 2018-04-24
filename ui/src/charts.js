@@ -147,6 +147,7 @@ class ScatterPlot extends TwoJsChart {
     background.fill = '#ededed';
     background.noStroke();
 
+    this.maxPoints = maxPoints;
 
     this.xValues = [];
     this.yValues = [];
@@ -282,6 +283,11 @@ class ScatterPlot extends TwoJsChart {
   }
 
   addPoints({ xVals, yVals }) {
+
+    if (this.valuesIndex >= this.maxPoints) {
+      this.reset();
+      return;
+    }
 
     if (yVals.length < this.numVariables) {
       throw "not enough yVals for " + this.numVariables + " variables";

@@ -61,6 +61,8 @@ impl BeetleGenome {
                 // coordination (affects turning speed, etc)
                 // mandible size
                 // mandible strength
+                // attack angle
+                // more legs
             ],
         }
     }

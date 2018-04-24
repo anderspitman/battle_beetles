@@ -124,7 +124,6 @@ impl UI {
             new_beetle.set_body_width(beetle.body_width());
             new_beetle.set_body_length(beetle.body_length());
             new_beetle.set_food_carrying(beetle.food_carrying);
-            //println!("{}", beetle.body_length());
 
             let mut color = Color::new();
             color.set_r(beetle.color.r as i32);
@@ -228,7 +227,6 @@ impl UI {
         message.set_avg_speed(speeds_sum / len);
         message.set_avg_max_health(max_health_sum / len);
         message.set_avg_attack_power(attack_power_sum / len);
-        println!("{}", food_collected_sum / len);
         message.set_avg_food_collected(food_collected_sum / len);
         message.set_avg_size(sizes_sum / len);
 

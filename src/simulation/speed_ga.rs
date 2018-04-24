@@ -32,10 +32,7 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
         self.ui
     }
 
-    fn run_generation(&mut self) -> (Vec<f32>, Vec<BeetleGenome>) {
-
-        let mut fitnesses = Vec::new();
-        let mut genomes = Vec::new();
+    fn run_generation(&mut self) {
 
         let mut new_population = Beetles::new();
 
@@ -54,12 +51,6 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
             offspring1 = self.mutate(&parent1);
             offspring2 = self.mutate(&parent2);
 
-            fitnesses.push(self.fitness(&offspring1));
-            fitnesses.push(self.fitness(&offspring2));
-
-            genomes.push(offspring1.genome.clone());
-            genomes.push(offspring2.genome.clone());
-
             let color = Color { r: 144, g: 153, b: 212, a: 255 };
             offspring1.id = id;
             offspring1.team_id = id;
@@ -76,8 +67,6 @@ impl<'a> GeneticAlgorithm for SpeedGA<'a> {
         }
 
         self.game.field_state.beetles = new_population;
-
-        return (fitnesses, genomes);
     }
 
     fn fitness(&self, beetle: &Beetle) -> f32 {
