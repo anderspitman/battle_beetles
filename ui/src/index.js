@@ -413,7 +413,6 @@ function handleChartsIncremental(msg) {
 
   genotypeChart.addPoints({
       yVals: [
-        msg.getAvgSize(),
         msg.getAvgCarapaceDensity(),
         msg.getAvgStrength(),
         msg.getAvgQuickness(),

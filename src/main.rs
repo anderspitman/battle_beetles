@@ -21,10 +21,10 @@ mod entities;
 use game::{Game};
 use message_handler::MessageHandler;
 
-//use simulation::GeneticAlgorithm;
+use simulation::GeneticAlgorithm;
 //use simulation::speed_ga::SpeedGA;
 //use simulation::battle_ga::BattleGA;
-//use simulation::food_ga::FoodGA;
+use simulation::food_ga::FoodGA;
 //use simulation::Simulate;
 //use simulation::fight_simulation::FightSimulation;
 
@@ -52,10 +52,10 @@ fn main() {
     //let mut rng = thread_rng();
 
     //// run battle GA
-    game.add_food_source(512.0, 512.0);
-    game.add_home_base(128.0, 128.0);
-    game.set_random_population(
-            utils::POPULATION_SIZE, max_speed, max_rotation);
+    //game.add_food_source(512.0, 512.0);
+    //game.add_home_base(128.0, 128.0);
+    //game.set_random_population(
+    //        utils::POPULATION_SIZE, max_speed, max_rotation);
 
     //let mut battle_population;
     //{
@@ -90,19 +90,19 @@ fn main() {
     //    beetle.direction = Vector2::new(1.0, 0.0);
     //}
 
-    //let mut next_id = 0;
-    //let id_generator = || {
-    //    next_id += 1;
-    //    next_id
-    //};
+    let mut next_id = 0;
+    let id_generator = || {
+        next_id += 1;
+        next_id
+    };
 
-    //let population = Game::generate_random_population(
-    //        utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
+    let population = Game::generate_random_population(
+            utils::POPULATION_SIZE, max_speed, max_rotation, id_generator);
 
-    //{
-    //    let mut ga = FoodGA::new(&population, &ui);
-    //    ga.run();
-    //}
+    {
+        let mut ga = FoodGA::new(&population, &ui);
+        ga.run();
+    }
 
     //// reset population
     //game.field_state.beetles = Beetles::new();
