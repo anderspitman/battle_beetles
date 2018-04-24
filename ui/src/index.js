@@ -203,7 +203,7 @@ function renderHomeBases(bases) {
   const baseEnter = baseUpdate.enter()
     .append('g')
       .attr('class', 'base')
-      .on('click', (d) => {
+      .on('contextmenu', (d) => {
         d3.event.preventDefault();
         messageService.selectedInteractCommand({ targetId: d.getId() })
       })
@@ -223,6 +223,8 @@ function renderHomeBases(bases) {
       .attr('width', baseWidth)
       .attr('height', baseHeight)
       .attr('fill', '#724100')
+
+  baseUpdate.exit().remove();
 }
 
 function renderFoodSources(foods) {
@@ -235,7 +237,7 @@ function renderFoodSources(foods) {
   const enter = update.enter()
     .append('g')
       .attr('class', 'food')
-      .on('click', (d) =>{
+      .on('contextmenu', (d) =>{
         d3.event.preventDefault();
         messageService.selectedInteractCommand({ targetId: d.getId() })
       })
@@ -255,6 +257,8 @@ function renderFoodSources(foods) {
       .attr('width', width)
       .attr('height', height)
       .attr('fill', '#efc85d')
+
+  update.exit().remove();
 }
 
 function renderBeetles(beetles) {
@@ -331,6 +335,8 @@ function renderBeetles(beetles) {
   selectedIndicatorUpdate
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
       .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
+
+  beetleUpdate.exit().remove();
 }
 
 function calcHeadRadius(bodyWidth) {

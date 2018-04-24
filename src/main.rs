@@ -52,6 +52,8 @@ fn main() {
     //let mut rng = thread_rng();
 
     //// run battle GA
+    game.add_food_source(512.0, 512.0);
+    game.add_home_base(128.0, 128.0);
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 

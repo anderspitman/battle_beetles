@@ -92,16 +92,17 @@ impl Game {
         return id;
     }
 
-    pub fn generate_random_population(
-            population_size: i32, max_speed: f32, max_rotation: f32) -> Beetles {
+    pub fn generate_random_population<T: FnMut() -> Id>(
+            population_size: i32, max_speed: f32, max_rotation: f32,
+            mut id_generator: T) -> Beetles {
 
         let mut beetles = Beetles::new();
 
         let mut rng = thread_rng();
 
-        let mut next_id = 1;
-
         for _ in 0..population_size {
+
+            let id = id_generator();
 
             let mut genome = BeetleGenome::new();
                 genome.set_random_genome();
@@ -113,8 +114,7 @@ impl Game {
                 .genome(genome)
                 .build();
 
-            beetle.set_id(next_id);
-            next_id += 1;
+            beetle.set_id(id);
 
             beetles.insert(beetle.get_id(), beetle);
         }
@@ -127,8 +127,19 @@ impl Game {
             &mut self, population_size: i32, max_speed: f32,
             max_rotation: f32) {
 
-      self.field_state.beetles = Game::generate_random_population(
-          population_size, max_speed, max_rotation); 
+        let beetles;
+
+        {
+            let id_generator = || {
+                self.get_next_id()
+            };
+
+
+            beetles = Game::generate_random_population(
+                population_size, max_speed, max_rotation, id_generator); 
+        }
+
+        self.field_state.beetles = beetles;
     }
 
     pub fn select_beetle(&mut self, beetle_id: Id) {
@@ -282,8 +293,7 @@ impl Game {
     }
 
     pub fn add_food_source(&mut self, x: f32, y: f32) -> Id {
-        let id = self.next_id;
-        self.next_id += 1;
+        let id = self.get_next_id();
         let mut food_source = FoodSource::new(id);
         food_source.set_position(Point2::new(x, y));
         self.field_state.food_sources.insert(id, food_source);
