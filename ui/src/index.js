@@ -155,6 +155,44 @@ createFormationButton.onclick = (e) => {
   messageService.createFormation();
 }
 
+function renderBackground() {
+
+  // draw background
+  const background = svg.append('g')
+    .attr('class', 'background')
+    .on('contextmenu', (d) => {
+      d3.event.preventDefault();
+      messageService.selectedMoveCommand({
+        // accounts for where the canvas is on the page
+        x: d3.event.clientX - canvasRect.left,
+        y: d3.event.clientY - canvasRect.top,
+      });
+    })
+    .on('mousedown', (d) => {
+      dragging = true;
+      dragStart = getWorldPosition(d3.event)
+      d3.event.preventDefault();
+    })
+    .on('mouseup', (d) => {
+      const LEFT_MOUSE_BUTTON_ID = 0;
+      if (d3.event.button === LEFT_MOUSE_BUTTON_ID) {
+        dragEnd = getWorldPosition(d3.event)
+        dragging = false;
+        messageService.selectAllInArea({
+          x1: dragStart.x,
+          y1: dragStart.y,
+          x2: dragEnd.x,
+          y2: dragEnd.y, 
+        })
+      }
+    })
+
+  background.append('rect')
+    .attr('width', rightPanel.clientWidth)
+    .attr('height', rightPanel.clientHeight)
+    .attr('fill',   '#c98c5a')
+}
+
 function renderHomeBases(bases) {
   const baseWidth = 128;
   const baseHeight = baseWidth;
@@ -219,44 +257,6 @@ function renderFoodSources(foods) {
       .attr('fill', '#efc85d')
 }
 
-function renderBackground() {
-
-  // draw background
-  const background = svg.append('g')
-    .attr('class', 'background')
-    .on('contextmenu', (d) => {
-      d3.event.preventDefault();
-      messageService.selectedMoveCommand({
-        // accounts for where the canvas is on the page
-        x: d3.event.clientX - canvasRect.left,
-        y: d3.event.clientY - canvasRect.top,
-      });
-    })
-    .on('mousedown', (d) => {
-      dragging = true;
-      dragStart = getWorldPosition(d3.event)
-      d3.event.preventDefault();
-    })
-    .on('mouseup', (d) => {
-      const LEFT_MOUSE_BUTTON_ID = 0;
-      if (d3.event.button === LEFT_MOUSE_BUTTON_ID) {
-        dragEnd = getWorldPosition(d3.event)
-        dragging = false;
-        messageService.selectAllInArea({
-          x1: dragStart.x,
-          y1: dragStart.y,
-          x2: dragEnd.x,
-          y2: dragEnd.y, 
-        })
-      }
-    })
-
-  background.append('rect')
-    .attr('width', rightPanel.clientWidth)
-    .attr('height', rightPanel.clientHeight)
-    .attr('fill',   '#c98c5a')
-}
-
 function renderBeetles(beetles) {
   const beetleUpdate = svg.selectAll('.beetle')
     .data(beetles)
@@ -265,6 +265,7 @@ function renderBeetles(beetles) {
     .append('g')
       .attr('class', 'beetle')
       .on('click', (d) => {
+        console.log(d.getBodyWidth(), d.getBodyLength());
         if (!shiftKeyDown) {
           messageService.deselectAllBeetles()
         }
@@ -281,7 +282,7 @@ function renderBeetles(beetles) {
   const body = beetleEnter
     .append('rect')
       .attr('class', 'beetle__body')
-  const selectedIndicator = beetleEnter
+  beetleEnter
     .append('rect')
       .attr('class', 'beetle__selected-indicator')
       .attr('width', 50)
@@ -299,9 +300,18 @@ function renderBeetles(beetles) {
       })
       .attr('fill', '#1c1c1c')
 
-  body
-      .attr('x', (d) => -d.getBodyWidth() / 2)
-      .attr('y', (d) => -d.getBodyLength() / 2)
+  beetleUpdate
+      .attr('transform', (d) => {
+        const deg =  d.getAngle() * DEGREES_PER_RADIAN;
+        return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
+      })
+
+  const bodyUpdate = beetleUpdate
+    .select('.beetle__body')
+
+  bodyUpdate
+      .attr('x', (d) => -d.getBodyLength() / 2)
+      .attr('y', (d) => -d.getBodyWidth() / 2)
       .attr('width', (d) => {
         return d.getBodyLength()
       })
@@ -315,15 +325,10 @@ function renderBeetles(beetles) {
         return 'rgba('+r+','+g+','+b+','+a+')';
       })
 
-  selectedIndicator
-      .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
-
-  beetleUpdate
-      .attr('transform', (d) => {
-        const deg =  d.getAngle() * DEGREES_PER_RADIAN;
-        return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
-      })
+  const selectedIndicatorUpdate = beetleUpdate
     .select('.beetle__selected-indicator')
+
+  selectedIndicatorUpdate
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
       .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
 }

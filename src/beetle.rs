@@ -12,7 +12,7 @@ use utils::{
 //const MAX_QUICKNESS: f32 = 10.0;
 //const MAX_STRENGTH: f32 = 10.0;
 const MAX_BODY_LENGTH_UNITS: f32 = 40.0;
-const MAX_BODY_WIDTH_UNITS: f32 = MAX_BODY_LENGTH_UNITS;
+//const MAX_BODY_WIDTH_UNITS: f32 = MAX_BODY_LENGTH_UNITS;
 const MIN_BODY_LENGTH_UNITS: f32 = 10.0;
 const MIN_BODY_WIDTH_UNITS: f32 = MIN_BODY_LENGTH_UNITS;
 //const FOOD_SIZE_UNITS: f32 = MAX_SIZE_UNITS / 4.0;
@@ -91,7 +91,8 @@ impl Beetle {
     }
 
     pub fn body_width(&self) -> f32 {
-        let width_range = MAX_BODY_WIDTH_UNITS - MIN_BODY_WIDTH_UNITS;
+        let max_body_width = self.body_length();
+        let width_range = max_body_width - MIN_BODY_WIDTH_UNITS;
 
         (self.genome.get_gene(Gene::BodyWidth) * width_range) +
             MIN_BODY_WIDTH_UNITS

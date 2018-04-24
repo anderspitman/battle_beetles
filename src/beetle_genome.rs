@@ -80,6 +80,13 @@ impl BeetleGenome {
     pub fn set_random_genome(&mut self) {
 
         let mut rng = thread_rng();
+        self.set_gene_value(BeetleGeneIndex::CarapaceDensity, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::Strength, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::Quickness, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::Venomosity, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::MandibleSharpness, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::BodyWidth, rng.gen());
+        self.set_gene_value(BeetleGeneIndex::BodyLength, rng.gen());
     }
 
     pub fn get_gene(
