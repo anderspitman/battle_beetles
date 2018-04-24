@@ -292,12 +292,6 @@ function renderBeetles(beetles) {
       .attr('stroke', 'lightgreen')
       .attr('visibility', 'hidden')
 
-  beetleUpdate
-      .attr('transform', (d) => {
-        const deg =  d.getAngle() * DEGREES_PER_RADIAN;
-        return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
-      })
-
   head 
       .attr('r', (d) => calcHeadRadius(d.getBodyWidth()))
       .attr('cx', (d) => {
@@ -323,6 +317,15 @@ function renderBeetles(beetles) {
 
   selectedIndicator
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
+
+  beetleUpdate
+      .attr('transform', (d) => {
+        const deg =  d.getAngle() * DEGREES_PER_RADIAN;
+        return 'translate('+d.getX()+', '+d.getY()+') ' + 'rotate('+deg+') '
+      })
+    .select('.beetle__selected-indicator')
+      .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
+      .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
 }
 
 function calcHeadRadius(bodyWidth) {
