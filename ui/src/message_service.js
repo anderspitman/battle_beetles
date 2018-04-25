@@ -89,6 +89,13 @@ export class MessageService {
     this.socket.send(uiMessage.serializeBinary());
   }
 
+  runFightSimulation() {
+    const message = new messages.RunFightSimulation();
+    const uiMessage = new messages.UiMessage();
+    uiMessage.setRunFightSimulation(message);
+    this.socket.send(uiMessage.serializeBinary());
+  }
+
   createFormation() {
     const message = new messages.CreateFormation();
     const uiMessage = new messages.UiMessage();

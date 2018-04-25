@@ -1,10 +1,15 @@
+use std::thread;
+use std::time::{Instant, Duration};
+use utils;
 use simulation::GeneticAlgorithm;
-use game::Game;
+use game::{Game, FieldState};
 use gen::messages::UiMessage;
 use entities::{Beetles, BeetleBuilder};
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
 use simulation::food_ga::FoodGA;
+use simulation::Simulate;
+use simulation::fight_simulation::FightSimulation;
 use ui::UI;
 
 pub struct MessageHandler {
@@ -16,7 +21,7 @@ impl MessageHandler {
     }
 
     pub fn handle_message(
-            &mut self, game: &mut Game, ui: &UI, message: UiMessage) -> bool {
+            &mut self, mut game: &mut Game, ui: &UI, message: UiMessage) -> bool {
 
         let mut done = false;
 
@@ -85,6 +90,7 @@ impl MessageHandler {
                     *beetle = new_beetle;
                     (*beetle).id = *id;
                     (*beetle).position = pos;
+                    (*beetle).team_id = 0;
                 }
             }
             //let mut ga = BattleGA::new(game.field_state.beetles.clone(), &ui);
@@ -116,8 +122,37 @@ impl MessageHandler {
                     *beetle = new_beetle;
                     (*beetle).id = *id;
                     (*beetle).position = pos;
+                    (*beetle).team_id = 1;
                 }
             }
+        }
+        else if message.has_run_fight_simulation() {
+
+            let check_done_callback = |state: &FieldState| {
+                // whatever the first beetle's team is, make sure there are no
+                // enemies left.
+                if let Some(beetle) = state.beetles.iter().next() {
+                    let team_id = beetle.1.team_id;
+
+                    for other in state.beetles.values() {
+                        if other.team_id != team_id {
+                            return false;
+                        }
+                    }
+
+                    true
+                }
+                else {
+                    true
+                }
+            };
+            let mut sim = FightSimulation::new(&mut game, check_done_callback);
+            sim.set_tick_callback(|state| {
+                ui.update_game_state(&state);
+                //println!("{:?}", ui);
+                thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
+            });
+            sim.run();
         }
         else if message.has_create_formation() {
             game.create_formation();

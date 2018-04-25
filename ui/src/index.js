@@ -11,6 +11,7 @@ const addBeetleButton = document.getElementById('add-beetle-button');
 //const speedSimButton = document.getElementById('speed-sim-button');
 const battleSimButton = document.getElementById('battle-sim-button');
 const foodGAButton = document.getElementById('food-ga-button');
+const fightSimButton = document.getElementById('fight-sim-button');
 const createFormationButton = document.getElementById('create-formation-button');
 const DEGREES_PER_RADIAN = 57.2958;
 
@@ -159,6 +160,12 @@ foodGAButton.onclick = (e) => {
   phenotypeChart.reset();
   genotypeChart.reset();
   messageService.runFoodGA();
+}
+
+fightSimButton.onclick = (e) => {
+  phenotypeChart.reset();
+  genotypeChart.reset();
+  messageService.runFightSimulation();
 }
 
 createFormationButton.onclick = (e) => {
