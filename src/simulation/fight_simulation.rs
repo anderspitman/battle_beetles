@@ -1,5 +1,5 @@
 use simulation::Simulate;
-use game::{Game, FieldState, State, Command};
+use game::{Game, FieldState, State};
 
 // Represents a single fight, without generations.
 pub struct FightSimulation<'a, T: Fn(&FieldState), U: Fn(&FieldState) -> bool> {

@@ -1,5 +1,5 @@
 use std::thread;
-use std::time::{Instant, Duration};
+use std::time::{Duration};
 use utils;
 use simulation::GeneticAlgorithm;
 use game::{Game, FieldState};
@@ -11,6 +11,7 @@ use simulation::food_ga::FoodGA;
 use simulation::Simulate;
 use simulation::fight_simulation::FightSimulation;
 use ui::UI;
+use cgmath::Vector2;
 
 pub struct MessageHandler {
 }
@@ -91,6 +92,7 @@ impl MessageHandler {
                     (*beetle).id = *id;
                     (*beetle).position = pos;
                     (*beetle).team_id = 0;
+                    (*beetle).direction = Vector2::new(1.0, 0.0);
                 }
             }
             //let mut ga = BattleGA::new(game.field_state.beetles.clone(), &ui);
@@ -123,6 +125,7 @@ impl MessageHandler {
                     (*beetle).id = *id;
                     (*beetle).position = pos;
                     (*beetle).team_id = 1;
+                    (*beetle).direction = Vector2::new(-1.0, 0.0);
                 }
             }
         }

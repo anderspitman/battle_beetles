@@ -13,8 +13,8 @@ pub const STARTING_ID: Id = 1;
 #[derive(PartialEq, Serialize, Debug, Clone)]
 pub enum State {
     Idle,
-    Moving,
-    Attacking,
+    //Moving,
+    //Attacking,
 }
 
 #[derive(PartialEq, Serialize, Debug, Clone)]

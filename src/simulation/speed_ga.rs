@@ -2,7 +2,6 @@ use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game, STARTING_ID};
 use entities::{Beetle, Beetles};
-use beetle_genome::{BeetleGenome};
 use cgmath::{Point2};
 use rand::{Rng, thread_rng};
 use utils::{Color};

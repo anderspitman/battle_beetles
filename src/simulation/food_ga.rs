@@ -4,7 +4,6 @@ use std::thread;
 use simulation::GeneticAlgorithm;
 use ui::UI;
 use game::{Game, Command};
-use beetle_genome::{BeetleGenome};
 use utils::{SIMULATION_PERIOD_MS, Color};
 use entities::{Entity, Beetle, Beetles};
 

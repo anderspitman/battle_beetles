@@ -5,7 +5,6 @@ use simulation::fight_simulation::FightSimulation;
 use ui::UI;
 use game::{Game, FieldState, Command};
 use entities::{Beetle, Beetles};
-use beetle_genome::{BeetleGenome};
 use std::thread;
 use std::time::{Duration};
 use utils::{SIMULATION_PERIOD_MS, Color};
@@ -80,7 +79,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
             // TODO: should be a way to remove this. Currently its only
             // purpose is so the type checker knows what kind of closure to
             // implement above.
-            let ui = self.ui.clone();
+            //let ui = self.ui.clone();
             sim.set_tick_callback(move |_state| {
                 //ui.update_game_state(&_state);
                 //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
@@ -90,7 +89,7 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
 
         while self.game.field_state.beetles.len() < population_size as usize {
 
-            let mut offspring;
+            let offspring;
 
             // scope to satisfy borrow checker 
             {

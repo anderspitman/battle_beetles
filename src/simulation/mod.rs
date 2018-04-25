@@ -6,7 +6,6 @@ pub mod fight_simulation;
 use game::{Game};
 use ui::UI;
 use entities::{Beetle, Beetles};
-use beetle_genome::{BeetleGenome};
 use rand::{Rng, thread_rng};
 
 const NUM_GENERATIONS: i32 = 128;

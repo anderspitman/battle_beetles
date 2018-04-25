@@ -18,22 +18,12 @@ mod simulation;
 mod message_handler;
 mod entities;
 
-use game::{Game, FieldState};
+use game::{Game};
 use message_handler::MessageHandler;
-use entities::{Beetles};
-
-use simulation::GeneticAlgorithm;
-//use simulation::speed_ga::SpeedGA;
-use simulation::battle_ga::BattleGA;
-use simulation::food_ga::FoodGA;
-use simulation::Simulate;
-use simulation::fight_simulation::FightSimulation;
 
 use std::thread;
 use std::time::{Instant, Duration};
 //use rouille::Response;
-use rand::{Rng, thread_rng};
-use cgmath::{Vector2};
 
 
 fn main() {
@@ -48,8 +38,6 @@ fn main() {
 
     let max_rotation =
         utils::convert_value_for_sim_period(utils::ROTATION_RADIANS_PER_SECOND);
-
-    let mut rng = thread_rng();
 
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
