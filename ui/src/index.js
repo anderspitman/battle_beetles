@@ -331,7 +331,7 @@ function renderBeetles(data) {
 
   const beetles = gameContainer.select('.beetles')
   const beetleUpdate = beetles.selectAll('.beetle')
-    .data(data)
+    .data(data, (d) => d.getId())
 
   const beetleEnter = beetleUpdate.enter()
     .append('g')
@@ -347,6 +347,24 @@ function renderBeetles(data) {
         d3.event.preventDefault();
         messageService.selectedInteractCommand({ targetId: d.getId() })
       })
+
+  const legs = beetleEnter
+    .selectAll('.leg')
+    .data((d) => [d,d,d])
+    .enter()
+    .append('rect')
+      .attr('class', 'leg')
+      .attr('width', (d) => d.getBodyLength() / 10)
+      .attr('height', (d) => d.getBodyWidth() * 1.5)
+      .attr('x', (d, i) => i * (d.getBodyLength() / 3) - (d.getBodyLength() / 2 ) + 4)
+      .attr('y', (d) => -(d.getBodyWidth() * 1.5) / 2)
+  beetleUpdate
+    .selectAll('.leg')
+      // TODO: duplicate of above
+      .attr('width', (d) => d.getBodyLength() / 10)
+      .attr('height', (d) => d.getBodyWidth() * 1.5)
+      .attr('x', (d, i) => i * (d.getBodyLength() / 3) - (d.getBodyLength() / 2 ) + 4)
+      .attr('y', (d) => -(d.getBodyWidth() * 1.5) / 2)
 
   const head = beetleEnter
     .append('circle')
@@ -365,15 +383,15 @@ function renderBeetles(data) {
       .attr('stroke', 'lightgreen')
       .attr('visibility', 'hidden')
 
-  beetleEnter
-    .append('text')
-      .attr('class', 'beetle__text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'central')
-      .attr('font-size', 16)
-      .attr('font-weight', 'bold')
-      .attr('font-family', 'Helvetica')
-      .attr('fill', '#eeeeee')
+  //beetleEnter
+  //  .append('text')
+  //    .attr('class', 'beetle__text')
+  //    .attr('text-anchor', 'middle')
+  //    .attr('alignment-baseline', 'central')
+  //    .attr('font-size', 16)
+  //    .attr('font-weight', 'bold')
+  //    .attr('font-family', 'Helvetica')
+  //    .attr('fill', '#eeeeee')
 
   head 
       .attr('fill', '#1c1c1c')
@@ -385,8 +403,8 @@ function renderBeetles(data) {
       })
   const bodyUpdate = beetleUpdate
     .select('.beetle__body')
-  const textUpdate = beetleUpdate
-    .select('.beetle__text')
+  //const textUpdate = beetleUpdate
+  //  .select('.beetle__text')
   const headUpdate = beetleUpdate
     .select('.beetle__head')
 
@@ -419,11 +437,11 @@ function renderBeetles(data) {
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
       .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
 
-  textUpdate
-      .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
-      .attr('x', (d) => d.getBodyLength() / 2)
-      .attr('y', (d) => -d.getBodyLength() / 2)
-      .text((d) => d.getFoodCarrying())
+  //textUpdate
+  //    .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
+  //    .attr('x', (d) => d.getBodyLength() / 2)
+  //    .attr('y', (d) => -d.getBodyLength() / 2)
+  //    .text((d) => d.getFoodCarrying())
 
   beetleUpdate.exit().remove();
 }

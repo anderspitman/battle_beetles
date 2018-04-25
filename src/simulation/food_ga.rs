@@ -71,24 +71,17 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
         while new_population.len() < self.game.field_state.beetles.len() {
 
             let parent1_id = self.tournament_select_individual();
-            let parent2_id = self.tournament_select_individual();
 
             let new_id1 = self.game.get_next_id();
-            let new_id2 = self.game.get_next_id();
 
-            let parent1 = self.game.field_state.beetles.get(&parent1_id).unwrap();
-            let parent2 = self.game.field_state.beetles.get(&parent2_id).unwrap();
+            let parent1 = self.game.field_state.beetles.get(&parent1_id).unwrap().clone();
 
             let mut offspring1;
-            let mut offspring2;
 
             offspring1 = self.mutate(&parent1);
             offspring1.set_id(new_id1);
-            offspring2 = self.mutate(&parent2);
-            offspring2.set_id(new_id2);
 
             new_population.insert(offspring1.get_id(), offspring1);
-            new_population.insert(offspring2.get_id(), offspring2);
         }
 
         self.game.field_state.beetles = new_population;
