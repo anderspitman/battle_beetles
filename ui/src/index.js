@@ -38,11 +38,27 @@ const svg = d3.select(canvas)
     .attr('class', 'svg-canvas')
     .attr('width', rightPanel.clientWidth)
     .attr('height', rightPanel.clientHeight)
+
+const gameContainer = svg.append('g')
+    .attr('class', 'game-container')
+
+//svg.call(d3.zoom()
+//    .scaleExtent([1 / 4, 8])
+//    .on("zoom", zoomed))
+//    .on("mousedown.zoom", null)
+//    .on("touchstart.zoom", null)
+//    .on("touchmove.zoom", null)
+//    .on("touchend.zoom", null)
+
+function zoomed() {
+  gameContainer.attr("transform", d3.event.transform);
+}
+
 const canvasRect = canvas.getBoundingClientRect();
 
 renderBackground();
 
-svg.append('g')
+gameContainer.append('g')
     .attr('class', 'beetles')
 
 let shiftKeyDown = false;
@@ -175,7 +191,7 @@ createFormationButton.onclick = (e) => {
 function renderBackground() {
 
   // draw background
-  const background = svg.append('g')
+  const background = gameContainer.append('g')
     .attr('class', 'background')
     .on('contextmenu', (d) => {
       d3.event.preventDefault();
@@ -191,6 +207,7 @@ function renderBackground() {
       d3.event.preventDefault();
     })
     .on('mouseup', (d) => {
+      //console.log(d3.event);
       const LEFT_MOUSE_BUTTON_ID = 0;
       if (d3.event.button === LEFT_MOUSE_BUTTON_ID) {
         dragEnd = getWorldPosition(d3.event)
@@ -205,8 +222,12 @@ function renderBackground() {
     })
 
   background.append('rect')
-    .attr('width', rightPanel.clientWidth)
-    .attr('height', rightPanel.clientHeight)
+    //.attr('width', rightPanel.clientWidth)
+    //.attr('height', rightPanel.clientHeight)
+    .attr('width', 5000)
+    .attr('height', 5000)
+    .attr('x', -2500)
+    .attr('y', -2500)
     .attr('fill',   '#c98c5a')
 }
 
@@ -214,7 +235,7 @@ function renderHomeBases(bases) {
   const baseWidth = 128;
   const baseHeight = baseWidth;
 
-  const baseUpdate = svg.selectAll('.base')
+  const baseUpdate = gameContainer.selectAll('.base')
     .data(bases)
 
   const baseEnter = baseUpdate.enter()
@@ -260,7 +281,7 @@ function renderFoodSources(foods) {
   const width = 64;
   const height = width;
 
-  const update = svg.selectAll('.food')
+  const update = gameContainer.selectAll('.food')
     .data(foods)
 
   const enter = update.enter()
@@ -303,7 +324,7 @@ function renderFoodSources(foods) {
 
 function renderBeetles(data) {
 
-  const beetles = svg.select('.beetles')
+  const beetles = gameContainer.select('.beetles')
   const beetleUpdate = beetles.selectAll('.beetle')
     .data(data)
 
