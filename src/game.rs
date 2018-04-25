@@ -61,7 +61,7 @@ pub struct FieldState {
     pub food_sources: FoodSources,
     pub beetles: Beetles,
     home_bases: HomeBases,
-    selected_beetles: Vec<Id>,
+    pub selected_beetles: Vec<Id>,
 }
 
 impl FieldState {
@@ -119,8 +119,8 @@ impl Game {
             let mut beetle = BeetleBuilder::new()
                 .max_speed_units_per_tick(max_speed)
                 .rotation_radians_per_tick(Rad(max_rotation))
-                .x_pos(rng.gen_range(0.0, 500.0))
-                .y_pos(rng.gen_range(0.0, 500.0))
+                .x_pos(rng.gen_range(100.0, 600.0))
+                .y_pos(rng.gen_range(100.0, 600.0))
                 .genome(genome)
                 .build();
 

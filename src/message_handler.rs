@@ -1,7 +1,7 @@
 use simulation::GeneticAlgorithm;
 use game::Game;
 use gen::messages::UiMessage;
-use entities::BeetleBuilder;
+use entities::{Beetles, BeetleBuilder};
 use simulation::speed_ga::SpeedGA;
 use simulation::battle_ga::BattleGA;
 use simulation::food_ga::FoodGA;
@@ -62,17 +62,62 @@ impl MessageHandler {
         }
         else if message.has_run_battle_simulation() {
 
-            let mut ga = BattleGA::new(game.field_state.beetles.clone(), &ui);
-            ga.run();
+            // TODO: so many clones
+            // also copypasta from below
+            let mut population = Beetles::new();
+            let ids = game.field_state.selected_beetles.clone();
 
-            game.set_population(ga.get_population().clone());
+            for beetle_id in &ids  {
+                if let Some(beetle) = game.field_state.beetles.get(&beetle_id) {
+                    population.insert(beetle.id, beetle.clone());
+                }
+            }
+
+            {
+                let mut ga = BattleGA::new(population, &ui);
+                ga.run();
+                population = ga.get_population().clone();
+            }
+
+            for (id, (_, new_beetle)) in ids.iter().zip(population.into_iter()) {
+                if let Some(beetle) = game.field_state.beetles.get_mut(&id) {
+                    let pos = (*beetle).position;
+                    *beetle = new_beetle;
+                    (*beetle).id = *id;
+                    (*beetle).position = pos;
+                }
+            }
+            //let mut ga = BattleGA::new(game.field_state.beetles.clone(), &ui);
+            //ga.run();
+
+            //game.set_population(ga.get_population().clone());
         }
         else if message.has_run_food_ga() {
 
-            let mut ga = FoodGA::new(game.field_state.beetles.clone(), &ui);
-            ga.run();
+            // TODO: so many clones
+            let mut population = Beetles::new();
+            let ids = game.field_state.selected_beetles.clone();
 
-            game.set_population(ga.get_population().clone());
+            for beetle_id in &ids  {
+                if let Some(beetle) = game.field_state.beetles.get(&beetle_id) {
+                    population.insert(beetle.id, beetle.clone());
+                }
+            }
+
+            {
+                let mut ga = FoodGA::new(population, &ui);
+                ga.run();
+                population = ga.get_population().clone();
+            }
+
+            for (id, (_, new_beetle)) in ids.iter().zip(population.into_iter()) {
+                if let Some(beetle) = game.field_state.beetles.get_mut(&id) {
+                    let pos = (*beetle).position;
+                    *beetle = new_beetle;
+                    (*beetle).id = *id;
+                    (*beetle).position = pos;
+                }
+            }
         }
         else if message.has_create_formation() {
             game.create_formation();
