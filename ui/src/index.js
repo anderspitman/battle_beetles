@@ -62,23 +62,33 @@ window.onkeydown = function(e) {
 // TODO: get from server
 const numGenerations = 128;
 
-const phenotypeChart = new Charts.ScatterPlot({
-  title: "Phenotypes",
-  xLabel: "Generation",
-  yLabel: "Average Phenotype Values",
-  domElementId: 'chart-pheno',
-  yMin: 0,
-  yMax: 100,
-  maxPoints: numGenerations,
-  variableNames: [
-    "Avg Speed",
-    "Avg Max Health",
-    "Avg Attack Power",
-    "Avg Food Collected",
-    "Avg Size",
-  ],
-  legend: true,
-});
+//const phenotypeChart = new Charts.ScatterPlot({
+//  title: "Phenotypes",
+//  xLabel: "Generation",
+//  yLabel: "Average Phenotype Values",
+//  domElementId: 'chart-pheno',
+//  yMin: 0,
+//  yMax: 100,
+//  maxPoints: numGenerations,
+//  variableNames: [
+//    "Avg Speed",
+//    "Avg Max Health",
+//    "Avg Attack Power",
+//    "Avg Food Collected",
+//    "Avg Size",
+//  ],
+//  legend: true,
+//});
+
+const varNames = [
+  "Avg Density",
+  "Avg Strength",
+  "Avg Quickness",
+  "Avg Venomosity",
+  "Avg Mandible Sharpness",
+  "Avg Body Width",
+  "Avg Body Length",
+]
 
 const genotypeChart = new Charts.ScatterPlot({
   title: "Genotypes",
@@ -88,19 +98,26 @@ const genotypeChart = new Charts.ScatterPlot({
   yMin: 0,
   yMax: 1,
   maxPoints: numGenerations,
-  variableNames: [
-    "Avg Density",
-    "Avg Strength",
-    "Avg Quickness",
-    "Avg Venomosity",
-    "Avg Mandible Sharpness",
-    "Avg Body Width",
-    "Avg Body Length",
-  ],
-  legend: true,
+  variableNames: varNames,
+  //legend: true,
 });
 
-phenotypeChart.reset();
+const geneBarChart = new Charts.BarChart({
+  title: "Genotypes",
+  domElementId: 'gene-bar-chart',
+  yMin: 0,
+  yMax: 1,
+  maxPoints: numGenerations,
+  variableNames: varNames,
+})
+
+const legendChart = new Charts.LegendChart({
+  title: "Legend",
+  domElementId: 'gene-legend-chart',
+  variableNames: varNames,
+});
+
+//phenotypeChart.reset();
 genotypeChart.reset();
 
 const messageService = new MessageService();
@@ -155,19 +172,19 @@ addBeetleButton.onclick = (e) => {
 //}
 
 battleSimButton.onclick = (e) => {
-  phenotypeChart.reset();
+  //phenotypeChart.reset();
   genotypeChart.reset();
   messageService.runBattleSimulation();
 }
 
 foodGAButton.onclick = (e) => {
-  phenotypeChart.reset();
+  //phenotypeChart.reset();
   genotypeChart.reset();
   messageService.runFoodGA();
 }
 
 fightSimButton.onclick = (e) => {
-  phenotypeChart.reset();
+  //phenotypeChart.reset();
   genotypeChart.reset();
   messageService.runFightSimulation();
 }
@@ -428,84 +445,31 @@ function handleStateUpdate(gameState) {
 function handleChartsIncremental(msg) {
   const avgSpeed = msg.getAvgSpeed();
 
-  phenotypeChart.addPoints({
-      yVals: [
-        msg.getAvgSpeed(),
-        msg.getAvgMaxHealth(),
-        msg.getAvgAttackPower(),
-        msg.getAvgFoodCollected(),
-        msg.getAvgSize(),
-      ],
-  });
+  //phenotypeChart.addPoints({
+  //    yVals: [
+  //      msg.getAvgSpeed(),
+  //      msg.getAvgMaxHealth(),
+  //      msg.getAvgAttackPower(),
+  //      msg.getAvgFoodCollected(),
+  //      msg.getAvgSize(),
+  //    ],
+  //});
+
+  const geneVals = [
+    msg.getAvgCarapaceDensity(),
+    msg.getAvgStrength(),
+    msg.getAvgQuickness(),
+    msg.getAvgVenomosity(),
+    msg.getAvgMandibleSharpness(),
+    msg.getAvgBodyWidth(),
+    msg.getAvgBodyLength(),
+  ]
 
   genotypeChart.addPoints({
-      yVals: [
-        msg.getAvgCarapaceDensity(),
-        msg.getAvgStrength(),
-        msg.getAvgQuickness(),
-        msg.getAvgVenomosity(),
-        msg.getAvgMandibleSharpness(),
-        msg.getAvgBodyWidth(),
-        msg.getAvgBodyLength(),
-      ],
+      yVals: geneVals,
   });
-}
 
-function handleChartsUpdate(chartsMessage) {
-
-  const avgSpeeds = chartsMessage.getAvgSpeedsList();
-  const maxFitnessList = chartsMessage.getMaxFitnessesList();
-  const avgSizeList = chartsMessage.getAverageSizesList();
-  const avgDensityList = chartsMessage.getAverageDensitiesList();
-  const avgStrengthList = chartsMessage.getAverageStrengthsList();
-  const avgQuicknessList = chartsMessage.getAverageQuicknessesList();
-  
-  for (let i = 0; i < avgSpeeds.length; i++) {
-
-    phenotypeChart.addPoints({
-      yVals: [
-        avgSpeeds[i].getValue(),
-        maxFitnessList[i].getValue()
-      ],
-    });
-
-    genotypeChart.addPoints({
-      yVals: [
-        avgSizeList[i].getValue(),
-        avgDensityList[i].getValue(),
-        avgStrengthList[i].getValue(),
-        avgQuicknessList[i].getValue(),
-      ],
-    });
-  }
-}
-
-function matchArrays(model, vis, createNew) {
-  if (vis.length < model.length) {
-
-    for (let i = vis.length; i < model.length; i++) {
-      if (vis[i]) {
-        vis[i].obj.visible = true;
-      }
-      else {
-        vis.push(createNew());
-      }
-    }
-  }
-  else if (vis.length >= model.length) {
-
-    for (let i = 0; i < model.length; i++) {
-        vis[i].obj.visible = true;
-    }
-
-    for (let i = model.length; i < vis.length; i++) {
-      vis[i].obj.visible = false;
-
-      if (vis[i].selectedIndicator) {
-        vis[i].selectedIndicator.visible = false;
-      }
-    }
-  }
+  geneBarChart.update({ data: geneVals })
 }
 
 function createSelecticle() {
@@ -520,68 +484,6 @@ function getWorldPosition(e) {
       x: e.clientX - canvasRect.left,
       y: e.clientY - canvasRect.top
     }
-}
-
-function createBeetle() {
-
-  const selectedIndicator = two.makeRectangle(0, 0, 50, 50);
-  selectedIndicator.stroke = 'lightgreen';
-  selectedIndicator.fill = 'none';
-
-  const body = two.makeRectangle(0, 0, beetleDim.width, beetleDim.length);
-  body.fill = '#679b50';
-  const head = two.makeCircle(17, 0, beetleDim.headRadius);
-  head.fill = '#1c1c1c';
-  const newBeetle = two.makeGroup(body, head);
-
-  //const vectorLine = two.makeLine(0, 0, 0, 0);
-  //vectorLines.push(vectorLine);
-
-  return {
-    obj: newBeetle,
-    selectedIndicator: selectedIndicator,
-    body: body,
-  };
-}
-
-function drawBeetle(beetle, index) {
-  const visualBeetleData = visualBeetles[index];
-  const visualBeetle = visualBeetleData.obj;
-  const body = visualBeetleData.body;
-
-  // use width for scale heuristic
-  const scale = beetle.getBodyLength() / beetleDim.length;
-  //if (index === 0) {
-  //  console.log(beetle.getBodyLength(), scale);
-  //}
-
-  const selectedIndicator = visualBeetleData.selectedIndicator;
-  selectedIndicator.translation.set(beetle.getX(), beetle.getY());
-  selectedIndicator.scale = scale;
-
-  if (beetle.getSelected()) {
-    selectedIndicator.visible = true;
-  }
-  else {
-    selectedIndicator.visible = false;
-  }
-
-  visualBeetle.translation.set(beetle.getX(), beetle.getY());
-  visualBeetle.rotation = beetle.getAngle();
-  visualBeetle.scale = scale;
-
-  const color = beetle.getColor();
-  const r = color.getR();
-  const g = color.getG();
-  const b = color.getB();
-  const a = color.getA();
-  body.fill = 'rgba('+r+','+g+','+b+','+a+')';
-
-  //const line = vectorLines[index];
-  //const [anchor1, anchor2] = line.vertices;
-  //anchor1.set(beetle.position.x, beetle.position.y);
-  //anchor2.set(beetle.position.x + (beetle.direction.x * 50),
-  //  beetle.position.y + (beetle.direction.y * 50));
 }
 
 function getViewportDimensions() {

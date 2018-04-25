@@ -68,6 +68,134 @@ class Chart {
   }
 }
 
+class D3Chart extends Chart {
+  constructor({
+    title,
+    domElementId,
+  }) {
+
+    super({ title, domElementId })
+
+    this.svg = this.container
+      .append("svg")
+        .attr("width", this.width)
+        .attr("height", this.height)
+  }
+}
+
+class BarChart extends D3Chart {
+  constructor({
+    title,
+    domElementId,
+    yMin,
+    yMax,
+  }) {
+
+    super({ title, domElementId })
+
+    this.yMin = yMin
+    this.yMax = yMax
+
+    // background
+    this.svg.append('rect')
+        .attr('fill', '#ededed')
+        .attr('width', this.width)
+        .attr('height', this.height)
+
+    this.yScale = d3.scaleLinear()
+      .domain([yMin, yMax])
+      //.range([this.height - this.margins.bottom, this.margins.top])
+      .range([this.height, 0])
+
+    this.g = this.svg.append('g')
+        .attr('class', 'bar-chart')
+  }
+
+  update({ data }) {
+
+    const xScale = d3.scaleBand()
+      .domain(data)
+      .rangeRound([0, this.width]).padding(0.4)
+
+    const barUpdate = this.g.selectAll('.bar')
+      .data(data)
+
+    const barEnter = barUpdate.enter()
+
+    const barWidth = this.width / data.length
+
+    barEnter.append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => i*barWidth)
+        .attr('width', xScale.bandwidth())
+        .attr('fill', (d, i) => COLORS[i])
+        .attr('stroke', 'black')
+        .attr('stroke-width', 2)
+
+    barUpdate
+        .attr('y', (d) => this.yScale(d))
+        .attr('height', (d) => this.height - this.yScale(d))
+
+  }
+
+}
+
+class LegendChart extends D3Chart {
+  constructor({
+    title,
+    domElementId,
+    variableNames,
+  }) {
+
+    super({ title, domElementId })
+
+    this.numVariables = variableNames.length
+    this.variableNames = variableNames
+
+    this.makeLegend()
+  }
+
+  makeLegend() {
+
+    const g = this.svg
+      .append("g")
+        .attr("class", "chart__legend")
+        //.attr("transform", translate(this.width - 175, this.height - 175)) 
+
+    const variable = g
+      .selectAll(".chart__legend__variable")
+        .data(COLORS.slice(0, this.numVariables))
+      .enter()
+      .append("g")
+        .attr("class", "chart__legend__variable")
+        .attr("transform", (d, i) => {
+          const columnLength = 4;
+          if (i >= columnLength) {
+            return translate(180, (i-columnLength)*22)
+          }
+          else {
+            return translate(0, i*22)
+          }
+        })
+    
+    variable.append("rect")
+        .attr("width", 20)
+        .attr("height", 20)
+        //.attr("y", (d, i) => i*20)
+        .attr("fill", (d) => d)
+        .attr('stroke', 'black')
+        .attr('stroke-width', 1)
+
+    variable.append("text")
+        .text((d, i) => this.variableNames[i])
+        .attr("x", (d, i) => 28)
+        .attr("y", (d, i) => 15)
+        .attr("font-weight", "bold")
+        .attr("font-size", 18)
+
+  }
+}
+
 
 class TwoJsChart extends Chart {
   constructor({
@@ -358,176 +486,10 @@ class ScatterPlot extends TwoJsChart {
   }
 }
 
-
-class Graph extends TwoJsChart {
-  constructor({
-    title,
-    domElementId,
-    vertices,
-    edges,
-  }) {
-    super({ title, domElementId });
-
-    this.edges = edges;
-
-    const background =
-      this.two.makeRectangle(
-        this.centerX, this.centerY, this.width, this.height);
-    background.fill = '#ededed';
-
-    const group = this.two.makeGroup();
-    group.translation.set(this.centerX, this.centerY);
-
-    this.elem.addEventListener('wheel', (e) => {
-
-      const zoomFactor = 0.2;
-
-      if (e.deltaY > 0) {
-        group.scale -= zoomFactor * group.scale;
-      }
-      else {
-        group.scale += zoomFactor * group.scale;
-      }
-
-      this.two.update();
-    });
-
-    const sim = d3.forceSimulation(vertices)
-     .force("charge", d3.forceManyBody().strength(-100))
-     .force("link", d3.forceLink(edges).distance(100))
-     .force("center", d3.forceCenter());
-
-    this.visEdges = [];
-    for (let edge of edges) {
-      const newEdge = this.two.makeLine(0, 0, 10, 10);
-      newEdge.stroke = '#bbbbbb';
-      this.visEdges.push(newEdge);
-      group.add(newEdge);
-    }
-
-    this.visVertices = [];
-    for (let vertex of vertices) {
-      const newVertex = this.two.makeCircle(0, 0, 10);
-      newVertex.fill = GRAPH_COLORS[0];
-      this.visVertices.push(newVertex);
-      group.add(newVertex);
-    }
-    
-    sim.on('tick', () => {
-
-      for (let i = 0; i < this.visEdges.length; i++) {
-        const edge = this.visEdges[i];
-        const [anchor1, anchor2] = edge.vertices;
-        // TODO: use this method for updating:
-        // https://github.com/jonobr1/two.js/issues/271
-        anchor1.set(edges[i].source.x, edges[i].source.y);
-        anchor2.set(edges[i].target.x, edges[i].target.y);
-      }
-
-      for (let i = 0; i < this.visVertices.length; i++) {
-        const vertex = this.visVertices[i];
-        vertex.translation.set(vertices[i].x, vertices[i].y);
-      }
-
-      this.two.update();
-    });
-
-    this.two.update();
-  }
-
-  update(colorIndices, maxIndividual) {
-
-    for (let i = 0; i < this.visVertices.length; i++) {
-      this.visVertices[i].fill = GRAPH_COLORS[colorIndices[i]];
-    }
-
-    for (let i = 0; i < this.visEdges.length; i++) {
-
-      const sourceIndex = this.edges[i].source.index;
-      const targetIndex = this.edges[i].target.index;
-
-      if (this.visVertices[sourceIndex].fill ===
-          this.visVertices[targetIndex].fill) {
-        this.visEdges[i].stroke = 'red';
-        this.visEdges[i].linewidth = 5;
-      }
-      else {
-        this.visEdges[i].stroke = '#bbbbbb';
-        this.visEdges[i].linewidth = null;
-      }
-    }
-
-    this.two.update();
-  }
-}
-
-class DiversityPlot extends Chart {
-  constructor({
-    title,
-    domElementId,
-    numGenerations,
-    maxValue,
-  }) {
-
-    super({ title, domElementId });
-
-    this.elem = document.getElementById(domElementId);
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
-    this.elem.appendChild(this.canvas);
-
-    //this.scale = d3.scaleOrdinal(COLORS.slice(0, 4))
-    //  .domain([0, 1]);
-
-    const ctx = this.canvas.getContext('2d');
-    this.ctx = ctx;
-
-    this.reset();
-
-    this.numGenerations = numGenerations;
-  }
-
-  appendGeneration(diversityData) {
-
-    // TODO: figure out if there's any way sorting could make canvas run
-    // faster (or slower), ie from not having to move the ctx as far between
-    // draws? idk probably not an issue
-    //diversityData.sort();
-
-    const ctx = this.ctx;
-
-    //ctx.clearRect(0, 0, this.width, this.height);
-
-    ctx.globalAlpha = 0.1;
-
-    ctx.fillStyle = COLORS[3];
-
-    const ySize = this.height / this.numGenerations;
-
-    const yPos = this.generationIndex * ySize;
-
-    for (let i = 0; i < diversityData.length; i++) {
-      const xPos = diversityData[i] * this.width;
-      ctx.fillRect(xPos, yPos, 2, ySize);
-    }
-
-    ctx.globalAlpha = 1.0;
-
-    ++this.generationIndex;
-  }
-
-  reset() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    this.ctx.strokeRect(0, 0, this.width - 1, this.height - 1);
-    this.generationIndex = 0;
-  }
-}
-
 module.exports = {
   ScatterPlot,
-  Graph,
-  DiversityPlot,
+  BarChart,
+  LegendChart,
   COLORS,
   GRAPH_COLORS,
 };

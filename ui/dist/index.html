@@ -27,13 +27,24 @@
 
     #right-panel {
         flex: 2;
+        height: 96vh;
     }
 
     .chart {
         width: 100%;
         /*height: 500px;*/
-        height: 48vh;
+        height: 40vh;
         /*display: inline-block;*/
+    }
+
+    .bar-chart {
+        width: 100%;
+        height: 40vh;
+    }
+
+    .legend-chart {
+        width: 100%;
+        height: 15vh;
     }
 
     .chart__title {
@@ -75,8 +86,12 @@
 <body>
   <div class='container'>
     <div id='left-panel'>
+      <!--
       <div id='chart-pheno' class='chart'></div>
+      -->
       <div id='chart-genes' class='chart'></div>
+      <div id='gene-bar-chart' class='bar-chart'></div>
+      <div id='gene-legend-chart' class='legend-chart'></div>
     </div>
     <div id='right-panel'>
       <div id="canvas"></div>
