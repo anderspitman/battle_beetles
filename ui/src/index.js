@@ -15,23 +15,11 @@ const fightSimButton = document.getElementById('fight-sim-button');
 const createFormationButton = document.getElementById('create-formation-button');
 const DEGREES_PER_RADIAN = 57.2958;
 
-const viewportDimensions = getViewportDimensions();
-const buttonRowHeight = 50;
-
 const beetleDim = {
   width: 20,
   length: 20,
   headRadius: 7,
 };
-
-const params = {
-  //width: viewportDimensions.width,
-  width: rightPanel.clientWidth,
-  height: viewportDimensions.height - buttonRowHeight,
-  //height: rightPanel.clientHeight,
-  //type: Two.Types.webgl,
-};
-//const two = new Two(params).appendTo(canvas);
 
 const svg = d3.select(canvas)
   .append('svg')

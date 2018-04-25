@@ -119,8 +119,8 @@ impl Game {
             let mut beetle = BeetleBuilder::new()
                 .max_speed_units_per_tick(max_speed)
                 .rotation_radians_per_tick(Rad(max_rotation))
-                .x_pos(rng.gen_range(50.0, 750.0))
-                .y_pos(rng.gen_range(50.0, 750.0))
+                .x_pos(rng.gen_range(25.0, 700.0))
+                .y_pos(rng.gen_range(25.0, 700.0))
                 .genome(genome)
                 .build();
 
