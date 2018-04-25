@@ -91,7 +91,7 @@ impl MessageHandler {
                     *beetle = new_beetle;
                     (*beetle).id = *id;
                     (*beetle).position = pos;
-                    (*beetle).team_id = 0;
+                    (*beetle).team_id = 1;
                     (*beetle).direction = Vector2::new(1.0, 0.0);
                 }
             }
@@ -124,7 +124,7 @@ impl MessageHandler {
                     *beetle = new_beetle;
                     (*beetle).id = *id;
                     (*beetle).position = pos;
-                    (*beetle).team_id = 1;
+                    (*beetle).team_id = 2;
                     (*beetle).direction = Vector2::new(-1.0, 0.0);
                 }
             }

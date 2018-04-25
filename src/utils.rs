@@ -6,7 +6,7 @@ pub const MIN_SPEED_UNITS_PER_SECOND: f32 = 10.0;
 pub const ROTATION_RADIANS_PER_SECOND: f32 = 3.14159;
 pub const MS_PER_SECOND: f32 = 1000.0;
 //pub const POPULATION_SIZE: i32 = 20;
-pub const POPULATION_SIZE: i32 = 64;
+pub const POPULATION_SIZE: i32 = 128;
 
 pub trait Positioned {
     fn get_position(&self) -> Point2<f32>;

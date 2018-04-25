@@ -119,8 +119,8 @@ impl Game {
             let mut beetle = BeetleBuilder::new()
                 .max_speed_units_per_tick(max_speed)
                 .rotation_radians_per_tick(Rad(max_rotation))
-                .x_pos(rng.gen_range(100.0, 600.0))
-                .y_pos(rng.gen_range(100.0, 600.0))
+                .x_pos(rng.gen_range(50.0, 750.0))
+                .y_pos(rng.gen_range(50.0, 750.0))
                 .genome(genome)
                 .build();
 
@@ -219,7 +219,7 @@ impl Game {
         // create rectangular formation in upper left corner of bounding box
         let (x1, y1, _, _) = self.calculate_selected_bounding_box();
 
-        let spacing = 80.0;
+        let spacing = 42.0;
         let column_width = 8;
         let mut row = -1;
 
