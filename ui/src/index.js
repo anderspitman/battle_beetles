@@ -365,15 +365,15 @@ function renderBeetles(data) {
       .attr('stroke', 'lightgreen')
       .attr('visibility', 'hidden')
 
-  beetleEnter
-    .append('text')
-      .attr('class', 'beetle__text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'central')
-      .attr('font-size', 16)
-      .attr('font-weight', 'bold')
-      .attr('font-family', 'Helvetica')
-      .attr('fill', '#eeeeee')
+  //beetleEnter
+  //  .append('text')
+  //    .attr('class', 'beetle__text')
+  //    .attr('text-anchor', 'middle')
+  //    .attr('alignment-baseline', 'central')
+  //    .attr('font-size', 16)
+  //    .attr('font-weight', 'bold')
+  //    .attr('font-family', 'Helvetica')
+  //    .attr('fill', '#eeeeee')
 
   head 
       .attr('fill', '#1c1c1c')
@@ -385,8 +385,8 @@ function renderBeetles(data) {
       })
   const bodyUpdate = beetleUpdate
     .select('.beetle__body')
-  const textUpdate = beetleUpdate
-    .select('.beetle__text')
+  //const textUpdate = beetleUpdate
+  //  .select('.beetle__text')
   const headUpdate = beetleUpdate
     .select('.beetle__head')
 
@@ -419,11 +419,11 @@ function renderBeetles(data) {
       .attr('visibility', (d) => d.getSelected() ? 'visible' : 'hidden')
       .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
 
-  textUpdate
-      .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
-      .attr('x', (d) => d.getBodyLength() / 2)
-      .attr('y', (d) => -d.getBodyLength() / 2)
-      .text((d) => d.getFoodCarrying())
+  //textUpdate
+  //    .attr('transform', (d) => 'rotate('+(-d.getAngle() * DEGREES_PER_RADIAN)+')')
+  //    .attr('x', (d) => d.getBodyLength() / 2)
+  //    .attr('y', (d) => -d.getBodyLength() / 2)
+  //    .text((d) => d.getFoodCarrying())
 
   beetleUpdate.exit().remove();
 }
