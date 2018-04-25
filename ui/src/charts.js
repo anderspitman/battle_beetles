@@ -131,6 +131,8 @@ class BarChart extends D3Chart {
         .attr('fill', (d, i) => COLORS[i])
         .attr('stroke', 'black')
         .attr('stroke-width', 2)
+        .attr('y', (d) => this.yScale(d))
+        .attr('height', (d) => this.height - this.yScale(d))
 
     barUpdate
         .attr('y', (d) => this.yScale(d))

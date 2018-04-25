@@ -28,6 +28,8 @@ impl MessageHandler {
 
         if message.has_select_beetle() {
             game.select_beetle(message.get_select_beetle().get_beetle_id());
+            
+            update_charts(&game, &ui);
         }
         else if message.has_select_all_in_area() {
             let x1 = message.get_select_all_in_area().get_x1();
@@ -36,12 +38,15 @@ impl MessageHandler {
             let y2 = message.get_select_all_in_area().get_y2();
 
             game.select_all_in_area(x1, y1, x2, y2);
+
+            update_charts(&game, &ui);
         }
         else if message.has_selected_move_command() {
             game.selected_move_command(
                 message.get_selected_move_command().get_x(),
                 message.get_selected_move_command().get_y());
         }
+        // TODO: not currently used because drag select is catching it
         else if message.has_deselect_all_beetles() {
             game.deselect_all_beetles();
         }
@@ -162,5 +167,22 @@ impl MessageHandler {
         }
 
         return done;
+    }
+}
+
+fn update_charts(game: &Game, ui: &UI) {
+    let mut selected = Beetles::new();
+
+    for beetle_id in &game.field_state.selected_beetles {
+        if let Some(beetle) = game.field_state.beetles.get(&beetle_id) {
+            selected.insert(beetle.id, beetle.clone());
+        }
+    }
+
+    if selected.len() > 0 {
+        ui.update_charts_incremental(&selected);
+    }
+    else {
+        ui.update_charts_incremental(&game.field_state.beetles);
     }
 }
