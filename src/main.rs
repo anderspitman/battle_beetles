@@ -17,12 +17,15 @@ mod gen;
 mod simulation;
 mod message_handler;
 mod entities;
-
-use game::{Game};
-use message_handler::MessageHandler;
+mod experiment;
 
 use std::thread;
 use std::time::{Instant, Duration};
+
+use game::{Game};
+use message_handler::MessageHandler;
+use experiment::run_experiment;
+
 //use rouille::Response;
 
 
@@ -41,6 +44,8 @@ fn main() {
 
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
+
+    run_experiment(&ui);
 
     
     let mut message_handler = MessageHandler::new();

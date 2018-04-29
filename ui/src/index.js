@@ -329,6 +329,10 @@ function renderFoodSources(foods) {
 
 function renderBeetles(data) {
 
+  // TODO: there's some descrepancy between the enter and update selections.
+  // when new beetles are added they aren't properly rendered until update
+  // is called. The result is that one-shot updates don't work.
+
   const beetles = gameContainer.select('.beetles')
   const beetleUpdate = beetles.selectAll('.beetle')
     .data(data)

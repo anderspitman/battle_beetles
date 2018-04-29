@@ -33,16 +33,16 @@ impl Color {
 
 
 
-//pub fn mean(values: &Vec<f32>) -> f32 {
-//    let mut sum = 0.0;
-//
-//    for value in values {
-//        sum += value;
-//    }
-//
-//    sum / (values.len() as f32)
-//}
-//
+pub fn mean(values: &Vec<f32>) -> f32 {
+    let mut sum = 0.0;
+
+    for value in values {
+        sum += value;
+    }
+
+    sum / (values.len() as f32)
+}
+
 //pub fn max(values: &Vec<f32>) -> f32 {
 //    let mut cur_max = 0.0;
 //
