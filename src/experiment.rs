@@ -5,13 +5,13 @@ use std::io::prelude::*;
 use std::fs::File;
 
 use cgmath::{Vector2, InnerSpace};
-use serde_json;
+//use serde_json;
 
 use game::{Game, FieldState, Command};
 use ui::UI;
 use entities::{Id, Beetles};
 use utils::{
-    mean, convert_value_for_sim_period, POPULATION_SIZE,
+    convert_value_for_sim_period, POPULATION_SIZE,
     MAX_SPEED_UNITS_PER_SECOND, ROTATION_RADIANS_PER_SECOND,
     SIMULATION_PERIOD_MS
 };
@@ -21,20 +21,15 @@ use simulation::GeneticAlgorithm;
 use simulation::battle_ga::BattleGA;
 use simulation::food_ga::FoodGA;
 
-const NUM_ITERATIONS: usize = 3;
+const NUM_ITERATIONS: usize = 1024;
 const FORMATION_SPACING: f32 = 50.0;
 const FORMATION_COLUMN_WIDTH: usize = 8;
 const TEAM0_START_X: f32 = 50.0;
 const TEAM0_START_Y: f32 = 50.0;
 const TEAM1_START_X: f32 = 600.0;
 const TEAM1_START_Y: f32 = 50.0;
+const TEAM_SIZE: i32 = POPULATION_SIZE / 2;
 
-
-#[derive(Serialize, Debug)]
-struct ExperimentResult {
-    team0: Vec<i32>,
-    team1: Vec<i32>,
-}
 
 #[derive(Debug)]
 struct SimulationResult {
@@ -45,7 +40,7 @@ struct SimulationResult {
 #[derive(Debug)]
 struct BattleResult {
     winning_team_id: Id,
-    final_population_size: i32,
+    surviving_population_ratio: f32,
 }
 
 #[derive(Debug)]
@@ -56,8 +51,10 @@ struct FoodResult {
 
 pub fn run_experiment(ui: &UI) {
 
-    let mut team0_pops = Vec::with_capacity(NUM_ITERATIONS);
-    let mut team1_pops = Vec::with_capacity(NUM_ITERATIONS);
+    let mut team0_battle_file = File::create("team0_battle_victories.txt").unwrap();
+    let mut team1_battle_file = File::create("team1_battle_victories.txt").unwrap();
+    let mut team0_food_file = File::create("team0_food_victories.txt").unwrap();
+    let mut team1_food_file = File::create("team1_food_victories.txt").unwrap();
 
     for i in 0..NUM_ITERATIONS {
 
@@ -66,32 +63,28 @@ pub fn run_experiment(ui: &UI) {
 
         println!("{:?}", result);
 
-        //if result.winning_team_id == 0 {
-        //    team0_pops.push(result.final_population_size);
-        //}
-        //else if result.winning_team_id == 1 {
-        //    team1_pops.push(result.final_population_size);
-        //}
-        //else {
-        //    panic!("Invalid team id {}", result.winning_team_id);
-        //}
+        if result.battle_result.winning_team_id == 0 {
+            write!(team0_battle_file, "{}\n", result.battle_result.surviving_population_ratio).unwrap();
+        }
+        else if result.battle_result.winning_team_id == 1 {
+            write!(team1_battle_file, "{}\n", result.battle_result.surviving_population_ratio).unwrap();
+        }
+        else {
+            panic!("Invalid battle team id {}", result.battle_result.winning_team_id);
+        }
+
+        if result.food_result.winning_team_id == 0 {
+            write!(team0_food_file, "{}\n", result.food_result.victory_ratio).unwrap();
+        }
+        else if result.food_result.winning_team_id == 1 {
+            write!(team1_food_file, "{}\n", result.food_result.victory_ratio).unwrap();
+        }
+        else {
+            panic!("Invalid food team id {}", result.food_result.winning_team_id);
+        }
     }
 
-    let team0_avg_pop = mean(&team0_pops.iter().map(|pop| *pop as f32).collect());
-    println!("{:?}", team0_pops);
-    println!("{}", team0_avg_pop);
-    let team1_avg_pop = mean(&team1_pops.iter().map(|pop| *pop as f32).collect());
-    println!("{:?}", team1_pops);
-    println!("{}", team1_avg_pop);
-
-    let experiment_result = ExperimentResult {
-        team0: team0_pops,
-        team1: team1_pops,
-    };
-
-    if let Ok(mut f) = File::create("data.json") {
-        f.write_all(serde_json::to_string(&experiment_result).unwrap().as_bytes()).unwrap();
-    }
+    //out_file.write_all(serde_json::to_string(&experiment_result).unwrap().as_bytes()).unwrap();
 }
 
 fn run_iteration(ui: &UI) -> SimulationResult {
@@ -132,13 +125,16 @@ fn run_food_simulation(population: Beetles, ui: &UI) -> FoodResult {
     }
 
     for beetle in game.field_state.beetles.values_mut() {
+        // point all beetles down
+        beetle.direction = Vector2::new(0.0, 1.0);
+        beetle.angle = Vector2::new(1.0, 0.0).angle(beetle.direction);
         beetle.set_command(Command::HarvestClosestFood);
     }
 
     for _ in 0..1000 {
         game.tick();
-        ui.update_game_state(&game.field_state);
-        thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+        //ui.update_game_state(&game.field_state);
+        //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
     }
 
     let mut team0_sum = 0;
@@ -198,9 +194,8 @@ fn run_battle_simulation(population: Beetles, ui: &UI) -> BattleResult {
     {
         let mut sim = FightSimulation::new(&mut game, check_done_callback);
         sim.set_tick_callback(|state| {
-            ui.update_game_state(&state);
-            //println!("{:?}", ui);
-            thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+            //ui.update_game_state(&state);
+            //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
         });
         sim.run();
     }
@@ -210,15 +205,11 @@ fn run_battle_simulation(population: Beetles, ui: &UI) -> BattleResult {
         winning_team_id = beetle.1.team_id;
     }
 
-    let final_population_size = game.field_state.beetles.len() as i32;
-
-    //ui.update_game_state(&game.field_state);
-    //ui.update_game_state(&game.field_state);
-    //thread::sleep(Duration::from_secs(3));
+    let surviving_population_ratio = (game.field_state.beetles.len() as f32) / (TEAM_SIZE as f32);
 
     BattleResult {
         winning_team_id,
-        final_population_size,
+        surviving_population_ratio,
     }
 
 }
@@ -235,7 +226,7 @@ fn evolve_battle_population<T: FnMut() -> Id>(
         convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
 
     let mut battle_beetles = Game::generate_random_population(
-            POPULATION_SIZE / 2, max_speed, max_rotation, id_generator);
+            TEAM_SIZE, max_speed, max_rotation, id_generator);
 
     {
         let mut ga = BattleGA::new(battle_beetles, &ui);
@@ -278,7 +269,7 @@ fn evolve_food_population<T: FnMut() -> Id>(
         convert_value_for_sim_period(ROTATION_RADIANS_PER_SECOND);
 
     let mut food_beetles = Game::generate_random_population(
-            POPULATION_SIZE / 2, max_speed, max_rotation, id_generator);
+            TEAM_SIZE, max_speed, max_rotation, id_generator);
 
     {
         let mut ga = FoodGA::new(food_beetles, &ui);

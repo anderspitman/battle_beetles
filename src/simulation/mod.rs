@@ -37,14 +37,14 @@ pub trait GeneticAlgorithm {
 
             self.run_generation();
 
-            self.get_ui().update_charts_incremental(
-                &self.get_game().field_state.beetles
-            );
+            //self.get_ui().update_charts_incremental(
+            //    &self.get_game().field_state.beetles
+            //);
         }
 
         self.cleanup();
 
-        self.get_ui().update_game_state(&self.get_game().field_state);
+        //self.get_ui().update_game_state(&self.get_game().field_state);
     }
 
     fn run_generation(&mut self);

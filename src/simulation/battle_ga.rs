@@ -104,8 +104,8 @@ impl<'a> GeneticAlgorithm for BattleGA<'a> {
         // TODO: I think they're still running and killing a few off after
         // the sim ends
         
-        self.ui.update_game_state(&self.game.field_state);
-        thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+        //self.ui.update_game_state(&self.game.field_state);
+        //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
     }
 
 }
