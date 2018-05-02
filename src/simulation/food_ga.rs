@@ -93,8 +93,8 @@ impl<'a> GeneticAlgorithm for FoodGA<'a> {
 
         self.game.field_state.beetles = new_population;
 
-        //self.ui.update_game_state(&self.game.field_state);
-        //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+        self.ui.update_game_state(&self.game.field_state);
+        thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
     }
 
     fn fitness(&self, beetle: &Beetle) -> f32 {

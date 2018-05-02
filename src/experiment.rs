@@ -133,8 +133,8 @@ fn run_food_simulation(population: Beetles, ui: &UI) -> FoodResult {
 
     for _ in 0..1000 {
         game.tick();
-        //ui.update_game_state(&game.field_state);
-        //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+        ui.update_game_state(&game.field_state);
+        thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
     }
 
     let mut team0_sum = 0;
@@ -194,8 +194,8 @@ fn run_battle_simulation(population: Beetles, ui: &UI) -> BattleResult {
     {
         let mut sim = FightSimulation::new(&mut game, check_done_callback);
         sim.set_tick_callback(|state| {
-            //ui.update_game_state(&state);
-            //thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
+            ui.update_game_state(&state);
+            thread::sleep(Duration::from_millis(SIMULATION_PERIOD_MS));
         });
         sim.run();
     }
