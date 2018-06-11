@@ -45,31 +45,31 @@ fn main() {
     game.set_random_population(
             utils::POPULATION_SIZE, max_speed, max_rotation);
 
-    run_experiment(&ui);
+    //run_experiment(&ui);
 
     
-    //let mut message_handler = MessageHandler::new();
+    let mut message_handler = MessageHandler::new();
 
-    //let mut done = false;
-    //while !done {
-    //    
-    //    ui.update_game_state(game.tick());
+    let mut done = false;
+    while !done {
+        
+        ui.update_game_state(game.tick());
 
-    //    let messages = ui.get_all_messages();
+        let messages = ui.get_all_messages();
 
-    //    for message in messages {
+        for message in messages {
 
-    //        let timer = Instant::now();
-    //        done = message_handler.handle_message(&mut game, &ui, message);
-    //        println!("Message handling time: {:?}", duration_as_float(timer.elapsed()));
+            let timer = Instant::now();
+            done = message_handler.handle_message(&mut game, &ui, message);
+            println!("Message handling time: {:?}", duration_as_float(timer.elapsed()));
 
-    //        if done {
-    //            break;
-    //        }
-    //    }
+            if done {
+                break;
+            }
+        }
 
-    //    thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
-    //}
+        thread::sleep(Duration::from_millis(utils::SIMULATION_PERIOD_MS));
+    }
 
     ui.shutdown();
 }
